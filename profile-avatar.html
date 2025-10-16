@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://kit.fontawesome.com/b68be37945.js" crossorigin="anonymous"></script>
+     
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <title>Setup Profile</title>
+    <style>
+      /* Combined input.css and output.css into one inline stylesheet */
+      /*! tailwindcss v4.1.11 | MIT License | https://tailwindcss.com */
+      @layer properties;
+      @layer theme, base, components, utilities;
+      @layer theme {
+        :root, :host {
+          --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+            "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+          --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+            "Courier New", monospace;
+          --color-gray-50: oklch(98.5% 0.002 247.839);
+          --color-gray-500: oklch(55.1% 0.027 264.364);
+          --color-gray-600: oklch(44.6% 0.03 256.802);
+          --color-gray-700: oklch(37.3% 0.034 259.733);
+          --color-neutral-300: oklch(87% 0 0);
+          --color-neutral-400: oklch(70.8% 0 0);
+          --color-neutral-800: oklch(26.9% 0 0);
+          --color-black: #000;
+          --color-white: #fff;
+          --spacing: 0.25rem;
+          --text-xs: 0.75rem;
+          --text-xs--line-height: calc(1 / 0.75);
+          --text-sm: 0.875rem;
+          --text-sm--line-height: calc(1.25 / 0.875);
+          --text-xl: 1.25rem;
+          --text-xl--line-height: calc(1.75 / 1.25);
+          --text-2xl: 1.5rem;
+          --text-2xl--line-height: calc(2 / 1.5);
+          --font-weight-light: 300;
+          --font-weight-medium: 500;
+          --font-weight-semibold: 600;
+          --radius-lg: 0.5rem;
+          --radius-2xl: 1rem;
+          --radius-4xl: 2rem;
+          --ease-out: cubic-bezier(0, 0, 0.2, 1);
+          --default-transition-duration: 150ms;
+          --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+          --default-font-family: var(--font-sans);
+          --default-mono-font-family: var(--font-mono);
+        }
+      }
+      @layer base {
+        *, ::after, ::before, ::backdrop, ::file-selector-button {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+          border: 0 solid;
+        }
+        html, :host {
+          line-height: 1.5;
+          -webkit-text-size-adjust: 100%;
+          tab-size: 4;
+          font-family: var(--default-font-family, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");
+          font-feature-settings: var(--default-font-feature-settings, normal);
+          font-variation-settings: var(--default-font-variation-settings, normal);
+          -webkit-tap-highlight-color: transparent;
+        }
+        hr {
+          height: 0;
+          color: inherit;
+          border-top-width: 1px;
+        }
+        abbr:where([title]) {
+          -webkit-text-decoration: underline dotted;
+          text-decoration: underline dotted;
+        }
+        h1, h2, h3, h4, h5, h6 {
+          font-size: inherit;
+          font-weight: inherit;
+        }
+        a {
+          color: inherit;
+          -webkit-text-decoration: inherit;
+          text-decoration: inherit;
+        }
+        b, strong {
+          font-weight: bolder;
+        }
+        code, kbd, samp, pre {
+          font-family: var(--default-mono-font-family, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
+          font-feature-settings: var(--default-mono-font-feature-settings, normal);
+          font-variation-settings: var(--default-mono-font-variation-settings, normal);
+          font-size: 1em;
+        }
+        small {
+          font-size: 80%;
+        }
+        sub, sup {
+          font-size: 75%;
+          line-height: 0;
+          position: relative;
+          vertical-align: baseline;
+        }
+        sub {
+          bottom: -0.25em;
+        }
+        sup {
+          top: -0.5em;
+        }
+        table {
+          text-indent: 0;
+          border-color: inherit;
+          border-collapse: collapse;
+        }
+        :-moz-focusring {
+          outline: auto;
+        }
+        progress {
+          vertical-align: baseline;
+        }
+        summary {
+          display: list-item;
+        }
+        ol, ul, menu {
+          list-style: none;
+        }
+        img, svg, video, canvas, audio, iframe, embed, object {
+          display: block;
+          vertical-align: middle;
+        }
+        img, video {
+          max-width: 100%;
+          height: auto;
+        }
+        button, input, select, optgroup, textarea, ::file-selector-button {
+          font: inherit;
+          font-feature-settings: inherit;
+          font-variation-settings: inherit;
+          letter-spacing: inherit;
+          color: inherit;
+          border-radius: 0;
+          background-color: transparent;
+          opacity: 1;
+        }
+        :where(select:is([multiple], [size])) optgroup {
+          font-weight: bolder;
+        }
+        :where(select:is([multiple], [size])) optgroup option {
+          padding-inline-start: 20px;
+        }
+        ::file-selector-button {
+          margin-inline-end: 4px;
+        }
+        ::placeholder {
+          opacity: 1;
+        }
+        @supports (not (-webkit-appearance: -apple-pay-button))  or (contain-intrinsic-size: 1px) {
+          ::placeholder {
+            color: currentcolor;
+            @supports (color: color-mix(in lab, red, red)) {
+              color: color-mix(in oklab, currentcolor 50%, transparent);
+            }
+          }
+        }
+        textarea {
+          resize: vertical;
+        }
+        ::-webkit-search-decoration {
+          -webkit-appearance: none;
+        }
+        ::-webkit-date-and-time-value {
+          min-height: 1lh;
+          text-align: inherit;
+        }
+        ::-webkit-datetime-edit {
+          display: inline-flex;
+        }
+        ::-webkit-datetime-edit-fields-wrapper {
+          padding: 0;
+        }
+        ::-webkit-datetime-edit, ::-webkit-datetime-edit-year-field, ::-webkit-datetime-edit-month-field, ::-webkit-datetime-edit-day-field, ::-webkit-datetime-edit-hour-field, ::-webkit-datetime-edit-minute-field, ::-webkit-datetime-edit-second-field, ::-webkit-datetime-edit-millisecond-field, ::-webkit-datetime-edit-meridiem-field {
+          padding-block: 0;
+        }
+        :-moz-ui-invalid {
+          box-shadow: none;
+        }
+        button, input:where([type="button"], [type="reset"], [type="submit"]), ::file-selector-button {
+          appearance: button;
+        }
+        ::-webkit-inner-spin-button, ::-webkit-outer-spin-button {
+          height: auto;
+        }
+        [hidden]:where(:not([hidden="until-found"])) {
+          display: none !important;
+        }
+      }
+      @layer utilities {
+        .visible {
+          visibility: visible;
+        }
+        .absolute {
+          position: absolute;
+        }
+        .relative {
+          position: relative;
+        }
+        .right-0 {
+          right: calc(var(--spacing) * 0);
+        }
+        .right-4 {
+          right: calc(var(--spacing) * 4);
+        }
+        .bottom-0 {
+          bottom: calc(var(--spacing) * 0);
+        }
+        .bottom-2\.5 {
+          bottom: calc(var(--spacing) * 2.5);
+        }
+        .z-10 {
+          z-index: 10;
+        }
+        .container {
+          width: 100%;
+          @media (width >= 40rem) {
+            max-width: 40rem;
+          }
+          @media (width >= 48rem) {
+            max-width: 48rem;
+          }
+          @media (width >= 64rem) {
+            max-width: 64rem;
+          }
+          @media (width >= 80rem) {
+            max-width: 80rem;
+          }
+          @media (width >= 96rem) {
+            max-width: 96rem;
+          }
+        }
+        .mx-auto {
+          margin-inline: auto;
+        }
+        .my-auto {
+          margin-block: auto;
+        }
+        .mb-2 {
+          margin-bottom: calc(var(--spacing) * 2);
+        }
+        .mb-4 {
+          margin-bottom: calc(var(--spacing) * 4);
+        }
+        .block {
+          display: block;
+        }
+        .flex {
+          display: flex;
+        }
+        .grid {
+          display: grid;
+        }
+        .hidden {
+          display: none;
+        }
+        .h-6 {
+          height: calc(var(--spacing) * 6);
+        }
+        .h-16 {
+          height: calc(var(--spacing) * 16);
+        }
+        .h-20 {
+          height: calc(var(--spacing) * 20);
+        }
+        .h-24 {
+          height: calc(var(--spacing) * 24);
+        }
+        .h-40 {
+          height: calc(var(--spacing) * 40);
+        }
+        .h-\[22rem\] {
+          height: 22rem;
+        }
+        .h-\[100dvh\] {
+          height: 100dvh;
+        }
+        .w-6 {
+          width: calc(var(--spacing) * 6);
+        }
+        .w-16 {
+          width: calc(var(--spacing) * 16);
+        }
+        .w-24 {
+          width: calc(var(--spacing) * 24);
+        }
+        .w-40 {
+          width: calc(var(--spacing) * 40);
+        }
+        .w-full {
+          width: 100%;
+        }
+        .max-w-\[25rem\] {
+          max-width: 25rem;
+        }
+        .flex-1 {
+          flex: 1;
+        }
+        .flex-shrink {
+          flex-shrink: 1;
+        }
+        .shrink-0 {
+          flex-shrink: 0;
+        }
+        .transform {
+          transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
+        }
+        .cursor-pointer {
+          cursor: pointer;
+        }
+        .resize {
+          resize: both;
+        }
+        .resize-none {
+          resize: none;
+        }
+        .grid-cols-3 {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        .flex-col {
+          flex-direction: column;
+        }
+        .items-center {
+          align-items: center;
+        }
+        .items-start {
+          align-items: flex-start;
+        }
+        .justify-between {
+          justify-content: space-between;
+        }
+        .justify-center {
+          justify-content: center;
+        }
+        .gap-2 {
+          gap: calc(var(--spacing) * 2);
+        }
+        .gap-3 {
+          gap: calc(var(--spacing) * 3);
+        }
+        .gap-4 {
+          gap: calc(var(--spacing) * 4);
+        }
+        .gap-6 {
+          gap: calc(var(--spacing) * 6);
+        }
+        .gap-7 {
+          gap: calc(var(--spacing) * 7);
+        }
+        .overflow-auto {
+          overflow: auto;
+        }
+        .overflow-hidden {
+          overflow: hidden;
+        }
+        .rounded-2xl {
+          border-radius: var(--radius-2xl);
+        }
+        .rounded-4xl {
+          border-radius: var(--radius-4xl);
+        }
+        .rounded-full {
+          border-radius: calc(infinity * 1px);
+        }
+        .rounded-lg {
+          border-radius: var(--radius-lg);
+        }
+        .border {
+          border-style: var(--tw-border-style);
+          border-width: 1px;
+        }
+        .border-0 {
+          border-style: var(--tw-border-style);
+          border-width: 0px;
+        }
+        .border-neutral-300 {
+          border-color: var(--color-neutral-300);
+        }
+        .bg-\[\#91FF5166\] {
+          background-color: #91FF5166;
+        }
+        .bg-\[\#F5F5F5\] {
+          background-color: #F5F5F5;
+        }
+        .bg-\[\#FFFFFF\] {
+          background-color: #FFFFFF;
+        }
+        .bg-black {
+          background-color: var(--color-black);
+        }
+        .bg-gray-50 {
+          background-color: var(--color-gray-50);
+        }
+        .bg-neutral-300 {
+          background-color: var(--color-neutral-300);
+        }
+        .bg-transparent {
+          background-color: transparent;
+        }
+        .bg-white {
+          background-color: var(--color-white);
+        }
+        .object-contain {
+          object-fit: contain;
+        }
+        .object-cover {
+          object-fit: cover;
+        }
+        .p-2 {
+          padding: calc(var(--spacing) * 2);
+        }
+        .p-4 {
+          padding: calc(var(--spacing) * 4);
+        }
+        .px-2 {
+          padding-inline: calc(var(--spacing) * 2);
+        }
+        .px-4 {
+          padding-inline: calc(var(--spacing) * 4);
+        }
+        .px-5 {
+          padding-inline: calc(var(--spacing) * 5);
+        }
+        .py-1\.5 {
+          padding-block: calc(var(--spacing) * 1.5);
+        }
+        .py-4 {
+          padding-block: calc(var(--spacing) * 4);
+        }
+        .py-5 {
+          padding-block: calc(var(--spacing) * 5);
+        }
+        .text-center {
+          text-align: center;
+        }
+        .text-left {
+          text-align: left;
+        }
+        .text-2xl {
+          font-size: var(--text-2xl);
+          line-height: var(--tw-leading, var(--text-2xl--line-height));
+        }
+        .text-sm {
+          font-size: var(--text-sm);
+          line-height: var(--tw-leading, var(--text-sm--line-height));
+        }
+        .text-xl {
+          font-size: var(--text-xl);
+          line-height: var(--tw-leading, var(--text-xl--line-height));
+        }
+        .text-xs {
+          font-size: var(--text-xs);
+          line-height: var(--tw-leading, var(--text-xs--line-height));
+        }
+        .leading-1 {
+          --tw-leading: calc(var(--spacing) * 1);
+          line-height: calc(var(--spacing) * 1);
+        }
+        .font-light {
+          --tw-font-weight: var(--font-weight-light);
+          font-weight: var(--font-weight-light);
+        }
+        .font-medium {
+          --tw-font-weight: var(--font-weight-medium);
+          font-weight: var(--font-weight-medium);
+        }
+        .font-semibold {
+          --tw-font-weight: var(--font-weight-semibold);
+          font-weight: var(--font-weight-semibold);
+        }
+        .text-black {
+          color: var(--color-black);
+        }
+        .text-gray-500 {
+          color: var(--color-gray-500);
+        }
+        .text-gray-600 {
+          color: var(--color-gray-600);
+        }
+        .text-gray-700 {
+          color: var(--color-gray-700);
+        }
+        .text-neutral-400 {
+          color: var(--color-neutral-400);
+        }
+        .text-neutral-800 {
+          color: var(--color-neutral-800);
+        }
+        .text-white {
+          color: var(--color-white);
+        }
+        .lowercase {
+          text-transform: lowercase;
+        }
+        .uppercase {
+          text-transform: uppercase;
+        }
+        .opacity-50 {
+          opacity: 50%;
+        }
+        .shadow-md {
+          --tw-shadow: 0 4px 6px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 2px 4px -2px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+          box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+        }
+        .ring-2 {
+          --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+          box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+        }
+        .ring-black {
+          --tw-ring-color: var(--color-black);
+        }
+        .outline {
+          outline-style: var(--tw-outline-style);
+          outline-width: 1px;
+        }
+        .backdrop-filter {
+          -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+          backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+        }
+        .transition {
+          transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, visibility, content-visibility, overlay, pointer-events;
+          transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+          transition-duration: var(--tw-duration, var(--default-transition-duration));
+        }
+        .transition-colors {
+          transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
+          transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+          transition-duration: var(--tw-duration, var(--default-transition-duration));
+        }
+        .transition-transform {
+          transition-property: transform, translate, scale, rotate;
+          transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+          transition-duration: var(--tw-duration, var(--default-transition-duration));
+        }
+        .ease-out {
+          --tw-ease: var(--ease-out);
+          transition-timing-function: var(--ease-out);
+        }
+        .hover\:scale-95 {
+          &:hover {
+            @media (hover: hover) {
+              --tw-scale-x: 95%;
+              --tw-scale-y: 95%;
+              --tw-scale-z: 95%;
+              scale: var(--tw-scale-x) var(--tw-scale-y);
+            }
+          }
+        }
+        .hover\:gap-3 {
+          &:hover {
+            @media (hover: hover) {
+              gap: calc(var(--spacing) * 3);
+            }
+          }
+        }
+        .hover\:bg-\[\#F5F5F5\] {
+          &:hover {
+            @media (hover: hover) {
+              background-color: #F5F5F5;
+            }
+          }
+        }
+        .focus\:ring-2 {
+          &:focus {
+            --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+            box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+          }
+        }
+        .focus\:ring-black {
+          &:focus {
+            --tw-ring-color: var(--color-black);
+          }
+        }
+        .focus\:outline-none {
+          &:focus {
+            --tw-outline-style: none;
+            outline-style: none;
+          }
+        }
+        .lg\:h-\[12rem\] {
+          @media (width >= 64rem) {
+            height: 12rem;
+          }
+        }
+        .xl\:h-\[20rem\] {
+          @media (width >= 80rem) {
+            height: 20rem;
+          }
+        }
+      }
+
+      /* Custom scrollbar styles from input.css */
+      .trick::-webkit-scrollbar {
+        width: 4px;
+      }
+      .trick::-webkit-scrollbar-thumb {
+        background-color: #ffffff;
+        border-radius: 8px;
+      }
+      .trick::-webkit-scrollbar-track {
+        background-color: #ffffff;
+      }
+      .trick {
+        scrollbar-width: thin;
+        scrollbar-color: #5C5470 #ffffff;
+        -ms-overflow-style: none;
+      }
+      .trick:hover {
+        scrollbar-color: #5C5470 #ffffff;
+      }
+      .dark .trick::-webkit-scrollbar-thumb {
+        background-color: #ffffff;
+      }
+      .dark .trick::-webkit-scrollbar-track {
+        background-color: #ffffff;
+      }
+      .dark .trick {
+        scrollbar-color: #6b9080 #ffffff;
+      }
+      .dark .trick:hover {
+        scrollbar-color: #6b9080 #ffffff;
+      }
+
+      /* Original profile setup styles */
+      .active {
+        display: grid;
+      }
+      .hidden {
+        display: none;
+      }
+      .rounded-4xl {
+        border-radius: 2rem;
+      }
+      .actives {
+        display: flex;
+      }
+      .loading-spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid transparent;
+        border-top: 2px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      /* Loading Overlay - Light opacity with spinning spinner */
+      .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.8);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        backdrop-filter: blur(2px);
+      }
+
+      .loading-overlay.hidden {
+        display: none;
+      }
+
+      .overlay-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #000;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 24px;
+      }
+
+      .loading-text {
+        font-size: 18px;
+        font-weight: 600;
+        color: #000;
+        text-align: center;
+        opacity: 1;
+        transition: opacity 0.5s ease-in-out;
+        min-height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .loading-text.fade-out {
+        opacity: 0;
+      }
+      .error-message {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin: 16px 0;
+        font-size: 14px;
+        border: 1px solid #f5c6cb;
+        text-align: center;
+      }
+      .success-message {
+        background-color: #d4edda;
+        color: #155724;
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin: 16px 0;
+        font-size: 14px;
+        border: 1px solid #c3e6cb;
+        animation: slideDown 0.3s ease;
+        text-align: center;
+      }
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Added authentication styles from Dashboard.html */
+      :root {
+        --bg-color: #ffffff;
+        --text-primary: #1a1a1a;
+        --text-secondary: #666666;
+        --text-muted: #9ca3af;
+        --card-bg: #ffffff;
+        --border-color: #e5e7eb;
+        --shadow-light: rgba(0, 0, 0, 0.08);
+        --shadow-medium: rgba(0, 0, 0, 0.15);
+        --accent-green: #22c55e;
+        --accent-orange: #ff8c42;
+        --surface-light: #f8f9fa;
+      }
+
+      [data-theme="dark"] {
+        --bg-color: #0f172a;
+        --text-primary: #f1f5f9;
+        --text-secondary: #cbd5e1;
+        --text-muted: #64748b;
+        --card-bg: #1e293b;
+        --border-color: #334155;
+        --shadow-light: rgba(0, 0, 0, 0.3);
+        --shadow-medium: rgba(0, 0, 0, 0.5);
+        --surface-light: #334155;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-primary);
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      /* Alert Styles */
+      .alert {
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin: 16px 0;
+        font-size: 14px;
+        animation: slideDown 0.3s ease;
+      }
+
+      .alert-error {
+        background-color: #fee;
+        color: #c33;
+        border: 1px solid #fcc;
+      }
+
+      .alert-warning {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+      }
+
+      .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      /* Added fixed button positioning and enhanced loading overlay styles */
+      .fixed-button-container {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 20px;
+        border-top: 1px solid #e5e7eb;
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+        z-index: 100;
+      }
+
+      .fixed-button {
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 16px 24px;
+        border-radius: 25px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .content-with-fixed-button {
+        padding-bottom: 100px;
+      }
+    </style>
+  </head>
+
+  <body class='overflow-auto bg-white flex flex-col' style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif">
+    <div id="step1" class='actives flex-1 flex-col items-center justify-center mx-auto my-auto w-full max-w-[25rem] min-h-screen gap-3 px-5 py-5 relative content-with-fixed-button'>
+      <div class="z-10 flex justify-between items-center p-2 w-full">
+        <button id="backBtn" class=" opacity-50 cursor-pointer" onclick="goBack()">
+
+        </button>
+        <button class="text-gray-600 font-medium  cursor-pointer" onclick="skip()"></button>
+      </div>
+      <div class='flex flex-col items-center gap-4 mx-auto mb-4 overflow-hidden relative'>
+        <div id="backgroundPreview" class='w-40 h-40 rounded-full bg-[#91FF5166] border border-neutral-300 flex items-center justify-center relative'>
+          <img id="selectedAvatarImg2" src='/placeholder.svg' alt="" class='w-24 h-24 object-contain rounded-full relative'>
+          <label for="upload" class='absolute bottom-2.5 right-4 cursor-pointer'>
+            <i class="fa-solid fa-camera fa-lg"></i>
+          </label>
+        </div>
+        <div class='text-center mb-4'>
+          <h2 class='text-xl font-semibold mb-2'>Set up a profile</h2>
+          <p class='text-gray-500 text-sm'>Add a profile image that feels like your vibe</p>
+        </div>
+      </div>
+
+      <div class='flex-1 flex flex-col items-center gap-4 w-full'>
+        <div aria-label="tabs" class="tabs flex flex-col w-full gap-7 justify-between" id="tabs">
+          <div id="tabLists" role="tablist" class="tabLists shrink-0 flex items-center gap-2 justify-center bg-[#F5F5F5] py-1.5 px-2 rounded-4xl">
+            <button role="tab" data-tab="avatar" aria-selected="true" id="tab-1" tabindex="0" aria-controls="panel-1" class="bg-[#FFFFFF] flex-1 flex items-center justify-center p-4 leading-1 rounded-2xl text-sm font-light cursor-pointer">Avatar</button>
+            <button role="tab" data-tab="background" aria-selected="false" id="tab-2" tabindex="-1" aria-controls="panel-2" class="bg-transparent text-neutral-400 flex-1 flex items-center justify-center p-4 leading-1 rounded-2xl text-sm font-light cursor-pointer">Background</button>
+          </div>
+          <div role="tabContent" id="tabContent" class="tabContent">
+            <div id="panel-1" role="tabpanel" class="grid-cols-3 items-center gap-2 h-[22rem] lg:h-[12rem] xl:h-[20rem] 3xl:h-[35rem] p-2 trick overflow-auto active"></div>
+            <div id="panel-2" role="tabpanel" class="grid-cols-3 items-center gap-2 h-[22rem] lg:h-[12rem] xl:h-[20rem] 3xl:h-[35rem] p-2 trick overflow-auto hidden"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fixed-button-container">
+      <button class="fixed-button bg-neutral-300 text-neutral-800" id="continueButton" onclick="nextStep()" disabled>
+        <span id="buttonText">Continue</span>
+        <i id="buttonArrow" class="fa-solid fa-arrow-right fa-sm"></i>
+      </button>
+    </div>
+
+    <script>
+      let currentStep = 1;
+      let hasSelectedAvatar = false;
+      let selectedBackgroundColor = '#FFE1B9';
+      let avatars = [];
+      let selectedAvatar = null;
+      let userId = null;
+      let userToken = null;
+      let userName = 'User';
+      let currentUser = null;
+
+      // API Configuration - using same as Dashboard.html
+      const API_BASE_URL = 'https://my-easy-school-api.onrender.com/api';
+      const AUTH_BASE_URL = 'https://my-easy-school-api.onrender.com/api/auth';
+      const FETCH_AVATARS = `${API_BASE_URL}/avatars`;
+      const AVATARS_ENDPOINT = `${API_BASE_URL}/users/add-avatar`;
+
+      async function checkAuthStatus() {
+        const loadingMessages = [
+          "Checking authentication...",
+          "Verifying your session...",
+          "Loading your profile...",
+          "Preparing profile setup...",
+          "Almost ready..."
+        ];
+        let currentMessageIndex = 0;
+        
+        showLoadingOverlay(loadingMessages[0]);
+        
+        const messageInterval = setInterval(() => {
+          const loadingTextElement = document.querySelector('.loading-text');
+          if (loadingTextElement) {
+            loadingTextElement.classList.add('fade-out');
+            setTimeout(() => {
+              currentMessageIndex = (currentMessageIndex + 1) % loadingMessages.length;
+              loadingTextElement.textContent = loadingMessages[currentMessageIndex];
+              loadingTextElement.classList.remove('fade-out');
+            }, 250);
+          }
+        }, 2000);
+        
+        try {
+          const token = localStorage.getItem('token');
+          const user = JSON.parse(localStorage.getItem('user') || '{}');
+          
+          if (!token || !user.email) {
+            clearInterval(messageInterval);
+            updateLoadingText("Redirecting to sign up...");
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            hideLoadingOverlay();
+            window.location.href = 'sign-up.html';
+            return false;
+          }
+
+          // If user already has an avatar selected, skip setup and go to dashboard
+          if (user.avatar) {
+            clearInterval(messageInterval);
+            hideLoadingOverlay();
+            window.location.href = 'dashboard.html';
+            return false;
+          }
+          
+          clearInterval(messageInterval);
+          updateLoadingText("Welcome! Setting up your profile...");
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          hideLoadingOverlay();
+          
+          userToken = token;
+          userId = user._id || user.id;
+          userName = user.fullName || user.name || 'User';
+          currentUser = user;
+          return true;
+          
+        } catch (error) {
+          clearInterval(messageInterval);
+          console.error('Auth check failed:', error);
+          updateLoadingText("Authentication failed...");
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          hideLoadingOverlay();
+          window.location.href = 'sign-up.html';
+          return false;
+        }
+      }
+
+      function updateLoadingText(message) {
+        const loadingText = document.querySelector('.loading-text');
+        if (loadingText) {
+          loadingText.classList.add('fade-out');
+          setTimeout(() => {
+            loadingText.textContent = message;
+            loadingText.classList.remove('fade-out');
+          }, 250);
+        }
+      }
+
+      function showAlert(message, type = 'error') {
+        const existingAlert = document.querySelector('.alert');
+        if (existingAlert) existingAlert.remove();
+        
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type}`;
+        alert.textContent = message;
+        
+        const container = document.querySelector('#step1') || document.body;
+        container.insertBefore(alert, container.firstChild);
+        
+        setTimeout(() => {
+          if (alert.parentNode) alert.remove();
+        }, 5000);
+      }
+
+      function checkCanProceed() {
+        const canProceed = hasSelectedAvatar;
+        const continueButton = document.getElementById('continueButton');
+
+        if (canProceed) {
+          continueButton.disabled = false;
+          continueButton.className = "fixed-button bg-black text-white cursor-pointer"
+        }
+        else {
+          continueButton.disabled = true;
+          continueButton.className = "fixed-button bg-neutral-300 text-neutral-800"
+        }
+      }
+      
+      let tabButtons = document.querySelectorAll('[role="tab"]');
+      let tabPanels = document.querySelectorAll('[role="tabpanel"]');
+
+      tabButtons.forEach(tab => {
+        tab.addEventListener('click', (e) => {
+          e.preventDefault();
+
+          const targetPanel = tab.getAttribute('aria-controls');
+
+          tabButtons.forEach(button => {
+            button.setAttribute("aria-selected", "false");
+            button.classList.remove("bg-white", "text-black");
+            button.classList.add("bg-transparent", "text-neutral-400");
+          });
+
+          tabPanels.forEach(panel => {
+            panel.classList.remove("active");
+            panel.classList.add("hidden");
+          });
+          
+          tab.setAttribute("aria-selected", "true");
+          tab.classList.add("bg-white", "text-black");
+          tab.classList.remove("bg-transparent", "text-neutral-400");
+
+          const activePanel = document.getElementById(targetPanel);
+          if (activePanel) {
+            activePanel.classList.add("active");
+            activePanel.classList.remove("hidden");
+          }
+        });
+      });
+
+      async function nextStep() {
+        console.log('[v0] Avatar selection process started');
+        console.log('[v0] Current user data:', currentUser);
+        console.log('[v0] Selected avatar:', selectedAvatar);
+        console.log('[v0] User token available:', !!userToken);
+
+        if (!hasSelectedAvatar) {
+          console.log('[v0] ERROR: No avatar selected');
+          showAlert('Please select your avatar');
+          return;
+        }
+
+        if (!userToken || !currentUser) {
+          console.log('[v0] ERROR: Missing authentication data');
+          console.log('[v0] User token:', !!userToken);
+          console.log('[v0] Current user:', !!currentUser);
+          showAlert('Authentication error. Please try again.');
+          return;
+        }
+
+        // Show loading overlay with rotating messages
+        const loadingMessages = [
+          "Hold on...",
+          "Setting avatar...",
+          "Saving your profile...",
+          "Almost done...",
+          "Finalizing setup..."
+        ];
+        let currentMessageIndex = 0;
+        
+        console.log('[v0] Starting avatar save process with loading overlay');
+        showLoadingOverlay(loadingMessages[0]);
+        
+        const messageInterval = setInterval(() => {
+          const loadingTextElement = document.querySelector('.loading-text');
+          if (loadingTextElement) {
+            loadingTextElement.classList.add('fade-out');
+            setTimeout(() => {
+              currentMessageIndex = (currentMessageIndex + 1) % loadingMessages.length;
+              loadingTextElement.textContent = loadingMessages[currentMessageIndex];
+              loadingTextElement.classList.remove('fade-out');
+              console.log('[v0] Loading message updated:', loadingMessages[currentMessageIndex]);
+            }, 250);
+          }
+        }, 2000);
+
+        try {
+          console.log('[v0] Preparing API request to save avatar');
+          console.log('[v0] API Endpoint:', AVATARS_ENDPOINT);
+          console.log('[v0] Request payload:', {
+            avatar: selectedAvatar.name,
+            email: currentUser.email,
+            university: currentUser.university || currentUser.customUniversity
+          });
+
+          const resp = await fetch(AVATARS_ENDPOINT, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${userToken}`
+            },
+            body: JSON.stringify({
+                avatar: selectedAvatar.name,
+                email: currentUser.email,
+                university: currentUser.university || currentUser.customUniversity
+            })
+          });
+
+          console.log('[v0] API Response status:', resp.status);
+          console.log('[v0] API Response ok:', resp.ok);
+
+          if (!resp.ok) {
+            const errorText = await resp.text();
+            console.log('[v0] ERROR: API response not ok');
+            console.log('[v0] Error response body:', errorText);
+            throw new Error(`HTTP error! status: ${resp.status}, message: ${errorText}`);
+          }
+          
+          const result = await resp.json();
+          console.log('[v0] SUCCESS: Avatar saved successfully');
+          console.log('[v0] API Response data:', result);
+          
+          // Update local storage with new avatar information
+          const updatedUser = { ...currentUser, avatar: selectedAvatar.name };
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+          console.log('[v0] Updated user data in localStorage:', updatedUser);
+          
+          // Clear the loading interval
+          clearInterval(messageInterval);
+          
+          // Show success message briefly
+          const loadingTextElement = document.querySelector('.loading-text');
+          if (loadingTextElement) {
+            loadingTextElement.textContent = 'Avatar saved successfully!';
+            console.log('[v0] Success message displayed');
+          }
+          
+          // Wait a moment to show success, then redirect
+          setTimeout(() => {
+            console.log('[v0] Redirecting to Dashboard.html');
+            console.log('[v0] Avatar selection process completed successfully');
+            hideLoadingOverlay();
+            window.location.href = 'dashboard.html';
+          }, 1500);
+
+        } catch (error) {
+          console.log('[v0] ERROR: Failed to save avatar');
+          console.error('[v0] Error details:', error);
+          console.log('[v0] Error message:', error.message);
+          
+          clearInterval(messageInterval);
+          hideLoadingOverlay();
+          
+          // Show user-friendly error message
+          showAlert(`Failed to save avatar: ${error.message}. Please try again.`);
+        }
+      }
+
+      function goBack() {
+        window.history.back();
+      }
+
+      function skip() {
+        window.location.href = 'dashboard.html';
+      }
+
+      function showSuccess(message) {
+        // Remove existing messages
+        removeMessages();
+
+        const successDiv = document.createElement('div');
+        successDiv.className = 'success-message';
+        successDiv.textContent = message;
+        document.querySelector('#step1').appendChild(successDiv);
+
+        // Remove success message after 5 seconds
+        setTimeout(() => {
+          if (successDiv && successDiv.parentNode) {
+            successDiv.remove();
+          }
+        }, 5000);
+      }
+
+      function showError(message) {
+        removeMessages();
+        
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.textContent = message;
+        document.querySelector('#step1').appendChild(errorDiv);
+
+        // Remove error message after 5 seconds
+        setTimeout(() => {
+          if (errorDiv && errorDiv.parentNode) {
+            errorDiv.remove();
+          }
+        }, 5000);
+      }
+      
+      function removeMessages() {
+        const existingMessages = document.querySelectorAll('.success-message, .error-message');
+        existingMessages.forEach(message => message.remove());
+      }
+
+      function showLoadingOverlay(message = 'Loading...') {
+        const overlay = document.createElement('div');
+        overlay.id = 'loadingOverlay';
+        overlay.className = 'loading-overlay';
+        overlay.innerHTML = `
+          <div class='overlay-spinner'></div>
+          <div class='loading-text'>${message}</div>
+        `;
+        document.body.appendChild(overlay);
+      }
+
+      function hideLoadingOverlay() {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+          overlay.remove();
+        }
+      }
+
+      async function renderImages() {
+        console.log('[v0] Rendering avatar images');
+        console.log('[v0] Available avatars count:', avatars.length);
+        
+        const grid = document.getElementById('panel-1');
+        grid.innerHTML = '';
+
+        if (avatars.length === 0) {
+          console.log('[v0] No avatars available to display');
+          grid.innerHTML = '<p class="text-center text-gray-500">No avatars available</p>';
+          return;
+        }
+
+        avatars.forEach((avatar, index) => {
+          console.log(`[v0] Rendering avatar ${index + 1}:`, avatar.name);
+          
+          const imgElement = document.createElement('div');
+          imgElement.className = 'relative group w-full h-20 overflow-hidden rounded-lg transition-transform hover:scale-95 hover:bg-[#F5F5F5] transition-colors border border-neutral-300';
+          imgElement.innerHTML = `
+            <img src='${avatar.base}' alt='${avatar.name}' class='w-full h-20 object-cover border border border-neutral-300 rounded-lg cursor-pointer' loading='lazy'>
+          `;
+          imgElement.addEventListener('click', () => {
+            console.log('[v0] Avatar selected:', avatar.name);
+            console.log('[v0] Avatar data:', avatar);
+            
+            // Remove selection from all avatars
+            document.querySelectorAll('#panel-1 > div').forEach(el => {
+                el.classList.remove('ring-2', 'ring-black');
+            });
+
+            // Add selection to clicked avatar
+            imgElement.classList.add('ring-2', 'ring-black');
+
+            // Update preview
+            document.getElementById('selectedAvatarImg2').src = avatar.base;
+            selectedAvatar = avatar;
+            hasSelectedAvatar = true;
+            
+            console.log('[v0] Avatar selection updated');
+            console.log('[v0] Selected avatar object:', selectedAvatar);
+            console.log('[v0] Has selected avatar:', hasSelectedAvatar);
+            
+            checkCanProceed();
+          });
+          
+          grid.appendChild(imgElement);
+        });
+
+        console.log('[v0] Avatar rendering completed');
+      }
+
+      const bgColors = [
+        { id: 1, color: '#FFE1B9' },
+        { id: 2, color: '#B9FFFA' },
+        { id: 3, color: '#FFB9BA' },
+        { id: 4, color: '#B9B9FF' },
+        { id: 5, color: '#D3FFB9' },
+        { id: 6, color: '#FFB9E6' },
+        { id: 7, color: '#F45313' },
+        { id: 8, color: '#F4D213' },
+        { id: 9, color: '#53E100' },
+        { id: 10, color: '#000000' },
+        { id: 11, color: '#d6ccc2' },
+        { id: 12, color: '#dda15e' },
+        { id: 13, color: '#343a40' },
+        { id: 14, color: '#1e88e5' },
+        { id: 15, color: '#a71e34' },
+        { id: 16, color: '#ff4d6d' },
+        { id: 17, color: '#8b5e34' },
+        { id: 18, color: '#FFFFFF' },
+        { id: 19, color: '#706677' },
+        { id: 20, color: '#52b788' },
+        { id: 21, color: '#a594f9' },
+        { id: 22, color: '#f1212b' },
+        { id: 23, color: '#fbf8cc' },
+        { id: 25, color: '#e7dfe8' },
+      ]
+        
+      function renderBgColors() {
+        const bgGrid = document.getElementById('panel-2');
+        bgGrid.innerHTML = '';
+
+        bgColors.forEach(bgColor => {
+            const bgElement = document.createElement('div');
+            bgElement.className = 'relative group w-full h-20 overflow-hidden rounded-lg shadow-md transition-colors hover:scale-95 cursor-pointer border border-neutral-300';
+            bgElement.style.backgroundColor = bgColor.color;
+
+        bgElement.addEventListener('click', () => {
+          document.querySelectorAll('#panel-2 > div').forEach(el => {
+            el.classList.remove('ring-2', 'ring-black');
+          });
+                    
+            // Add selection to clicked background
+          bgElement.classList.add('ring-2', 'ring-black');
+
+          document.getElementById('backgroundPreview').style.backgroundColor = bgColor.color;
+          selectedBackgroundColor = bgColor.color;
+        });
+
+        bgGrid.appendChild(bgElement);
+        })
+      }
+
+      async function fetchAvatars() {
+        try {
+          console.log('[v0] Starting to fetch avatars from API');
+          console.log('[v0] Fetch URL:', FETCH_AVATARS);
+          
+          showLoadingOverlay('Loading avatars from API...');
+          
+          const resp = await fetch(FETCH_AVATARS, {
+            method: 'GET'
+          });
+
+          console.log('[v0] Fetch avatars response status:', resp.status);
+          console.log('[v0] Fetch avatars response ok:', resp.ok);
+
+          if (!resp.ok) {
+            throw new Error(`HTTP error! status: ${resp.status}`);
+          }
+
+          const data = await resp.json();
+          console.log('[v0] Avatars fetched successfully');
+          console.log('[v0] Avatars data:', data);
+          console.log('[v0] Number of avatars received:', data.avatars?.length || 0);
+          
+          avatars = data.avatars || [];
+          
+          renderImages();
+        }
+        catch (err) {
+          console.log('[v0] ERROR: Failed to fetch avatars');
+          console.error('[v0] Fetch avatars error:', err);
+          console.log('[v0] Error message:', err.message);
+          
+          showAlert('Failed to load avatars from API. Please try again.');
+          avatars = [];
+          renderImages();
+        }
+        finally {
+          hideLoadingOverlay();
+          console.log('[v0] Avatar fetching process completed');
+        }
+      }
+
+      async function saveAvatar() {
+        if (!selectedAvatar) {
+          showAlert('Please select an avatar first.');
+          return;
+        }
+
+        showLoadingOverlay('Saving your avatar...');
+        
+        // Cycle through loading messages
+        const loadingMessages = [
+          "Saving your avatar...",
+          "Almost done...",
+          "Finalizing changes..."
+        ];
+        
+        let currentMessageIndex = 0;
+        const messageInterval = setInterval(() => {
+          currentMessageIndex = (currentMessageIndex + 1) % loadingMessages.length;
+          const loadingTextElement = document.querySelector('.loading-text');
+          if (loadingTextElement) {
+            loadingTextElement.classList.add('fade-out');
+            setTimeout(() => {
+              loadingTextElement.textContent = loadingMessages[currentMessageIndex];
+              loadingTextElement.classList.remove('fade-out');
+              console.log('[v0] Loading message updated:', loadingMessages[currentMessageIndex]);
+            }, 250);
+          }
+        }, 2000);
+
+        try {
+          console.log('[v0] Preparing API request to save avatar');
+          console.log('[v0] API Endpoint:', AVATARS_ENDPOINT);
+          console.log('[v0] Request payload:', {
+            avatar: selectedAvatar.name,
+            email: currentUser.email,
+            university: currentUser.university || currentUser.customUniversity
+          });
+
+          const resp = await fetch(AVATARS_ENDPOINT, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${userToken}`
+            },
+            body: JSON.stringify({
+                avatar: selectedAvatar.name, // Make sure this matches the name field from fetched avatars
+                email: currentUser.email,
+                university: currentUser.university || currentUser.customUniversity
+            })
+          });
+
+          console.log('[v0] API Response status:', resp.status);
+          console.log('[v0] API Response ok:', resp.ok);
+
+          if (!resp.ok) {
+            const errorText = await resp.text();
+            console.log('[v0] ERROR: API response not ok');
+            console.log('[v0] Error response body:', errorText);
+            throw new Error(`HTTP error! status: ${resp.status}, message: ${errorText}`);
+          }
+          
+          const result = await resp.json();
+          console.log('[v0] SUCCESS: Avatar saved successfully');
+          console.log('[v0] API Response data:', result);
+          
+          const updatedUser = { ...currentUser, avatar: selectedAvatar.name };
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+          console.log('[v0] Updated user data in localStorage:', updatedUser);
+          console.log('[v0] Avatar name saved:', selectedAvatar.name);
+          
+          // Clear the loading interval
+          clearInterval(messageInterval);
+          
+          // Show success message briefly
+          const loadingTextElement = document.querySelector('.loading-text');
+          if (loadingTextElement) {
+            loadingTextElement.textContent = 'Avatar saved successfully!';
+            console.log('[v0] Success message displayed');
+          }
+          
+          // Wait a moment to show success, then redirect
+          setTimeout(() => {
+            console.log('[v0] Redirecting to Dashboard.html');
+            console.log('[v0] Avatar selection process completed successfully');
+            hideLoadingOverlay();
+            window.location.href = 'dashboard.html';
+          }, 1500);
+
+        } catch (error) {
+          console.log('[v0] ERROR: Failed to save avatar');
+          console.error('[v0] Error details:', error);
+          console.log('[v0] Error message:', error.message);
+          
+          clearInterval(messageInterval);
+          hideLoadingOverlay();
+          
+          // Show user-friendly error message
+          showAlert(`Failed to save avatar: ${error.message}. Please try again.`);
+        }
+      }
+
+      function renderImages() {
+        console.log('[v0] Rendering avatar images');
+        console.log('[v0] Available avatars count:', avatars.length);
+        
+        const grid = document.getElementById('panel-1');
+        grid.innerHTML = '';
+
+        if (avatars.length === 0) {
+          console.log('[v0] No avatars available to display');
+          grid.innerHTML = '<p class="text-center text-gray-500">No avatars available</p>';
+          return;
+        }
+
+        avatars.forEach((avatar, index) => {
+          console.log(`[v0] Rendering avatar ${index + 1}:`, avatar.name);
+          console.log(`[v0] Avatar object structure:`, avatar);
+          
+          const imgElement = document.createElement('div');
+          imgElement.className = 'relative group w-full h-20 overflow-hidden rounded-lg transition-transform hover:scale-95 hover:bg-[#F5F5F5] transition-colors border border-neutral-300';
+          imgElement.innerHTML = `
+            <img src='${avatar.base}' alt='${avatar.name}' class='w-full h-20 object-cover border border border-neutral-300 rounded-lg cursor-pointer' loading='lazy'>
+          `;
+          imgElement.addEventListener('click', () => {
+            console.log('[v0] Avatar selected:', avatar.name);
+            console.log('[v0] Avatar data:', avatar);
+            
+            // Remove selection from all avatars
+            document.querySelectorAll('#panel-1 > div').forEach(el => {
+                el.classList.remove('ring-2', 'ring-black');
+            });
+
+            // Add selection to clicked avatar
+            imgElement.classList.add('ring-2', 'ring-black');
+
+            // Update preview
+            document.getElementById('selectedAvatarImg2').src = avatar.base;
+            selectedAvatar = {
+              name: avatar.name,
+              base: avatar.base
+            };
+            hasSelectedAvatar = true;
+            
+            console.log('[v0] Avatar selection updated');
+            console.log('[v0] Selected avatar object:', selectedAvatar);
+            console.log('[v0] Selected avatar name for saving:', selectedAvatar.name);
+            console.log('[v0] Has selected avatar:', hasSelectedAvatar);
+            
+            checkCanProceed();
+          });
+          
+          grid.appendChild(imgElement);
+        });
+
+        console.log('[v0] Avatar rendering completed');
+      }
+
+      window.addEventListener('DOMContentLoaded', async () => {
+        // Check authentication first
+        const isAuthenticated = await checkAuthStatus();
+        if (!isAuthenticated) {
+          return;
+        }
+        
+        // Load avatars and initialize
+        await fetchAvatars();
+        renderBgColors();
+        checkCanProceed();
+      });
+    </script>
+  </body>
+</html>

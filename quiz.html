@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Student Dashboard</title>
+    <link rel="icon" type="image/jpeg" href="WhatsApp Image 2025-07-06 at 09.14.34_436c71fc.jpg">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 414px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            color: #333;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            border-bottom: 1px solid #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .course-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .course-code {
+            font-size: 14px;
+            opacity: 0.7;
+            position: relative;
+            z-index: 1;
+        }
+
+        .back-button {
+            background: #f0f0f0;
+            color: #333;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .back-button:hover {
+            background: #e0e0e0;
+            transform: translateY(-1px);
+        }
+
+        .test-data-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f8ff;
+            border-radius: 8px;
+            border: 1px solid #b3d9ff;
+        }
+
+        .test-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .test-button:hover {
+            background: #45a049;
+            transform: translateY(-1px);
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-tab {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 15px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-tab:hover {
+            background: #f8f8f8;
+            color: #333;
+        }
+
+        .nav-tab.active {
+            color: #28a745;
+            border-bottom-color: #28a745;
+            background: #f8f9fa;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Content Area */
+        .content-container {
+            position: relative;
+            overflow: hidden;
+            min-height: calc(100vh - 120px);
+            padding: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #333;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        /* Quiz titles list */
+        .quiz-titles-list {
+            list-style: none;
+        }
+
+        .quiz-title-item {
+            background: #f8f8f8;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quiz-title-item:hover {
+            background: #f0f0f0;
+            transform: translateY(-1px);
+        }
+
+        .quiz-title-item:active {
+            transform: translateY(0);
+        }
+
+        .quiz-title-content {
+            flex: 1;
+        }
+
+        .quiz-title-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .quiz-title-meta {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        /* Subscription Modal */
+        .subscription-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .subscription-modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            max-width: 350px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 16px;
+        }
+
+        .modal-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .features-list {
+            text-align: left;
+            margin: 20px 0;
+            padding-left: 20px;
+        }
+
+        .features-list li {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        .features-list li::before {
+            content: '✓';
+            color: #4CAF50;
+            font-weight: bold;
+            position: absolute;
+            left: -20px;
+        }
+
+        .payment-button {
+            background: #000;
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .payment-button:hover {
+            background: #333;
+            transform: translateY(-1px);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #999;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .close-modal:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        /* Exam Start Button */
+        .exam-start-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .exam-start-btn:hover {
+            background: #218838;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .container {
+                max-width: 100%;
+            }
+            
+            .content-container {
+                padding: 16px;
+            }
+            
+            .course-title {
+                font-size: 16px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 500px;
+                box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            }
+        }
+    </style>
+<style>
+ /* Dark mode overrides for quiz page */
+ body[data-theme="dark"] { background-color: #0f172a; }
+ [data-theme="dark"] .container { background: #111827; color: #e5e7eb; }
+ [data-theme="dark"] .header { background: #111827; color: #e5e7eb; border-bottom-color: #1f2937; }
+ [data-theme="dark"] .back-button { color: #e5e7eb; }
+ [data-theme="dark"] .back-button:hover { color: #ffffff; }
+ [data-theme="dark"] .nav-tabs { background: #0b132b; border-bottom-color: #1f2937; }
+ [data-theme="dark"] .nav-tab { color: #e5e7eb; background: #0b132b; }
+ [data-theme="dark"] .nav-tab:hover { background: #101a3a; color: #ffffff; }
+ [data-theme="dark"] .nav-tab.active { color: #10b981; background: #0b132b; border-bottom-color: #10b981; }
+ [data-theme="dark"] .content-container { color: #e5e7eb; }
+ [data-theme="dark"] .course-title, [data-theme="dark"] .course-code { color: #ffffff; }
+ [data-theme="dark"] #examsTab h3 { color: #ffffff !important; }
+ [data-theme="dark"] #examsTab p { color: #e5e7eb !important; }
+ [data-theme="dark"] .quiz-title-item { background: #1f2937; border-color: #374151; color: #ffffff; }
+ [data-theme="dark"] .quiz-title-item:hover { background: #24303f; }
+ [data-theme="dark"] .quiz-title-name { color: #ffffff; }
+ [data-theme="dark"] .quiz-title-meta { color: #e5e7eb; }
+ [data-theme="dark"] .loading-spinner { border-top-color: #e5e7eb; }
+ [data-theme="dark"] .error-message { background: #3f1f1f; color: #fecaca; }
+ </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-button" onclick="goBack()">← Back to Dashboard</button>
+            <div class="course-title" id="courseTitle">Loading Course...</div>
+            <div class="course-code" id="quizInfo">Preparing your quiz...</div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('practice')">CBT Practice</button>
+            <button class="nav-tab" onclick="switchTab('exams')">Exams Mode</button>
+        </div>
+
+        <!-- CBT Practice Tab Content -->
+        <div class="tab-content active" id="practiceTab">
+            <div class="content-container" id="quizContent">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading quiz titles...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exams Mode Tab Content -->
+        <div class="tab-content" id="examsTab">
+            <div class="content-container">
+                <div style="text-align: center; padding: 40px 20px;">
+                    <h3 style="margin-bottom: 20px; color: #333;">Exams Mode</h3>
+                    <p style="margin-bottom: 30px; color: #666; line-height: 1.6;">
+                        Take a timed exam simulation with questions from this course. 
+                        Test your knowledge under exam conditions.
+                    </p>
+                    <button class="exam-start-btn" onclick="startExamsMode()">Start Exams Mode</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Added subscription modal -->
+    <div class="subscription-modal" id="subscriptionModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeSubscriptionModal()">×</button>
+            <div class="modal-title">Subscribe to Access Full CBT</div>
+            <div class="modal-description">
+                You need to Subscribe 300 naira to get access to the full CBT for both MTH and GST
+            </div>
+            <div class="modal-description">Get access to:</div>
+            <ul class="features-list">
+                <li>Flashcards</li>
+                <li>Exams Mode</li>
+                <li>Well Detailed Explanations for Maths problems</li>
+            </ul>
+            <button class="payment-button" onclick="initiatePayment()">Payment 300 naira</button>
+        </div>
+    </div>
+
+    <script>
+        const hostname = window.location.hostname;
+        const isLocalDev = hostname === 'localhost' || hostname === '127.0.0.1' || /^\d{1,3}(?:\.\d{1,3}){3}$/.test(hostname);
+        const API_BASE = isLocalDev ? '/api' : 'https://my-easy-school-api.onrender.com/api';
+        let courseId = null;
+        let courseCode = null;
+        let quizTitles = [];
+        let selectedQuizTitle = null;
+        let currentUser = null;
+
+        // Get URL parameters
+        function getUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            courseId = urlParams.get('courseId');
+            courseCode = urlParams.get('courseCode');
+            
+            console.log('[v0] Course ID:', courseId);
+            console.log('[v0] Course Code:', courseCode);
+        }
+
+        // Get user token from localStorage
+        function getUserToken() {
+            return localStorage.getItem('token');
+        }
+
+        async function fetchQuizTitles() {
+            try {
+                const userToken = getUserToken();
+                if (!userToken) {
+                    throw new Error('No authentication token found');
+                }
+
+                const endpoint = `${API_BASE}/quiz/course/${courseId}`;
+                const headers = {
+                    'Authorization': `Bearer ${userToken}`,
+                    'Content-Type': 'application/json'
+                };
+                let response = await fetch(endpoint, { method: 'GET', headers });
+                console.log('[v0] [quiz] GET response status:', response.status);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.log('[v0] [quiz] GET error body:', errorText);
+                    if (response.status === 404) {
+                        console.log('[v0] [quiz] Falling back to POST /quiz/course for compatibility');
+                        response = await fetch(endpoint, { method: 'POST', headers });
+                        console.log('[v0] [quiz] POST response status:', response.status);
+                        if (!response.ok) {
+                            const postErrorText = await response.text();
+                            console.log('[v0] [quiz] POST error body:', postErrorText);
+                            throw new Error(`HTTP error after POST fallback! status: ${response.status}`);
+                        }
+                    } else {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                }
+                const data = await response.json();
+                console.log('[v0] Quiz chapters data received:', data);
+                console.log('[v0] Data structure:', JSON.stringify(data, null, 2));
+                
+                let quizData = null;
+                
+                if (data && data.success && data.data && Array.isArray(data.data.availableTitles)) {
+                    console.log('[v0] Using data.data.availableTitles format');
+                    quizData = data.data.availableTitles;
+                    // Also store course info if available
+                    if (data.data.course) {
+                        document.getElementById('courseTitle').textContent = data.data.course.courseName || `${courseCode} - Select Quiz`;
+                    }
+                } else if (data && data.success && Array.isArray(data.data)) {
+                    console.log('[v0] Using data.data format');
+                    quizData = data.data;
+                } else if (data && data.success && data.quiz && Array.isArray(data.quiz)) {
+                    console.log('[v0] Using data.quiz format');
+                    quizData = data.quiz;
+                } else if (Array.isArray(data)) {
+                    console.log('[v0] Using direct array format');
+                    quizData = data;
+                } else if (data && Array.isArray(data.quizzes)) {
+                    console.log('[v0] Using data.quizzes format');
+                    quizData = data.quizzes;
+                } else if (data && typeof data === 'object') {
+                    console.log('[v0] Checking for array properties in object');
+                    // Look for any array property in the response
+                    const arrayProps = Object.keys(data).filter(key => Array.isArray(data[key]));
+                    if (arrayProps.length > 0) {
+                        console.log('[v0] Found array properties:', arrayProps);
+                        quizData = data[arrayProps[0]];
+                    }
+                }
+
+                if (!quizData || !Array.isArray(quizData)) {
+                    console.log('[v0] No valid quiz data found, response:', data);
+                    throw new Error('No quiz chapters found in response');
+                }
+
+                console.log('[v0] Processing quiz data:', quizData);
+                
+                quizTitles = quizData.map((quiz, index) => {
+                    console.log('[v0] Processing quiz item:', quiz);
+                    return {
+                        title: quiz.title || quiz.name || quiz.quizTitle || `Chapter ${index + 1}`,
+                        description: `${quiz.questionCount || quiz.questions?.length || 0} questions`,
+                        id: quiz._id || quiz.id || index,
+                        questionCount: quiz.questionCount || quiz.questions?.length || 0
+                    };
+                });
+
+                console.log('[v0] Processed quiz titles:', quizTitles);
+                displayQuizTitles();
+                
+            } catch (error) {
+                console.error('[v0] Error fetching quiz chapters:', error);
+                displayError(`Error fetching quiz chapters: ${error.message}`);
+            }
+        }
+
+        function displayQuizTitles() {
+            const courseTitle = document.getElementById('courseTitle');
+            const quizInfo = document.getElementById('quizInfo');
+            const quizContent = document.getElementById('quizContent');
+
+            courseTitle.textContent = `${courseCode} - Select Quiz`;
+            
+            if (!quizTitles || quizTitles.length === 0) {
+                quizInfo.textContent = 'No quizzes available';
+                quizContent.innerHTML = '<div class="error-message">No quizzes found for this course.</div>';
+                return;
+            }
+
+            quizInfo.textContent = `${quizTitles.length} quiz${quizTitles.length > 1 ? 'es' : ''} available • Click to start`;
+
+            let titlesHTML = '<ul class="quiz-titles-list">';
+            
+            quizTitles.forEach((quiz, index) => {
+                const quizTitle = quiz.title || quiz.name || `Quiz ${index + 1}`;
+                const quizDescription = quiz.description || `${quiz.questionCount || 'Multiple'} questions`;
+                
+                titlesHTML += `
+                    <li class="quiz-title-item" onclick="selectQuizTitle('${quizTitle}', ${index})">
+                        <div class="quiz-title-content">
+                            <div class="quiz-title-name">${quizTitle}</div>
+                            <div class="quiz-title-meta">${quizDescription}</div>
+                        </div>
+                    </li>
+                `;
+            });
+
+            titlesHTML += '</ul>';
+            quizContent.innerHTML = titlesHTML;
+        }
+
+        function checkUserSubscription() {
+            try {
+                const currentUserData = localStorage.getItem('currentUserData');
+                const userData = localStorage.getItem('user');
+                
+                if (currentUserData) {
+                    const parsedData = JSON.parse(currentUserData);
+                    currentUser = parsedData.user;
+                } else if (userData) {
+                    currentUser = JSON.parse(userData);
+                }
+                
+                console.log('[v0] Current user data:', currentUser);
+                
+                if (currentUser && currentUser.subscribed) {
+                    console.log('[v0] User is subscribed');
+                    return true;
+                } else {
+                    console.log('[v0] User is not subscribed');
+                    return false;
+                }
+            } catch (error) {
+                console.error('[v0] Error checking subscription status:', error);
+                return false;
+            }
+        }
+
+        function showSubscriptionModal() {
+            const modal = document.getElementById('subscriptionModal');
+            modal.classList.add('show');
+        }
+
+        function closeSubscriptionModal() {
+            const modal = document.getElementById('subscriptionModal');
+            modal.classList.remove('show');
+        }
+
+        function initiatePayment() {
+            // Redirect to payment page or initiate payment flow
+            window.location.href = 'payment.html';
+        }
+
+        function selectQuizTitle(title, index) {
+            selectedQuizTitle = title;
+            console.log('[v0] Selected quiz title:', title);
+            
+            // Check if user is subscribed
+            if (!checkUserSubscription()) {
+                console.log('[v0] User not subscribed, showing subscription modal');
+                showSubscriptionModal();
+                return;
+            }
+            
+            console.log('[v0] User is subscribed, redirecting to quiz questions page');
+            console.log('[v0] Redirecting to quiz questions page with courseId:', courseId, 'title:', title);
+            
+            const params = new URLSearchParams({
+                courseId: courseId,
+                courseCode: courseCode,
+                quizTitle: title
+            });
+            
+            window.location.href = `quiz-questions.html?${params.toString()}`;
+        }
+
+        // Display error message
+        function displayError(message) {
+            const quizContent = document.getElementById('quizContent');
+            quizContent.innerHTML = `
+                <div class="error-message">
+                    <h3>Error</h3>
+                    <p>${message}</p>
+                    <button class="retry-button" onclick="fetchQuizTitles()">Try Again</button>
+                    <button class="back-button" onclick="goBack()">Back to Dashboard</button>
+                    <div class="test-data-section">
+                        <h4>Test Mode Available</h4>
+                        <p>Since the API is unavailable, you can test the quiz functionality with sample data:</p>
+                        <button class="test-button" onclick="loadTestData()">Load Test Quiz</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Load test data when API is unavailable
+        function loadTestData() {
+            console.log('[v0] Loading test data for choice display testing');
+            
+            // Sample quiz data for testing choice display
+            quizTitles = [
+                {
+                    title: "Sample Quiz - Test Choices Display",
+                    description: "3 questions",
+                    id: "test-quiz-1",
+                    questionCount: 3
+                }
+            ];
+            
+            displayQuizTitles();
+        }
+
+        // Go back to dashboard
+        function goBack() {
+            window.location.href = 'dashboard.html';
+        }
+
+        // Tab switching functionality
+        function switchTab(tabName) {
+            // Remove active class from all tabs and content
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Add active class to selected tab and content
+            event.target.classList.add('active');
+            
+            if (tabName === 'practice') {
+                document.getElementById('practiceTab').classList.add('active');
+            } else if (tabName === 'exams') {
+                document.getElementById('examsTab').classList.add('active');
+            }
+        }
+
+        // Start Exams Mode
+        function startExamsMode() {
+            if (!courseId || !courseCode) {
+                alert('Course information is missing. Please go back and select a course.');
+                return;
+            }
+
+            // Check if user is subscribed
+            if (!checkUserSubscription()) {
+                console.log('[v0] User not subscribed, showing subscription modal');
+                showSubscriptionModal();
+                return;
+            }
+
+            console.log('[v0] Starting Exams Mode for course:', courseCode);
+            
+            // Redirect to exams-mode.html with course parameters
+            const params = new URLSearchParams({
+                courseId: courseId,
+                courseCode: courseCode
+            });
+            
+            window.location.href = `exams-mode.html?${params.toString()}`;
+        }
+
+        function initQuizPage() {
+            getUrlParams();
+            
+            if (!courseId || !courseCode) {
+                displayError('Missing course information. Please select a course from the dashboard.');
+                return;
+            }
+
+            checkUserSubscription();
+            fetchQuizTitles();
+        }
+
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('subscriptionModal');
+            if (event.target === modal) {
+                closeSubscriptionModal();
+            }
+        });
+
+        // Start the application
+        document.addEventListener('DOMContentLoaded', initQuizPage);
+        // Apply theme from localStorage on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            const body = document.body;
+            if (savedTheme === 'dark') {
+                body.setAttribute('data-theme', 'dark');
+            } else {
+                body.removeAttribute('data-theme');
+            }
+        });
+    </script>
+</body>
+</html>
