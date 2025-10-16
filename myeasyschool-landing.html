@@ -1,0 +1,3320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta name="google-site-verification" content="BXAN-M835tJQx2NFnAJGqJiV6jSUiBeqX_3Fkgt8lc4" />
+    <title>MyEasySchool - Discover Your True Potential</title>
+    <link rel="icon" type="image/jpeg" href="WhatsApp Image 2025-07-06 at 09.14.34_436c71fc.jpg">
+    <link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --color-primary: #22c55e;
+            --color-primary-dark: #16a34a;
+            --color-secondary: #15803d;
+            --color-accent: #10b981;
+            --color-dark: #1f2937;
+            --color-light: #f8fafc;
+            --color-white: #ffffff;
+            --color-gray: #64748b;
+            --color-bg-white: #ffffff;
+            --color-text-white: #ffffff;
+            --color-text-light: #94a3b8;
+            --color-text-medium: #64748b;
+            --color-primary-green: #22c55e;
+            --shadow-medium: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--color-dark);
+            overflow-x: hidden;
+        }
+
+        /* Enhanced Glassmorphism Header */
+        .header {
+            position: fixed;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 30px);
+            max-width: 1200px;
+            height: 80px;
+            z-index: 50;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header.scrolled {
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100%;
+            padding: 0 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            text-decoration: none;
+        }
+
+        .logo img {
+            width: 55px;
+            height: 55px;
+            margin-right: 15px;
+            border-radius: 10px;
+        }
+
+        .logo-text {
+            font-weight: 900;
+            color: var(--color-dark);
+            font-size: 24px;
+            letter-spacing: -0.02em;
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 35px;
+            align-items: center;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: var(--color-dark);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            position: relative;
+            padding: 8px 0;
+            text-decoration: none;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(to right, var(--color-primary), var(--color-accent));
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--color-primary);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        .nav-cta {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 15px;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+            text-decoration: none;
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+        }
+
+        /* Updated Hamburger Menu */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .hamburger-line {
+            width: 24px;
+            height: 3px;
+            background: var(--color-dark);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle.active .hamburger-line:nth-child(1) {
+            transform: rotate(45deg) translate(6px, 6px);
+        }
+
+        .menu-toggle.active .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active .hamburger-line:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
+
+        /* Enhanced Mobile Menu */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: white;
+            z-index: 45;
+            padding: 120px 30px 30px;
+            transform: translateY(-100%);
+            transition: transform 0.4s ease;
+            overflow-y: auto;
+        }
+
+        .mobile-menu.active {
+            transform: translateY(0);
+        }
+
+        .mobile-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            list-style: none;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .mobile-nav-link {
+            color: var(--color-dark);
+            font-weight: 600;
+            font-size: 20px;
+            padding: 25px 0;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            border-bottom: 1px solid #f1f5f9;
+            position: relative;
+        }
+
+        .mobile-nav-link:hover,
+        .mobile-nav-link.active {
+            color: var(--color-primary);
+            padding-left: 20px;
+        }
+
+        .mobile-nav-link::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 6px;
+            background: var(--color-primary);
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mobile-nav-link:hover::after,
+        .mobile-nav-link.active::after {
+            opacity: 1;
+        }
+
+        .mobile-nav-icon {
+            margin-right: 15px;
+            color: var(--color-primary);
+            width: 24px;
+            height: 24px;
+        }
+
+        .main {
+            padding-top: 0;
+            overflow-x: hidden;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            height: 100vh;
+            min-height: 700px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .hero .swiper-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        .hero-slide {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .hero-slide .hero-slide-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: transform 7s ease-out;
+            z-index: 1;
+        }
+
+        .hero-slide.swiper-slide-active .hero-slide-image {
+            transform: scale(1.1);
+        }
+
+        .hero-slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 3;
+            color: white;
+            padding: 20px;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            letter-spacing: -0.02em;
+        }
+
+        .hero-title span {
+            color: var(--color-primary);
+        }
+
+        .hero-description {
+            font-size: 1.2rem;
+            margin-bottom: 35px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-cta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 60px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 0.95rem;
+            border: 2px solid transparent;
+            text-decoration: none;
+        }
+
+        .btn-gradient {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-outline-brand {
+            background: transparent;
+            color: white;
+            border-color: white;
+        }
+
+        .btn-outline-brand:hover {
+            background-color: white;
+            color: var(--color-primary);
+            transform: translateY(-2px);
+        }
+
+        /* Hero Stats - Desktop Only */
+        .hero-stats {
+            position: absolute;
+            bottom: 40px;
+            right: 40px;
+            z-index: 4;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            padding: 20px 25px;
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transform: translateX(100%);
+            opacity: 0;
+            animation: slideInStats 1s ease-out 2s forwards;
+        }
+
+        .stats-images {
+            display: flex;
+            align-items: center;
+        }
+
+        .stats-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid var(--color-primary);
+            overflow: hidden;
+            margin-left: -15px;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .stats-image:first-child {
+            margin-left: 0;
+        }
+
+        .stats-image:hover {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+
+        .stats-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .stats-text {
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            margin-left: 10px;
+        }
+
+        .stats-number {
+            color: var(--color-primary);
+            font-size: 18px;
+        }
+
+        @keyframes slideInStats {
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .hero .swiper-pagination-bullet {
+            background: rgba(255, 255, 255, 0.7);
+            width: 12px;
+            height: 12px;
+            opacity: 1;
+        }
+
+        .hero .swiper-pagination-bullet-active {
+            background: var(--color-primary);
+            transform: scale(1.2);
+        }
+
+        /* Section Spacing */
+        .section-spacing {
+            height: 100px;
+        }
+
+        /* Why We Are The Best Section */
+        .why-best-section {
+          margin-top: 100px;
+            padding: 120px 20px;
+            background: white;
+        }
+
+        .section-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--color-dark);
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+            letter-spacing: -0.02em;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, var(--color-primary), var(--color-accent));
+            border-radius: 2px;
+        }
+
+        .why-best-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 50px;
+        }
+
+        .why-best-item {
+            text-align: center;
+            padding: 40px 30px;
+            border-radius: 25px;
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .why-best-item:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+        }
+
+        .why-best-image-container {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            margin: 0 auto 30px;
+        }
+
+        .why-best-splash {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #a7f3d0, #6ee7b7);
+            z-index: 1;
+            opacity: 0.4;
+            border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+        }
+
+        .why-best-image {
+            position: relative;
+            width: 170px;
+            height: 170px;
+            margin: 25px auto;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .why-best-image img {
+            width: 140px;
+            height: 140px;
+            object-fit: contain;
+        }
+
+        .why-best-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--color-dark);
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .why-best-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 2px;
+            background: var(--color-primary);
+            border-radius: 2px;
+        }
+
+        .why-best-description {
+            color: var(--color-gray);
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+
+        /* What We Have To Offer Section */
+        .offer-section {
+          margin-top: 130px;
+            padding: 120px 20px;
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 50%, #166534 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .offer-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .offer-content {
+            position: relative;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .offer-text {
+            color: white;
+        }
+
+        .offer-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 30px;
+            letter-spacing: -0.02em;
+            position: relative;
+            display: inline-block;
+        }
+
+        .offer-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 0;
+            width: 80px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 2px;
+        }
+
+        .offer-description {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 40px;
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 500px;
+        }
+
+        .offer-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .offer-feature {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .feature-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            background: white;
+            color: var(--color-primary);
+            margin-left: -10px;
+        }
+
+        .feature-text h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+            line-height: 1.3;
+        }
+
+        .offer-visual {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .phone-mockup {
+            position: relative;
+            z-index: 3;
+        }
+
+        .phone-mockup img {
+            width: 320px;
+            height: auto;
+            filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3));
+        }
+
+        .phone-background {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 450px;
+            height: 450px;
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.3), rgba(16, 185, 129, 0.2));
+            border-radius: 50%;
+            z-index: 1;
+            animation: phoneFloat 8s ease-in-out infinite;
+        }
+
+        @keyframes phoneFloat {
+            0%, 100% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+            50% { transform: translate(-50%, -50%) rotate(3deg) scale(1.05); }
+        }
+
+        .phone-modal {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 15px;
+            padding: 12px 18px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            z-index: 4;
+            font-weight: 600;
+            color: var(--color-dark);
+            font-size: 0.85rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-top {
+            top: 60px;
+            right: -60px;
+            max-width: 160px;
+        }
+
+        .modal-bottom {
+            bottom: 100px;
+            left: -70px;
+            max-width: 150px;
+        }
+
+        /* Enhanced Courses Section */
+        .courses-section {
+          margin-top:190px;
+            padding: 120px 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .course-card {
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.4s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .course-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .course-image {
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .course-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .course-card:hover .course-image img {
+            transform: scale(1.05);
+        }
+
+        .course-divider {
+            height: 3px;
+            background: linear-gradient(to right, var(--color-primary), var(--color-accent));
+        }
+
+        .course-content {
+            padding: 30px;
+        }
+
+        .course-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--color-dark);
+            margin-bottom: 15px;
+        }
+
+        .course-description {
+            color: var(--color-gray);
+            line-height: 1.7;
+            margin-bottom: 25px;
+        }
+
+        .course-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .course-link {
+            display: inline-flex;
+            align-items: center;
+            font-weight: 600;
+            color: var(--color-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .course-link:hover {
+            color: var(--color-secondary);
+            transform: translateX(5px);
+        }
+
+        .try-btn {
+            background: var(--color-primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .try-btn:hover {
+            background: var(--color-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(34, 197, 94, 0.3);
+        }
+
+        .see-more-container {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .see-more-btn {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+            color: white;
+            padding: 18px 40px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+            font-size: 1.1rem;
+        }
+
+        .see-more-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);
+        }
+
+        /* Enhanced Testimonials Section */
+        .reviews-section {
+          margin-top:180px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 120px 20px;
+        }
+
+        .review-slider-container {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .review-slider-wrapper {
+            overflow: hidden;
+            border-radius: 20px;
+        }
+
+        .review-slider {
+            display: flex;
+            cursor: grab;
+            transition: transform 0.5s ease;
+        }
+
+        .review-slider.grabbing {
+            cursor: grabbing;
+        }
+
+        .review-card {
+            min-width: 88%;
+            max-width: 88%;
+            flex-shrink: 0;
+            background: white;
+            border-radius: 25px;
+            padding: 3rem 2.5rem;
+            margin: 0 0.6rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.5s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+        }
+
+        .review-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(to right, var(--color-primary), var(--color-accent));
+            border-radius: 25px 25px 0 0;
+        }
+
+        .review-card .reviewer-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--color-dark);
+            margin-bottom: 1.5rem;
+        }
+
+        .review-card .review-text {
+            font-size: 1.1rem;
+            color: var(--color-text-medium);
+            line-height: 1.8;
+            font-style: italic;
+            position: relative;
+            padding: 0 20px;
+        }
+
+        .review-card .review-text::before,
+        .review-card .review-text::after {
+            color: var(--color-primary-green);
+            font-size: 3rem;
+            line-height: 0;
+            vertical-align: -0.3em;
+            font-weight: bold;
+        }
+
+        .review-card .review-text::before {
+            content: '"';
+            margin-right: 0.15rem;
+        }
+
+        .review-card .review-text::after {
+            content: '"';
+            margin-left: 0.15rem;
+        }
+
+        .slider-nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 3rem;
+            gap: 1rem;
+        }
+
+        .slider-nav button {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+            color: white;
+            border: none;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            box-shadow: 0 5px 15px rgba(34, 197, 94, 0.3);
+        }
+
+        .slider-nav button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(34, 197, 94, 0.4);
+        }
+
+        .slider-nav button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 5px 15px rgba(34, 197, 94, 0.3);
+        }
+
+        /* Community Section */
+        .community-section {
+          margin-top:150px;
+            padding: 120px 20px;
+            background: white;
+        }
+
+        .community-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .community-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--color-dark);
+            margin-bottom: 40px;
+            letter-spacing: -0.02em;
+            position: relative;
+            display: inline-block;
+        }
+
+        .community-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, var(--color-primary), var(--color-accent));
+            border-radius: 2px;
+        }
+
+        .join-btn {
+            background: var(--color-primary);
+            color: white;
+            padding: 16px 40px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+            box-shadow: 0 5px 15px rgba(34, 197, 94, 0.3);
+        }
+
+        .join-btn:hover {
+            background: var(--color-primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+        }
+
+        .community-slider {
+            margin-top: 50px;
+            overflow: hidden;
+        }
+
+        .community-cards {
+            display: flex;
+            gap: 20px;
+            transition: transform 0.3s ease;
+            cursor: grab;
+        }
+
+        .community-cards.grabbing {
+            cursor: grabbing;
+        }
+
+        .community-card {
+            min-width: 280px;
+            height: 280px;
+            background: white;
+            border-radius: 20px;
+            flex-shrink: 0;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+        }
+
+        .community-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .community-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Navigation Arrows */
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid var(--color-primary);
+            color: var(--color-primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-arrow:hover {
+            background: var(--color-primary);
+            color: white;
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.3);
+        }
+
+        .nav-arrow-left {
+            left: -25px;
+        }
+
+        .nav-arrow-right {
+            right: -25px;
+        }
+
+        .community-slider,
+        .universities-slider {
+            position: relative;
+        }
+
+        /* Hide arrows on mobile */
+        @media (max-width: 768px) {
+            .nav-arrow {
+                display: none;
+            }
+        }
+
+        /* Universities Section */
+        .universities-section {
+          margin-top:150px;
+            padding: 120px 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+
+        .universities-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .universities-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--color-dark);
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+            letter-spacing: -0.02em;
+        }
+
+        .universities-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, var(--color-primary), var(--color-accent));
+            border-radius: 2px;
+        }
+
+        .universities-slider {
+            overflow: hidden;
+            max-width: 1000px;
+            margin: 0 auto 50px;
+        }
+
+        .universities-cards {
+            display: flex;
+            gap: 30px;
+            transition: transform 0.3s ease;
+            cursor: grab;
+        }
+
+        .universities-cards.grabbing {
+            cursor: grabbing;
+        }
+
+        .university-card {
+            min-width: 320px;
+            height: 250px;
+            background: white;
+            border-radius: 20px;
+            flex-shrink: 0;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .university-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .university-card img {
+            width: 100%;
+            height: 70%;
+            object-fit: cover;
+        }
+
+        .university-name {
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px 20px;
+            font-weight: 700;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .university-explore {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--color-primary);
+            color: white;
+            padding: 12px 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .university-card:hover .university-explore {
+            background: var(--color-primary-dark);
+        }
+
+        .get-started-container {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .get-started-btn {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+            color: white;
+            padding: 18px 40px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+            font-size: 1.1rem;
+        }
+
+        .get-started-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);
+        }
+
+        /* Academic News Section */
+        .news-section {
+          margin-top:150px;
+            padding: 120px 20px;
+            background: white;
+        }
+
+        .news-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .news-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--color-dark);
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+            letter-spacing: -0.02em;
+        }
+
+        .news-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, var(--color-primary), var(--color-accent));
+            border-radius: 2px;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Desktop specific styles for news grid */
+        @media (min-width: 1024px) {
+            .news-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 40px;
+            }
+        }
+
+        .news-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .news-image {
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .news-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .news-card:hover .news-image img {
+            transform: scale(1.05);
+        }
+
+        /* Desktop specific styles for news images */
+        @media (min-width: 1024px) {
+            .news-image {
+                height: 250px;
+            }
+        }
+
+        .news-content {
+            padding: 30px;
+        }
+
+        .news-card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--color-dark);
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .news-excerpt {
+            color: var(--color-gray);
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .read-more-btn {
+            background: var(--color-primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .read-more-btn:hover {
+            background: var(--color-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(34, 197, 94, 0.3);
+        }
+
+        .see-all-news-container {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .see-all-news-btn {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+            color: white;
+            padding: 18px 40px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+            font-size: 1.1rem;
+            border: 2px solid transparent;
+        }
+
+        .see-all-news-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);
+        }
+
+        /* Contact Section */
+        .contact-section {
+          margin-top: 150px;
+            padding: 120px 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+
+        .contact-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .contact-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--color-dark);
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+            letter-spacing: -0.02em;
+        }
+
+        .contact-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(to right, var(--color-primary), var(--color-accent));
+            border-radius: 2px;
+        }
+
+        .contact-subtitle {
+            font-size: 1.1rem;
+            color: var(--color-gray);
+            margin-top: 20px;
+        }
+
+        .contact-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .contact-info {
+            background: var(--color-primary);
+            padding: 50px 40px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .contact-info h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+        }
+
+        .contact-info p {
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .contact-detail {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .contact-detail i {
+            width: 20px;
+            margin-right: 15px;
+            font-size: 1.1rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .social-link {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: var(--color-primary);
+            background: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .contact-form {
+            padding: 50px 40px;
+            background: white;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: var(--color-dark);
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+            color: white;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
+        }
+
+        /* Footer Section */
+        .footer {
+            background: linear-gradient(135deg, var(--color-dark) 0%, #111827 100%);
+            color: white;
+            padding: 60px 20px 30px;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .footer-logo img {
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+            border-radius: 10px;
+        }
+
+        .footer-logo-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: white;
+        }
+
+        .footer-description {
+            color: #d1d5db;
+            line-height: 1.7;
+            margin-bottom: 25px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .social-link {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background: var(--color-primary);
+            transform: translateY(-3px);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #374151;
+            padding-top: 20px;
+            text-align: center;
+        }
+
+        .footer-bottom p {
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .loading-content {
+            text-align: center;
+            color: white;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(34, 197, 94, 0.3);
+            border-top: 4px solid var(--color-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        /* Contact Form Modal */
+        .contact-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .contact-modal.show {
+            display: flex;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            position: relative;
+            background: white;
+            border-radius: 20px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            transform: scale(0.7);
+            opacity: 0;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .contact-modal.show .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .modal-header {
+            padding: 30px 30px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--color-gray);
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(0, 0, 0, 0.1);
+            color: var(--color-dark);
+        }
+
+        .modal-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+        }
+
+        .modal-icon.success {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+        }
+
+        .modal-icon.error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .modal-header h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-dark);
+            margin: 0;
+        }
+
+        .modal-body {
+            padding: 0 30px 20px;
+            text-align: center;
+        }
+
+        .modal-body p {
+            color: var(--color-gray);
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        .modal-footer {
+            padding: 20px 30px 30px;
+            text-align: center;
+        }
+
+        .modal-btn {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                top: 10px;
+                width: calc(100% - 20px);
+                height: 70px;
+                border-radius: 15px;
+            }
+
+            .header-container {
+                padding: 0 20px;
+            }
+
+            .logo img {
+                width: 45px;
+                height: 45px;
+            }
+
+            .logo-text {
+                font-size: 20px;
+            }
+
+            .nav-menu {
+                display: none;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .hero-content {
+                padding: 20px;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-description {
+                font-size: 1rem;
+            }
+
+            .hero-stats {
+                display: none;
+            }
+
+            .why-best-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .offer-content {
+                grid-template-columns: 1fr;
+                gap: 50px;
+                text-align: center;
+            }
+
+            .offer-content .offer-visual {
+                order: -1;
+            }
+
+            .offer-title::after {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .offer-features {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .phone-mockup img {
+                width: 280px;
+            }
+
+            .phone-background {
+                width: 380px;
+                height: 380px;
+            }
+
+            .modal-top {
+                top: 40px;
+                right: -40px;
+                max-width: 140px;
+                font-size: 0.8rem;
+            }
+
+            .modal-bottom {
+                bottom: 80px;
+                left: -50px;
+                max-width: 130px;
+                font-size: 0.8rem;
+            }
+
+            .courses-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .section-title,
+            .offer-title,
+            .community-title,
+            .universities-title,
+            .news-title,
+            .contact-title {
+                font-size: 2.2rem;
+            }
+
+            .why-best-section,
+            .offer-section,
+            .courses-section,
+            .reviews-section,
+            .community-section,
+            .universities-section,
+            .news-section,
+            .contact-section {
+                padding: 80px 15px;
+            }
+
+            .review-card {
+                min-width: 95%;
+                max-width: 95%;
+                padding: 2rem 1.5rem;
+            }
+
+            .community-card {
+                min-width: 250px;
+                height: 250px;
+            }
+
+            .university-card {
+                min-width: 300px;
+                height: 220px;
+            }
+
+            .contact-container {
+                grid-template-columns: 1fr;
+                max-width: 500px;
+            }
+
+            .contact-info,
+            .contact-form {
+                padding: 40px 30px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+                text-align: center;
+            }
+
+            .footer-brand {
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 280px;
+            }
+
+            .review-card .reviewer-name {
+                font-size: 1.1rem;
+            }
+
+            .review-card .review-text {
+                font-size: 1rem;
+            }
+
+            .community-card {
+                min-width: 220px;
+                height: 220px;
+            }
+
+            .university-card {
+                min-width: 280px;
+                height: 200px;
+            }
+
+            .contact-form,
+            .contact-info {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header" id="header">
+        <div class="header-container">
+            <a href="#" class="logo">
+                <img src="https://c7wfzhbejlqborls.public.blob.vercel-storage.com/1000230185-removebg-preview-T4QEc3Sxf6BsCcvJKC0JRvsedK3eO9.png" alt="MyEasySchool Logo">
+                <span class="logo-text">MyEasySchool</span>
+            </a>
+            <nav class="nav">
+                <ul class="nav-menu">
+                    <li><a href="#hero" class="nav-link active">Home</a></li>
+                    <li><a href="#about" class="nav-link">About</a></li>
+                    <li><a href="#blogs" class="nav-link">Blogs</a></li>
+                    <li><a href="#contact" class="nav-cta">Contact Us</a></li>
+                </ul>
+            </nav>
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu" aria-expanded="false">
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+            </button>
+        </div>
+    </header>
+
+    <div class="mobile-menu" id="mobileMenu">
+        <nav>
+            <ul class="mobile-nav">
+                <li>
+                    <a href="#hero" class="mobile-nav-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mobile-nav-icon">
+                            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                        Home
+                    </a>
+                </li>
+                <li>
+                    <a href="#about" class="mobile-nav-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mobile-nav-icon">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M12 16v-4"></path>
+                            <path d="M12 8h.01"></path>
+                        </svg>
+                        About
+                    </a>
+                </li>
+                <li>
+                    <a href="#blogs" class="mobile-nav-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mobile-nav-icon">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                        </svg>
+                        Blogs
+                    </a>
+                </li>
+                <li>
+                    <a href="#contact" class="mobile-nav-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mobile-nav-icon">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                        Contact Us
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <main class="main">
+        <section class="hero" id="hero">
+            <div class="swiper-container hero-swiper-container">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide hero-slide">
+                        <div class="hero-slide-image" style="background-image: url('https://img.gs/qnmmkvpkzv/full/https://c7wfzhbejlqborls.public.blob.vercel-storage.com/young-african-female-student-with-facemask-holding-her-textbooks-campus-area.jpg');"></div>
+                        <div class="hero-content" data-aos="fade-up">
+                            <h1 class="hero-title">Discover Your True <span>Potentials</span> as a Student</h1>
+                            <p class="hero-description">Unlock academic excellence with personalized learning experiences.</p>
+                            <div class="hero-cta">
+                                <a href="sign-up.html" class="btn btn-gradient">Sign Up</a>
+                                <a href="sign-in.html" class="btn btn-outline-brand">Sign In</a>
+                            </div>
+                        </div>
+                        <div class="hero-stats">
+                            <div class="stats-images">
+                                <div class="stats-image">
+                                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20230912-WA0044.jpg-lrHrUSVRFzNaCbXEIvUMd8vhVZJNpS.jpeg" alt="Student 1">
+                                </div>
+                                <div class="stats-image">
+                                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20240526-WA0007.jpg-B5y4KImFoYbmCJggP0NnsP0Rie2fld.jpeg" alt="Student 2">
+                                </div>
+                                <div class="stats-image">
+                                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20230912-WA0046.jpg-fRY6K0df4QwFSCF89IJCoHiXB8sYqb.jpeg" alt="Student 3">
+                                </div>
+                            </div>
+                            <div class="stats-text">
+                                Over <span class="stats-number">5000+</span><br>Students Impacted
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-slide hero-slide">
+                        <div class="hero-slide-image" style="background-image: url('https://img.gs/qnmmkvpkzv/full/https://c7wfzhbejlqborls.public.blob.vercel-storage.com/dl.beatsnoop.com-3000-KDWerX3ayV.jpg');"></div>
+                        <div class="hero-content" data-aos="fade-up">
+                            <h1 class="hero-title">Promoting High Quality <span>Education</span> for 3 Years+</h1>
+                            <p class="hero-description">Excellence in educational technology, transforming learning experiences worldwide.</p>
+                            <div class="hero-cta">
+                                <a href="sign-up.html" class="btn btn-gradient">Sign Up</a>
+                                <a href="sign-in.html" class="btn btn-outline-brand">Sign In</a>
+                            </div>
+                        </div>
+                        <div class="hero-stats">
+                            <div class="stats-images">
+                                <div class="stats-image">
+                                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20230912-WA0044.jpg-lrHrUSVRFzNaCbXEIvUMd8vhVZJNpS.jpeg" alt="Student 1">
+                                </div>
+                                <div class="stats-image">
+                                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20240526-WA0007.jpg-B5y4KImFoYbmCJggP0NnsP0Rie2fld.jpeg" alt="Student 2">
+                                </div>
+                                <div class="stats-image">
+                                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20230912-WA0046.jpg-fRY6K0df4QwFSCF89IJCoHiXB8sYqb.jpeg" alt="Student 3">
+                                </div>
+                            </div>
+                            <div class="stats-text">
+                                Over <span class="stats-number">5000+</span><br>Students Impacted
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-slide hero-slide">
+                        <div class="hero-slide-image" style="background-image: url('https://img.gs/qnmmkvpkzv/full/https://c7wfzhbejlqborls.public.blob.vercel-storage.com/group-five-african-college-students-spending-time-together-campus-university-yard-black-afro-friends-sitting-grass-studying-with-laptops.jpg');"></div>
+                        <div class="hero-content" data-aos="fade-up">
+                            <h1 class="hero-title">Connect with Your <span>Peers</span> and Colleagues</h1>
+                            <p class="hero-description">Build connections and collaborate in our vibrant learning community.</p>
+                            <div class="hero-cta">
+                                <a href="sign-up.html" class="btn btn-gradient">Sign Up</a>
+                                <a href="sign-in.html" class="btn btn-outline-brand">Sign In</a>
+                            </div>
+                        </div>
+                        <div class="hero-stats">
+                            <div class="stats-images">
+                                <div class="stats-image">
+                                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20230912-WA0044.jpg-lrHrUSVRFzNaCbXEIvUMd8vhVZJNpS.jpeg" alt="Student 1">
+                                </div>
+                                <div class="stats-image">
+                                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20240526-WA0007.jpg-B5y4KImFoYbmCJggP0NnsP0Rie2fld.jpeg" alt="Student 2">
+                                </div>
+                                <div class="stats-image">
+                                    <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20230912-WA0046.jpg-fRY6K0df4QwFSCF89IJCoHiXB8sYqb.jpeg" alt="Student 3">
+                                </div>
+                            </div>
+                            <div class="stats-text">
+                                Over <span class="stats-number">5000+</span><br>Students Impacted
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper-pagination"></div>
+            </div>
+        </section>
+
+        <!-- Section Spacing -->
+        <div class="section-spacing"></div>
+
+        <!-- Why We Are The Best Section -->
+        <section class="why-best-section">
+            <div class="section-container">
+                <div class="section-header">
+                    <h2 class="section-title">Why We Are The Best</h2>
+                </div>
+                <div class="why-best-grid">
+                    <div class="why-best-item" data-aos="fade-up">
+                        <div class="why-best-image-container">
+                            <div class="why-best-splash"></div>
+                            <div class="why-best-image">
+                                <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1000254512-removebg-preview-BMF28Oa0B0LLzaXiwpYNGTF7peiwSJ.png" alt="Quality Education">
+                            </div>
+                        </div>
+                        <h3 class="why-best-title">Quality Education</h3>
+                        <p class="why-best-description">We provide top-tier educational content designed by experts to ensure comprehensive learning and academic excellence.</p>
+                    </div>
+                    <div class="why-best-item" data-aos="fade-up" data-aos-delay="100">
+                        <div class="why-best-image-container">
+                            <div class="why-best-splash"></div>
+                            <div class="why-best-image">
+                                <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1000254514-removebg-preview-96vCbdZdTZEMVm4x0C8U026Q53JOkZ.png" alt="Study Scheduling">
+                            </div>
+                        </div>
+                        <h3 class="why-best-title">Helps You Schedule Your Studies</h3>
+                        <p class="why-best-description">Smart scheduling tools and personalized study plans help you manage your time effectively and stay on track.</p>
+                    </div>
+                    <div class="why-best-item" data-aos="fade-up" data-aos-delay="200">
+                        <div class="why-best-image-container">
+                            <div class="why-best-splash"></div>
+                            <div class="why-best-image">
+                                <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1000254516-removebg-preview-uPMKNZq0KR2zCk9iojgkPGISJf9o4y.png" alt="Past Questions">
+                            </div>
+                        </div>
+                        <h3 class="why-best-title">Over 4000+ Past Questions to Practice</h3>
+                        <p class="why-best-description">Extensive database of past questions and practice materials to help you prepare thoroughly for your exams.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Spacing -->
+        <div class="section-spacing"></div>
+
+        <!-- What We Have To Offer Section -->
+        <section class="offer-section">
+            <div class="section-container">
+                <div class="offer-content">
+                    <div class="offer-text">
+                        <h2 class="offer-title">What We Offer</h2>
+                        <p class="offer-description">
+                            We understand that university courses can sometimes feel overwhelming and difficult to grasp. That's exactly what MyEasySchool is here to solve - we break down complex academic concepts into simple, digestible lessons that every student can understand and master.
+                        </p>
+                        <div class="offer-features">
+                            <div class="offer-feature">
+                                <div class="feature-number">1</div>
+                                <div class="feature-icon"><i class="fas fa-book"></i></div>
+                                <div class="feature-text">
+                                    <h4>Over 4000+ Questions</h4>
+                                </div>
+                            </div>
+                            <div class="offer-feature">
+                                <div class="feature-number">2</div>
+                                <div class="feature-icon"><i class="fas fa-lightbulb"></i></div>
+                                <div class="feature-text">
+                                    <h4>Detailed Explanations</h4>
+                                </div>
+                            </div>
+                            <div class="offer-feature">
+                                <div class="feature-number">3</div>
+                                <div class="feature-icon"><i class="fas fa-desktop"></i></div>
+                                <div class="feature-text">
+                                    <h4>Exams Simulation</h4>
+                                </div>
+                            </div>
+                            <div class="offer-feature">
+                                <div class="feature-number">4</div>
+                                <div class="feature-icon"><i class="fas fa-file-alt"></i></div>
+                                <div class="feature-text">
+                                    <h4>Solution Manuals and Flashcards</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="offer-visual">
+                        <div class="phone-background"></div>
+                        <div class="phone-mockup">
+                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/1000255556-removebg-preview-zFRydJsZkr2PfLxW0VmdDpD4yjoRvn.png" alt="MyEasySchool App">
+                        </div>
+                        <div class="phone-modal modal-top">
+                            Over 4000+ Questions
+                        </div>
+                        <div class="phone-modal modal-bottom">
+                            Detailed Explanations
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Spacing -->
+        <div class="section-spacing"></div>
+
+        <!-- Courses Section -->
+        <section class="courses-section" id="courses">
+            <div class="section-container">
+                <div class="section-header">
+                    <h2 class="section-title">Explore Demo Courses</h2>
+                </div>
+                <div class="courses-grid">
+                    <div class="course-card" data-aos="fade-up">
+                        <div class="course-image">
+                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20-%202025-07-30T111321.684-MkvYAhYACuV3s8UomHErqR0UO6lNDT.jpeg" alt="Nigeria People and Culture">
+                        </div>
+                        <div class="course-divider"></div>
+                        <div class="course-content">
+                            <h3 class="course-title">Nigeria People and Culture</h3>
+                            <p class="course-description">Explore the rich cultural heritage and diverse traditions of Nigeria through comprehensive study materials.</p>
+                            <div class="course-actions">
+                                <a href="#" class="course-link">Learn More →</a>
+                                <a href="Npc-quizdemo.html" class="try-btn">Try Out</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="course-card" data-aos="fade-up" data-aos-delay="100">
+                        <div class="course-image">
+                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20-%202025-07-30T111520.542-9tE4xEd0LUPqmYHrg07uXAjaS706yN.jpeg" alt="Mathematics">
+                        </div>
+                        <div class="course-divider"></div>
+                        <div class="course-content">
+                            <h3 class="course-title">Mathematics</h3>
+                            <p class="course-description">Master mathematical concepts with our structured approach to problem-solving and analytical thinking.</p>
+                            <div class="course-actions">
+                                <a href="#" class="course-link">Learn More →</a>
+                                <a href="math-demoquiz.html" class="try-btn">Try Out</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="course-card" data-aos="fade-up" data-aos-delay="200">
+                        <div class="course-image">
+                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20-%202025-07-30T111856.899-crSQT34LURDiKdNZcDCH67xX92X6JE.jpeg" alt="Chemistry">
+                        </div>
+                        <div class="course-divider"></div>
+                        <div class="course-content">
+                            <h3 class="course-title">Chemistry</h3>
+                            <p class="course-description">Dive deep into chemical reactions, molecular structures, and laboratory techniques.</p>
+                            <div class="course-actions">
+                                <a href="#" class="course-link">Learn More →</a>
+                                <a href="chemistry-quizdemo.html" class="try-btn">Try Out</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="course-card" data-aos="fade-up" data-aos-delay="300">
+                        <div class="course-image">
+                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20-%202025-07-30T112139.548-IJTfSgZEYYTSrzTKGhtddlF0daoUYi.jpeg" alt="Physics">
+                        </div>
+                        <div class="course-divider"></div>
+                        <div class="course-content">
+                            <h3 class="course-title">Physics</h3>
+                            <p class="course-description">Understand the fundamental laws of nature through theoretical concepts and practical applications.</p>
+                            <div class="course-actions">
+                                <a href="#" class="course-link">Learn More →</a>
+                                <a href="physics-demoquiz.html" class="try-btn">Try Out</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="see-more-container">
+                    <a href="sign-in.html" class="see-more-btn">See More Courses</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Spacing -->
+        <div class="section-spacing"></div>
+
+        <!-- Testimonials Section -->
+        <section class="reviews-section">
+            <div class="section-container">
+                <div class="section-header">
+                    <h2 class="section-title">What Students Have To Say</h2>
+                </div>
+                <div class="review-slider-container">
+                    <div class="review-slider-wrapper">
+                        <div class="review-slider" id="reviewSlider">
+                            <div class="review-card">
+                                <div class="reviewer-name">God'swill Ubong</div>
+                                <div class="review-text">MyEasySchool gives you an idea of how the real exam would be like, in order for you to prepare yourself.</div>
+                            </div>
+                            <div class="review-card">
+                                <div class="reviewer-name">God'swin</div>
+                                <div class="review-text">It explored me more to advance learning. E get y!</div>
+                            </div>
+                            <div class="review-card">
+                                <div class="reviewer-name">Victor Felix</div>
+                                <div class="review-text">It gives you a draft of the kind of questions to expect in the exams itself.</div>
+                            </div>
+                            <div class="review-card">
+                                <div class="reviewer-name">David</div>
+                                <div class="review-text">MyEasySchool summarized all my learning materials in one place.</div>
+                            </div>
+                            <div class="review-card">
+                                <div class="reviewer-name">Archibong</div>
+                                <div class="review-text">MyEasySchool boosted my confidence to write my exams.</div>
+                            </div>
+                            <div class="review-card">
+                                <div class="reviewer-name">Miriam</div>
+                                <div class="review-text">It helps you practice better for exam.</div>
+                            </div>
+                            <div class="review-card">
+                                <div class="reviewer-name">Eddidiong Emmanuel</div>
+                                <div class="review-text">It is the best I've seen that guide one to success.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slider-nav">
+                        <button id="prevBtn">‹</button>
+                        <button id="nextBtn">›</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Spacing -->
+        <div class="section-spacing"></div>
+
+        <!-- Community Section -->
+        <section class="community-section">
+            <div class="section-container">
+                <div class="community-header">
+                    <h2 class="community-title">Join a Community of Active Learners</h2>
+                </div>
+                <div class="community-slider">
+                    <button class="nav-arrow nav-arrow-left" id="communityPrevBtn" aria-label="Previous">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="nav-arrow nav-arrow-right" id="communityNextBtn" aria-label="Next">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <div class="community-cards" id="communityCards">
+                        <div class="community-card">
+                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/group-five-african-college-students-spending-time-together-campus-university-yard-black-afro-friends-studying-education-theme.jpg-uJLrEjsaKnez0rCFEiJXxeZtBet9fw.jpeg" alt="Students collaborating on campus">
+                        </div>
+                        <div class="community-card">
+                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/portrait-young-woman-with-laptop-hands-outside-school.jpg-ATbdTYNHtNeHD7H2CSMEK5jw7LW4zT.jpeg" alt="Student with laptop outside school">
+                        </div>
+                        <div class="community-card">
+                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/medium-shot-hard-working-student.jpg-cf0yNvb0grRUoYzBR9nO2BbZ7lA3kN.jpeg" alt="Hard working student studying">
+                        </div>
+                        <div class="community-card">
+                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/study-group-african-people%20%281%29.jpg-NOEIKG1MzDVHInGNFCU1cHaC7cTKM9.jpeg" alt="Study group of African students">
+                        </div>
+                        <div class="community-card">
+                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/young-student-working-assignment.jpg-CrsxPCx7s5oCQPYiAydtPMozm9DBJ0.jpeg" alt="Student working on assignment">
+                        </div>
+                        <div class="community-card">
+                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/study-group-african-people.jpg-MHh0v5qa1Byw0asw5HpCX8KdX3MKeU.jpeg" alt="Students studying together in library">
+                        </div>
+                        <div class="community-card">
+                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/shot-professional-black-graphic-designer-works-remotely-sits-front-opened-laptop.jpg-664jKNcvCug7rxynYgUhT3WoJ2Xc6Y.jpeg" alt="Professional student working remotely">
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 40px;">
+                    <a href="#" class="join-btn">Join Community</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Spacing -->
+        <div class="section-spacing"></div>
+
+        <!-- Universities Section -->
+        <section class="universities-section">
+            <div class="section-container">
+                <div class="universities-header">
+                    <h2 class="universities-title">Universities MyEasySchool is Available In</h2>
+                </div>
+                <div class="universities-slider">
+                    <button class="nav-arrow nav-arrow-left" id="universitiesPrevBtn" aria-label="Previous">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="nav-arrow nav-arrow-right" id="universitiesNextBtn" aria-label="Next">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <div class="universities-cards" id="universitiesCards">
+                        <div class="university-card">
+                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Akwa-Ibom-State-University-768x383.jpg-li4lajbZFoPm0aKnKdnssdSVPd06Hq.jpeg" alt="Akwa Ibom State University">
+                            <div class="university-name">Akwa Ibom State University</div>
+                            <div class="university-explore">Explore Courses</div>
+                        </div>
+                        <div class="university-card">
+                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/University_of_Uyo.jpg-LT7P3N6lrnvVG7S7iVjdJk8yMih4Mr.jpeg" alt="University of Uyo">
+                            <div class="university-name">University of Uyo</div>
+                            <div class="university-explore">Explore Courses</div>
+                        </div>
+                        <div class="university-card">
+                            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/university-of-nigeria-nsukka-unn.jpg-IMQhHZ3zie3lNSfoWtQ0kJLxUCQdNI.jpeg" alt="University of Nigeria, Nsukka">
+                            <div class="university-name">University of Nsukka</div>
+                            <div class="university-explore">Explore Courses</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="get-started-container">
+                    <a href="#" class="get-started-btn">Get Started</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Spacing -->
+        <div class="section-spacing"></div>
+
+        <!-- Academic News Section -->
+        <section class="news-section">
+            <div class="section-container">
+                <div class="news-header">
+                    <h2 class="news-title">Academic News</h2>
+                </div>
+                <div class="news-grid">
+                    <div class="news-card" data-aos="fade-up">
+                        <div class="news-image">
+                            <img src="group-afro-americans-working-together.jpg" alt="High-Demand Side Hustles">
+                        </div>
+                        <div class="news-content">
+                            <h3 class="news-card-title">High-Demand Side Hustles for UniUyo & AKSU Students</h3>
+                            <p class="news-excerpt">Being a student in Nigeria is not cheap. Tuition, transport, and daily meals can quickly eat up allowances. But instead of depending entirely on family, you can turn your creative skills, whether it's graphic design or public speaking...</p>
+                            <a href="high-demand-side-hustles.html" class="read-more-btn">Read More</a>
+                        </div>
+                    </div>
+                    <div class="news-card" data-aos="fade-up" data-aos-delay="100">
+                        <div class="news-image">
+                            <img src="ibpremiumthree242208-1920x1080.jpg.webp" alt="Study Smart With Phone">
+                        </div>
+                        <div class="news-content">
+                            <h3 class="news-card-title">How to Study Smartly With Your Phone (Without Falling Into the TikTok Trap)</h3>
+                            <p class="news-excerpt">Picture this: you grab your phone to "quickly" check a study resource, but twenty minutes later you're laughing at a TikTok dance challenge you don't even remember clicking on. Sounds familiar, you're not lazy, and you're definitely not alone...</p>
+                            <a href="tiktok-doomscrolling.html" class="read-more-btn">Read More</a>
+                        </div>
+                    </div>
+                    <div class="news-card" data-aos="fade-up" data-aos-delay="200">
+                        <div class="news-image">
+                            <img src="hq720.jpg" alt="Study Smart">
+                        </div>
+                        <div class="news-content">
+                            <h3 class="news-card-title">How to master anything like an A+ students by studying smart, not hard</h3>
+                            <p class="news-excerpt">Benjamin Franklin, one of the Founding Fathers of the United States wasn't always the genius you read about in history books. In fact, as a boy, he was considered lazy, dull, and even got the nickname "the idle boy." Teachers thought he was hopeless...</p>
+                            <a href="study-like-an-A+.html" class="read-more-btn">Read More</a>
+                        </div>
+                    </div>
+                    <div class="news-card" data-aos="fade-up" data-aos-delay="300">
+                        <div class="news-image">
+                            <img src="25-Scholarships-for-Nigerian-Students-to-Study-Abroad-800x500.jpg" alt="Scholarship Opportunities">
+                        </div>
+                        <div class="news-content">
+                            <h3 class="news-card-title">15 Scholarships for Nigerian Students with Low CGPA (Step-by-Step Guide)</h3>
+                            <p class="news-excerpt">Are you a student worried that your low CGPA means you can't win a scholarship? Take a deep breath, you're not alone. Many students believe scholarships are only for first-class or straight-A students. But the truth is, several scholarship opportunities exist for students with average or even low GPAs...</p>
+                            <a href="15-scholarships-for-nigerian-students.html" class="read-more-btn">Read More</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="see-all-news-container">
+                    <a href="blogs.html" class="see-all-news-btn">See More</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Spacing -->
+        <div class="section-spacing"></div>
+
+        <!-- Contact Section -->
+        <section class="contact-section" id="contact">
+            <div class="section-container">
+                <div class="contact-header">
+                    <h2 class="contact-title">Contact Us</h2>
+                    <p class="contact-subtitle">Get in touch with our team to learn more about our services</p>
+                </div>
+                <div class="contact-container">
+                    <div class="contact-info">
+                        <h3>Get In Touch</h3>
+                        <p>We're here to answer any questions you may have about our educational services. Go ahead and send your messages, we would be happy to reply them. 💚</p>
+                        
+                        <div class="contact-detail">
+                            <i class="fab fa-whatsapp"></i>
+                            <span>09021328900</span>
+                        </div>
+                        
+                        <div class="contact-detail">
+                            <i class="fas fa-envelope"></i>
+                            <span>myeasyschoolhelp@gmail.com</span>
+                        </div>
+                        
+                        <h4 style="margin-top: 30px; margin-bottom: 15px; font-size: 1.1rem;">Follow Us</h4>
+                        <div class="social-links">
+                            <a href="https://www.facebook.com/profile.php?id=100082069716805" target="_blank" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                            <a href="https://www.instagram.com/myeasyschool_aksu?utm_source=ig_web_button_share_sheet&igsh=Y2l4enF6N29ldHBl" target="_blank" class="social-link"><i class="fab fa-instagram"></i></a>
+                            <a href="http://tiktok.com/@myeasyschool_aksu" target="_blank" class="social-link"><i class="fab fa-tiktok"></i></a>
+                        </div>
+                    </div>
+                    <div class="contact-form">
+                        <h3 style="margin-bottom: 30px; color: var(--color-dark); font-size: 1.5rem;">Send Us a Message</h3>
+                        <form id="contactForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="fullName" class="form-label">Full Name</label>
+                                    <input type="text" id="fullName" name="fullName" class="form-input" placeholder="Your full name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email" class="form-label">Email Address</label>
+                                    <input type="email" id="email" name="email" class="form-input" placeholder="Your email address" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="message" class="form-label">Message</label>
+                                <textarea id="message" name="message" class="form-textarea" placeholder="Tell us about your educational needs" required></textarea>
+                            </div>
+                            <button type="submit" class="submit-btn">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-logo">
+                <img src="https://c7wfzhbejlqborls.public.blob.vercel-storage.com/1000230185-removebg-preview-T4QEc3Sxf6BsCcvJKC0JRvsedK3eO9.png" alt="MyEasySchool Logo">
+                <span class="footer-logo-text">MyEasySchool</span>
+            </div>
+            <p class="footer-description">
+                Empowering students to achieve academic excellence through innovative learning solutions and comprehensive educational resources.
+            </p>
+            <div class="footer-social">
+                <a href="https://www.facebook.com/profile.php?id=100082069716805" target="_blank" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://www.instagram.com/myeasyschool_aksu?utm_source=ig_web_button_share_sheet&igsh=Y2l4enF6N29ldHBl" target="_blank" class="social-link"><i class="fab fa-instagram"></i></a>
+                <a href="http://tiktok.com/@myeasyschool_aksu" target="_blank" class="social-link"><i class="fab fa-tiktok"></i></a>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 MyEasySchool. All rights reserved. Designed with ❤️ for students.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Contact Form Modal -->
+    <div id="contactModal" class="contact-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon" id="modalIcon">
+                    <!-- Icon will be dynamically added -->
+                </div>
+                <h3 id="modalTitle">Message Status</h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="modalMessage">Your message has been processed.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" id="modalOkBtn">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <div class="loading-text">Sending your message...</div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+    <script>
+        // API Configuration
+        const API_BASE = 'https://my-easy-school-api.onrender.com/api';
+
+        // Authentication check function
+        async function checkAuthenticationAndRedirect() {
+            try {
+                console.log('[Landing] Checking authentication status...');
+                
+                const token = localStorage.getItem('token');
+                const user = localStorage.getItem('user');
+                
+                console.log('[Landing] Token exists:', !!token);
+                console.log('[Landing] User data exists:', !!user);
+                
+                // If no token or user data, user is not authenticated
+                if (!token || !user) {
+                    console.log('[Landing] User not authenticated, staying on landing page');
+                    return;
+                }
+                
+                // Parse user data
+                let userData;
+                try {
+                    userData = JSON.parse(user);
+                } catch (error) {
+                    console.error('[Landing] Error parsing user data:', error);
+                    // Clear invalid data
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    return;
+                }
+                
+                console.log('[Landing] User data parsed successfully:', userData.email);
+                
+                // Verify token with API (same logic as dashboard.html)
+                console.log('[Landing] Verifying token with API...');
+                const response = await fetch(`${API_BASE}/users/me`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const apiUserData = await response.json();
+                    console.log('[Landing] Token verification successful');
+                    console.log('[Landing] API user data:', apiUserData);
+                    
+                    // Check if user has selected university/semester
+                    const currentSemester = apiUserData.currentSemester;
+                    if (!currentSemester || !currentSemester._id) {
+                        console.log('[Landing] No university/semester selected, redirecting to university selection');
+                        window.location.href = 'university-selection.html';
+                        return;
+                    }
+                    
+                    // User is fully authenticated and has university selected
+                    console.log('[Landing] User fully authenticated, redirecting to dashboard');
+                    window.location.href = 'dashboard.html';
+                    
+                } else {
+                    console.log('[Landing] Token verification failed:', response.status);
+                    // Clear invalid token
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('currentUserData');
+                }
+                
+            } catch (error) {
+                console.error('[Landing] Authentication check error:', error);
+                // On network error, check if we have valid stored data
+                const token = localStorage.getItem('token');
+                const user = localStorage.getItem('user');
+                
+                if (token && user) {
+                    try {
+                        const userData = JSON.parse(user);
+                        if (userData.email) {
+                            console.log('[Landing] Network error but valid stored data found, redirecting to dashboard');
+                            window.location.href = 'dashboard.html';
+                            return;
+                        }
+                    } catch (parseError) {
+                        console.error('[Landing] Error parsing stored user data:', parseError);
+                    }
+                }
+                
+                console.log('[Landing] Authentication check failed, staying on landing page');
+            }
+        }
+
+        // Initialize EmailJS with SDK verification
+        window.addEventListener('DOMContentLoaded', () => {
+            // Verify SDK loaded
+            if (typeof emailjs === 'undefined') {
+                console.error('EmailJS SDK failed to load!');
+                return;
+            }
+            emailjs.init('R_s_d01TPKlpSRB0s'); // Public Key
+            console.log('EmailJS initialized successfully');
+        });
+
+        // Contact Form Modal Functions
+        function showModal(isSuccess, message) {
+            const modal = document.getElementById('contactModal');
+            const modalIcon = document.getElementById('modalIcon');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalMessage = document.getElementById('modalMessage');
+
+            // Set modal content based on success/error
+            if (isSuccess) {
+                modalIcon.className = 'modal-icon success';
+                modalIcon.innerHTML = '<i class="fas fa-check"></i>';
+                modalTitle.textContent = 'Message Sent Successfully!';
+                modalMessage.textContent = message || 'Thank you for contacting us. We will get back to you soon.';
+            } else {
+                modalIcon.className = 'modal-icon error';
+                modalIcon.innerHTML = '<i class="fas fa-times"></i>';
+                modalTitle.textContent = 'Message Failed to Send';
+                modalMessage.textContent = message || 'Sorry, there was an error sending your message. Please try again.';
+            }
+
+            // Show modal
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function hideModal() {
+            const modal = document.getElementById('contactModal');
+            modal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        // Loading overlay functions
+        function showLoadingOverlay() {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function hideLoadingOverlay() {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        // Contact Form Handler
+        function handleContactForm(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.textContent;
+            
+            // Show loading overlay
+            showLoadingOverlay();
+            
+            // Show loading state on button
+            submitBtn.textContent = 'Sending...';
+            submitBtn.disabled = true;
+
+            // Send email using EmailJS sendForm (matches working example)
+            emailjs.sendForm('service_03tiv9c', 'template_sc3jc8q', form)
+                .then(function(response) {
+                    console.log('Email sent successfully:', response);
+                    hideLoadingOverlay();
+                    showModal(true, 'Your message has been sent successfully! We will get back to you within 24 hours.');
+                    form.reset();
+                })
+                .catch(function(error) {
+                    console.error('EmailJS error:', error);
+                    hideLoadingOverlay();
+                    showModal(false, 'Failed to send message. Please check your internet connection and try again.');
+                })
+                .finally(function() {
+                    // Reset button state
+                    submitBtn.textContent = originalBtnText;
+                    submitBtn.disabled = false;
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize AOS
+            AOS.init({
+                duration: 1000,
+                easing: 'ease-in-out',
+                once: true,
+                mirror: false,
+                offset: 100
+            });
+
+            // Contact Form Event Listener
+            const contactForm = document.getElementById('contactForm');
+            if (contactForm) {
+                contactForm.addEventListener('submit', handleContactForm);
+                console.log('Contact form event listener attached successfully');
+            } else {
+                console.error('Contact form not found!');
+            }
+
+            // Modal Event Listeners
+            const modal = document.getElementById('contactModal');
+            const modalClose = document.getElementById('modalClose');
+            const modalOkBtn = document.getElementById('modalOkBtn');
+            const modalOverlay = modal.querySelector('.modal-overlay');
+
+            modalClose.addEventListener('click', hideModal);
+            modalOkBtn.addEventListener('click', hideModal);
+            modalOverlay.addEventListener('click', hideModal);
+
+            // Close modal with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modal.classList.contains('show')) {
+                    hideModal();
+                }
+            });
+
+            // Mobile menu functionality
+            const menuToggle = document.getElementById('menuToggle');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const body = document.body;
+
+            menuToggle.addEventListener('click', function() {
+                const isActive = mobileMenu.classList.toggle('active');
+                menuToggle.classList.toggle('active');
+                menuToggle.setAttribute('aria-expanded', isActive);
+                body.style.overflow = isActive ? 'hidden' : '';
+            });
+
+            function closeMobileMenu() {
+                mobileMenu.classList.remove('active');
+                menuToggle.classList.remove('active');
+                menuToggle.setAttribute('aria-expanded', 'false');
+                body.style.overflow = '';
+            }
+
+            document.querySelectorAll('.mobile-nav-link').forEach(link => {
+                link.addEventListener('click', closeMobileMenu);
+            });
+
+            // Header scroll effect
+            const header = document.getElementById('header');
+            window.addEventListener('scroll', () => {
+                header.classList.toggle('scrolled', window.scrollY > 50);
+            });
+
+            // Hero Swiper
+            const heroSwiper = new Swiper('.hero-swiper-container', {
+                loop: true,
+                autoplay: {
+                    delay: 6000,
+                    disableOnInteraction: false
+                },
+                effect: 'fade',
+                fadeEffect: {
+                    crossFade: true
+                },
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true
+                },
+                navigation: false,
+                on: {
+                    slideChangeTransitionStart: function() {
+                        this.slides.forEach(slide => {
+                            const imgDiv = slide.querySelector('.hero-slide-image');
+                            if (imgDiv) imgDiv.style.transform = 'scale(1)';
+                        });
+                    },
+                    slideChangeTransitionEnd: function() {
+                        const activeSlideImg = this.slides[this.activeIndex].querySelector('.hero-slide-image');
+                        if (activeSlideImg) activeSlideImg.style.transform = 'scale(1.1)';
+                    }
+                }
+            });
+
+            // Initialize first slide image scale
+            const initialActiveSlideImg = heroSwiper.slides[heroSwiper.activeIndex].querySelector('.hero-slide-image');
+            if (initialActiveSlideImg) initialActiveSlideImg.style.transform = 'scale(1.1)';
+
+            // Review Slider
+            const reviewSlider = document.getElementById('reviewSlider');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const reviewCards = document.querySelectorAll('.review-card');
+            
+            let currentIndex = 0;
+            let isTransitioning = false;
+            let startX = 0;
+            let currentX = 0;
+            let isDragging = false;
+
+            function updateSlider() {
+                if (isTransitioning) return;
+                isTransitioning = true;
+                
+                const cardWidth = reviewCards[0].offsetWidth + 24; // card width + margin
+                reviewSlider.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
+                
+                prevBtn.disabled = currentIndex === 0;
+                nextBtn.disabled = currentIndex >= reviewCards.length - 1;
+                
+                setTimeout(() => {
+                    isTransitioning = false;
+                }, 500);
+            }
+
+            function nextSlide() {
+                if (currentIndex < reviewCards.length - 1) {
+                    currentIndex++;
+                    updateSlider();
+                }
+            }
+
+            function prevSlide() {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    updateSlider();
+                }
+            }
+
+            // Button controls
+            nextBtn.addEventListener('click', nextSlide);
+            prevBtn.addEventListener('click', prevSlide);
+
+            // Touch/Mouse controls for review slider with Smart Scrolling
+            reviewSlider.addEventListener('mousedown', handleStart);
+            reviewSlider.addEventListener('touchstart', handleStart, { passive: true });
+            reviewSlider.addEventListener('mousemove', handleMove);
+            reviewSlider.addEventListener('touchmove', handleMove, { passive: false });
+            reviewSlider.addEventListener('mouseup', handleEnd);
+            reviewSlider.addEventListener('touchend', handleEnd);
+            reviewSlider.addEventListener('mouseleave', handleEnd);
+
+            let startY = 0;
+            let isHorizontalSwipe = false;
+
+            function handleStart(e) {
+                isDragging = true;
+                isHorizontalSwipe = false;
+                reviewSlider.classList.add('grabbing');
+                startX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
+                startY = e.type === 'mousedown' ? e.clientY : e.touches[0].clientY;
+                currentX = startX;
+            }
+
+            function handleMove(e) {
+                if (!isDragging) return;
+                
+                const currentXPos = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+                const currentYPos = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
+                
+                const deltaX = Math.abs(currentXPos - startX);
+                const deltaY = Math.abs(currentYPos - startY);
+                
+                // Determine if this is a horizontal or vertical gesture
+                if (!isHorizontalSwipe && (deltaX > 10 || deltaY > 10)) {
+                    isHorizontalSwipe = deltaX > deltaY;
+                }
+                
+                // Only prevent default if it's a horizontal swipe
+                if (isHorizontalSwipe) {
+                    e.preventDefault();
+                    currentX = currentXPos;
+                }
+            }
+
+            function handleEnd() {
+                if (!isDragging) return;
+                isDragging = false;
+                reviewSlider.classList.remove('grabbing');
+                
+                if (isHorizontalSwipe) {
+                    const diff = startX - currentX;
+                    const threshold = 50;
+                    
+                    if (Math.abs(diff) > threshold) {
+                        if (diff > 0) {
+                            nextSlide();
+                        } else {
+                            prevSlide();
+                        }
+                    }
+                }
+                
+                isHorizontalSwipe = false;
+            }
+
+            // Initialize review slider
+            updateSlider();
+
+            // Community Cards Slider with Smart Scrolling
+            const communityCards = document.getElementById('communityCards');
+            let communityStartX = 0;
+            let communityStartY = 0;
+            let communityCurrentX = 0;
+            let communityIsDragging = false;
+            let communityIsHorizontalSwipe = false;
+            let communityTranslateX = 0;
+
+            communityCards.addEventListener('mousedown', handleCommunityStart);
+            communityCards.addEventListener('touchstart', handleCommunityStart, { passive: true });
+            communityCards.addEventListener('mousemove', handleCommunityMove);
+            communityCards.addEventListener('touchmove', handleCommunityMove, { passive: false });
+            communityCards.addEventListener('mouseup', handleCommunityEnd);
+            communityCards.addEventListener('touchend', handleCommunityEnd);
+            communityCards.addEventListener('mouseleave', handleCommunityEnd);
+
+            function handleCommunityStart(e) {
+                communityIsDragging = true;
+                communityIsHorizontalSwipe = false;
+                communityCards.classList.add('grabbing');
+                communityStartX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
+                communityStartY = e.type === 'mousedown' ? e.clientY : e.touches[0].clientY;
+                communityCurrentX = communityStartX;
+            }
+
+            function handleCommunityMove(e) {
+                if (!communityIsDragging) return;
+                
+                const currentX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+                const currentY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
+                
+                const deltaX = Math.abs(currentX - communityStartX);
+                const deltaY = Math.abs(currentY - communityStartY);
+                
+                // Determine if this is a horizontal or vertical gesture
+                if (!communityIsHorizontalSwipe && (deltaX > 10 || deltaY > 10)) {
+                    communityIsHorizontalSwipe = deltaX > deltaY;
+                }
+                
+                // Only prevent default and handle horizontal movement if it's a horizontal swipe
+                if (communityIsHorizontalSwipe) {
+                    e.preventDefault();
+                    communityCurrentX = currentX;
+                    const diff = communityCurrentX - communityStartX;
+                    const newTranslateX = communityTranslateX + diff;
+                    
+                    // Constrain movement
+                    const maxTranslate = 0;
+                    const minTranslate = -(communityCards.scrollWidth - communityCards.parentElement.offsetWidth);
+                    const constrainedTranslate = Math.max(minTranslate, Math.min(maxTranslate, newTranslateX));
+                    
+                    communityCards.style.transform = `translateX(${constrainedTranslate}px)`;
+                }
+            }
+
+            function handleCommunityEnd() {
+                if (!communityIsDragging) return;
+                communityIsDragging = false;
+                communityCards.classList.remove('grabbing');
+                
+                if (communityIsHorizontalSwipe) {
+                    const diff = communityCurrentX - communityStartX;
+                    communityTranslateX += diff;
+                    
+                    // Constrain final position
+                    const maxTranslate = 0;
+                    const minTranslate = -(communityCards.scrollWidth - communityCards.parentElement.offsetWidth);
+                    communityTranslateX = Math.max(minTranslate, Math.min(maxTranslate, communityTranslateX));
+                    
+                    communityCards.style.transform = `translateX(${communityTranslateX}px)`;
+                }
+                
+                communityIsHorizontalSwipe = false;
+            }
+
+            // Universities Cards Slider with Smart Scrolling
+            const universitiesCards = document.getElementById('universitiesCards');
+            let universitiesStartX = 0;
+            let universitiesStartY = 0;
+            let universitiesCurrentX = 0;
+            let universitiesIsDragging = false;
+            let universitiesIsHorizontalSwipe = false;
+            let universitiesTranslateX = 0;
+
+            universitiesCards.addEventListener('mousedown', handleUniversitiesStart);
+            universitiesCards.addEventListener('touchstart', handleUniversitiesStart, { passive: true });
+            universitiesCards.addEventListener('mousemove', handleUniversitiesMove);
+            universitiesCards.addEventListener('touchmove', handleUniversitiesMove, { passive: false });
+            universitiesCards.addEventListener('mouseup', handleUniversitiesEnd);
+            universitiesCards.addEventListener('touchend', handleUniversitiesEnd);
+            universitiesCards.addEventListener('mouseleave', handleUniversitiesEnd);
+
+            function handleUniversitiesStart(e) {
+                universitiesIsDragging = true;
+                universitiesIsHorizontalSwipe = false;
+                universitiesCards.classList.add('grabbing');
+                universitiesStartX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
+                universitiesStartY = e.type === 'mousedown' ? e.clientY : e.touches[0].clientY;
+                universitiesCurrentX = universitiesStartX;
+            }
+
+            function handleUniversitiesMove(e) {
+                if (!universitiesIsDragging) return;
+                
+                const currentX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+                const currentY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
+                
+                const deltaX = Math.abs(currentX - universitiesStartX);
+                const deltaY = Math.abs(currentY - universitiesStartY);
+                
+                // Determine if this is a horizontal or vertical gesture
+                if (!universitiesIsHorizontalSwipe && (deltaX > 10 || deltaY > 10)) {
+                    universitiesIsHorizontalSwipe = deltaX > deltaY;
+                }
+                
+                // Only prevent default and handle horizontal movement if it's a horizontal swipe
+                if (universitiesIsHorizontalSwipe) {
+                    e.preventDefault();
+                    universitiesCurrentX = currentX;
+                    const diff = universitiesCurrentX - universitiesStartX;
+                    const newTranslateX = universitiesTranslateX + diff;
+                    
+                    // Constrain movement
+                    const maxTranslate = 0;
+                    const minTranslate = -(universitiesCards.scrollWidth - universitiesCards.parentElement.offsetWidth);
+                    const constrainedTranslate = Math.max(minTranslate, Math.min(maxTranslate, newTranslateX));
+                    
+                    universitiesCards.style.transform = `translateX(${constrainedTranslate}px)`;
+                }
+            }
+
+            function handleUniversitiesEnd() {
+                if (!universitiesIsDragging) return;
+                universitiesIsDragging = false;
+                universitiesCards.classList.remove('grabbing');
+                
+                if (universitiesIsHorizontalSwipe) {
+                    const diff = universitiesCurrentX - universitiesStartX;
+                    universitiesTranslateX += diff;
+                    
+                    // Constrain final position
+                    const maxTranslate = 0;
+                    const minTranslate = -(universitiesCards.scrollWidth - universitiesCards.parentElement.offsetWidth);
+                    universitiesTranslateX = Math.max(minTranslate, Math.min(maxTranslate, universitiesTranslateX));
+                    
+                    universitiesCards.style.transform = `translateX(${universitiesTranslateX}px)`;
+                }
+                
+                universitiesIsHorizontalSwipe = false;
+            }
+
+            // Navigation Arrow Functionality
+            const communityPrevBtn = document.getElementById('communityPrevBtn');
+            const communityNextBtn = document.getElementById('communityNextBtn');
+            const universitiesPrevBtn = document.getElementById('universitiesPrevBtn');
+            const universitiesNextBtn = document.getElementById('universitiesNextBtn');
+
+            // Community navigation
+            if (communityPrevBtn && communityNextBtn) {
+                communityPrevBtn.addEventListener('click', () => {
+                    const scrollAmount = 300;
+                    communityTranslateX = Math.min(0, communityTranslateX + scrollAmount);
+                    communityCards.style.transform = `translateX(${communityTranslateX}px)`;
+                });
+
+                communityNextBtn.addEventListener('click', () => {
+                    const scrollAmount = 300;
+                    const maxTranslate = 0;
+                    const minTranslate = -(communityCards.scrollWidth - communityCards.parentElement.offsetWidth);
+                    communityTranslateX = Math.max(minTranslate, communityTranslateX - scrollAmount);
+                    communityCards.style.transform = `translateX(${communityTranslateX}px)`;
+                });
+            }
+
+            // Universities navigation
+            if (universitiesPrevBtn && universitiesNextBtn) {
+                universitiesPrevBtn.addEventListener('click', () => {
+                    const scrollAmount = 300;
+                    universitiesTranslateX = Math.min(0, universitiesTranslateX + scrollAmount);
+                    universitiesCards.style.transform = `translateX(${universitiesTranslateX}px)`;
+                });
+
+                universitiesNextBtn.addEventListener('click', () => {
+                    const scrollAmount = 300;
+                    const maxTranslate = 0;
+                    const minTranslate = -(universitiesCards.scrollWidth - universitiesCards.parentElement.offsetWidth);
+                    universitiesTranslateX = Math.max(minTranslate, universitiesTranslateX - scrollAmount);
+                    universitiesCards.style.transform = `translateX(${universitiesTranslateX}px)`;
+                });
+            }
+
+            // Smooth scrolling for navigation links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Authentication check and auto-redirect
+            checkAuthenticationAndRedirect();
+
+
+        });
+    </script>
+</body>
+</html>
+
