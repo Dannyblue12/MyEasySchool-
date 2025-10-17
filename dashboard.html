@@ -2245,48 +2245,76 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
                 });
 
                 if (res.ok) {
-                    const responseData = await res.json();
+                    const raw = await res.json();
+                    // Support various API response wrappers: { result: {...} }, { data: {...} }, or plain object
+                    const effective = (raw && (raw.result || raw.data)) ? (raw.result || raw.data) : raw;
                     
                     let currentSemester = null;
-                    if (responseData.currentSemester && typeof responseData.currentSemester === 'object') {
-                        currentSemester = responseData.currentSemester;
-                    } else if (responseData.semesterName || responseData.academicYear) {
+                    if (effective.currentSemester && typeof effective.currentSemester === 'object') {
+                        currentSemester = effective.currentSemester;
+                    } else if (effective.semester && typeof effective.semester === 'object') {
+                        currentSemester = effective.semester;
+                    } else if (effective.semesterName || effective.academicYear) {
                         currentSemester = {
-                            _id: responseData.currentSemester?._id || responseData._id,
-                            semesterName: responseData.semesterName,
-                            academicYear: responseData.academicYear,
-                            startDate: responseData.startDate,
-                            endDate: responseData.endDate,
-                            university: responseData.university,
-                            createdAt: responseData.createdAt,
-                            updatedAt: responseData.updatedAt
+                            _id: effective.currentSemester?._id || effective._id,
+                            semesterName: effective.semesterName,
+                            academicYear: effective.academicYear,
+                            startDate: effective.startDate,
+                            endDate: effective.endDate,
+                            university: effective.university,
+                            createdAt: effective.createdAt,
+                            updatedAt: effective.updatedAt
                         };
                     }
                     
                     let user = null;
-                    if (responseData.user && typeof responseData.user === 'object') {
-                        user = responseData.user;
+                    if (effective.user && typeof effective.user === 'object') {
+                        user = effective.user;
+                    } else if (effective.currentUser && typeof effective.currentUser === 'object') {
+                        user = effective.currentUser;
+                    } else if (effective.profile && typeof effective.profile === 'object') {
+                        user = effective.profile;
                     } else {
                         user = {
-                            _id: responseData.user?._id || responseData._id,
-                            email: responseData.user?.email || responseData.email,
-                            avatar: responseData.user?.avatar || responseData.avatar,
-                            isActive: responseData.user?.isActive ?? responseData.isActive,
-                            lastLoginAt: responseData.user?.lastLoginAt || responseData.lastLoginAt,
-                            role: responseData.user?.role || responseData.role,
-                            university: responseData.user?.university || responseData.university,
-                            courses: responseData.user?.courses || responseData.courses || [],
-                            totalXP: responseData.user?.totalXP ?? responseData.totalXP ?? 0,
-                            weeklyXP: responseData.user?.weeklyXP ?? responseData.weeklyXP ?? 0,
-                            streakCount: responseData.user?.streakCount ?? responseData.streakCount ?? 0,
-                            maxStreak: responseData.user?.maxStreak ?? responseData.maxStreak ?? 0,
-                            lastQuizStartDate: responseData.user?.lastQuizStartDate || responseData.lastQuizStartDate,
-                            currentToken: responseData.user?.currentToken || responseData.currentToken,
-                            subscribed: responseData.user?.subscribed ?? responseData.subscribed ?? false,
-                            subscribedSemester: responseData.user?.subscribedSemester || responseData.subscribedSemester,
-                            subscriptionStartDate: responseData.user?.subscriptionStartDate || responseData.subscriptionStartDate,
-                            subscriptionEndDate: responseData.user?.subscriptionEndDate || responseData.subscriptionEndDate
+                            _id: effective.user?._id || effective._id,
+                            email: effective.user?.email || effective.email,
+                            avatar: effective.user?.avatar || effective.avatar,
+                            isActive: effective.user?.isActive ?? effective.isActive,
+                            lastLoginAt: effective.user?.lastLoginAt || effective.lastLoginAt,
+                            role: effective.user?.role || effective.role,
+                            university: effective.user?.university || effective.university,
+                            courses: effective.user?.courses || effective.courses || [],
+                            totalXP: effective.user?.totalXP ?? effective.totalXP ?? 0,
+                            weeklyXP: effective.user?.weeklyXP ?? effective.weeklyXP ?? 0,
+                            streakCount: effective.user?.streakCount ?? effective.streakCount ?? 0,
+                            maxStreak: effective.user?.maxStreak ?? effective.maxStreak ?? 0,
+                            lastQuizStartDate: effective.user?.lastQuizStartDate || effective.lastLoginAt || effective.lastQuizStartDate,
+                            currentToken: effective.user?.currentToken || effective.currentToken,
+                            subscribed: effective.user?.subscribed ?? effective.subscribed ?? false,
+                            subscribedSemester: effective.user?.subscribedSemester || effective.subscribedSemester,
+                            subscriptionStartDate: effective.user?.subscriptionStartDate || effective.subscriptionStartDate,
+                            subscriptionEndDate: effective.user?.subscriptionEndDate || effective.subscriptionEndDate
                         };
+                    }
+                    
+                    // If semester is not an object but we have an ID somewhere, fetch it
+                    if (!currentSemester) {
+                        const semesterIdCandidate = effective.currentSemesterId 
+                            || (typeof effective.currentSemester === 'string' ? effective.currentSemester : null)
+                            || (typeof user?.subscribedSemester === 'string' ? user.subscribedSemester : (user?.subscribedSemester?._id))
+                            || localStorage.getItem('selectedSemesterId')
+                            || localStorage.getItem('currentSemesterId');
+                        
+                        if (semesterIdCandidate) {
+                            try {
+                                const fetchedSemester = await fetchSemesterById(semesterIdCandidate);
+                                if (fetchedSemester) {
+                                    currentSemester = fetchedSemester;
+                                }
+                            } catch (semErr) {
+                                console.warn('[v0] Failed to fetch semester by ID, proceeding without:', semesterIdCandidate, semErr);
+                            }
+                        }
                     }
                     
                     const userData = {
@@ -2297,6 +2325,9 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
                     localStorage.setItem('currentUserData', JSON.stringify(userData));
                     localStorage.setItem('user', JSON.stringify(userData.user));
                     localStorage.setItem('userId', userData.user._id || userData.user.id || 'user123');
+                    if (userData.currentSemester?._id) {
+                        localStorage.setItem('currentSemesterId', userData.currentSemester._id);
+                    }
                     
                     return userData;
                 } else {
@@ -2432,6 +2463,86 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
         function getCurrentSemester() {
             const userData = JSON.parse(localStorage.getItem('currentUserData') || '{}');
             return userData.currentSemester || null;
+        }
+
+        // Resolve current semester using stored object, ID, or university fallback
+        async function resolveCurrentSemester() {
+            try {
+                const storedUserData = JSON.parse(localStorage.getItem('currentUserData') || '{}');
+                let semester = storedUserData?.currentSemester;
+                if (semester && semester._id) return semester;
+
+                let semId = localStorage.getItem('currentSemesterId')
+                    || (typeof storedUserData?.currentSemester === 'string' ? storedUserData.currentSemester : null)
+                    || (typeof currentUser?.subscribedSemester === 'string' ? currentUser.subscribedSemester : (currentUser?.subscribedSemester?._id));
+
+                if (semId) {
+                    try {
+                        const fetched = await fetchSemesterById(semId);
+                        if (fetched && fetched._id) {
+                            const updated = { ...storedUserData, currentSemester: fetched };
+                            localStorage.setItem('currentUserData', JSON.stringify(updated));
+                            localStorage.setItem('currentSemesterId', fetched._id);
+                            console.log('[v0] Resolved semester by ID:', fetched._id);
+                            return fetched;
+                        }
+                    } catch (e) {
+                        console.warn('[v0] Failed to resolve semester by ID:', semId, e);
+                    }
+                }
+
+                let uniRef = storedUserData?.user?.university || currentUser?.university || currentUser?.customUniversity;
+                let uniId = uniRef?._id || uniRef?.id || (typeof uniRef === 'string' ? uniRef : null);
+
+                if (!uniId && uniRef) {
+                    try {
+                        const universities = await fetchAllUniversities();
+                        const refName = (uniRef?.name || (typeof uniRef === 'string' ? uniRef : '')).toLowerCase().trim();
+                        const matchedUni = Array.isArray(universities) ? universities.find(u => {
+                            const candidateName = (u.name || u.universityName || u.title || '').toLowerCase().trim();
+                            return candidateName && candidateName === refName;
+                        }) : null;
+                        if (matchedUni) {
+                            uniId = matchedUni._id || matchedUni.id;
+                            const updatedPersist = {
+                                ...storedUserData,
+                                user: {
+                                    ...(storedUserData.user || currentUser || {}),
+                                    university: matchedUni
+                                }
+                            };
+                            localStorage.setItem('currentUserData', JSON.stringify(updatedPersist));
+                            console.log('[v0] Resolved university by name for semester resolution:', matchedUni);
+                        }
+                    } catch (e) {
+                        console.error('[v0] Error resolving university for semester:', e);
+                    }
+                }
+
+                if (uniId) {
+                    try {
+                        const semesters = await fetchSemestersByUniversity(uniId);
+                        if (Array.isArray(semesters) && semesters.length > 0) {
+                            semesters.sort((a, b) => new Date(b.startDate || 0) - new Date(a.startDate || 0));
+                            const picked = semesters[0];
+                            const updated = { ...storedUserData, currentSemester: picked };
+                            localStorage.setItem('currentUserData', JSON.stringify(updated));
+                            if (picked?._id) localStorage.setItem('currentSemesterId', picked._id);
+                            console.log('[v0] Resolved semester from university:', picked?._id);
+                            return picked;
+                        } else {
+                            console.warn('[v0] No semesters available for university:', uniId);
+                        }
+                    } catch (e) {
+                        console.error('[v0] Error fetching semesters for university:', e);
+                    }
+                }
+
+                return null;
+            } catch (e) {
+                console.error('[v0] Unexpected error resolving current semester:', e);
+                return null;
+            }
         }
 
         // Fetch all universities using the /universities/all endpoint
