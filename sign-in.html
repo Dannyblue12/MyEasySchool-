@@ -456,8 +456,7 @@
     </div>
 
     <script>
-        const isLocalDev = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || /^\d+\.\d+\.\d+\.\d+$/.test(window.location.hostname));
-        const API_BASE = isLocalDev ? '/api' : 'https://my-easy-school-api.onrender.com/api';
+        const API_BASE = 'https://my-easy-school-api.onrender.com/api';
         const CORS_PROXY = 'https://corsproxy.io/?';
         
         // API Health Check and Retry Logic
@@ -759,22 +758,6 @@
         document.getElementById('signUpLink').addEventListener('click', (e) => {
             e.preventDefault();
             window.location.href = 'sign-up.html';
-        });
-
-        // Auto-redirect to dashboard if already logged in and university is selected
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const token = localStorage.getItem('token');
-                if (token) {
-                    const redirectPage = await checkUserStatus(token);
-                    if (redirectPage === 'dashboard') {
-                        console.log("[auto] Detected selected university; redirecting to dashboard");
-                        window.location.assign("dashboard.html");
-                    }
-                }
-            } catch (err) {
-                console.error("Auto-redirect check error:", err);
-            }
         });
 
         // Password visibility toggle functionality
