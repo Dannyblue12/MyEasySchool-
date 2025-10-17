@@ -1862,6 +1862,8 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
         
         async function fetchWithRetry(url, options, maxRetries = 3) {
             for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                let controller;
+                let timeoutId;
                 try {
                     console.log(`[DEBUG] API request attempt ${attempt}/${maxRetries} to ${url}`);
                     console.log(`[DEBUG] Request options:`, {
@@ -1870,8 +1872,8 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
                         hasAuth: options.headers?.Authorization ? 'yes' : 'no'
                     });
                     
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => {
+                    controller = new AbortController();
+                    timeoutId = setTimeout(() => {
                         console.log(`[DEBUG] Request timeout after 12s, aborting...`);
                         controller.abort();
                     }, 12000); // 12 second timeout
@@ -1907,6 +1909,7 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
                     return response;
                 } catch (error) {
                     console.log(`[DEBUG] Attempt ${attempt} failed:`, error.message);
+                    if (timeoutId) clearTimeout(timeoutId);
                     
                     // Check for CORS-specific errors
                     if (error.message.includes('CORS') || error.message.includes('NotSameOrigin')) {
@@ -1919,8 +1922,7 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
                                 const fallbackResponse = await fetch(url, {
                                     ...options,
                                     mode: 'no-cors',
-                                    credentials: 'omit',
-                                    signal: controller.signal
+                                    credentials: 'omit'
                                 });
                                 console.log(`[DEBUG] No-cors fallback response:`, fallbackResponse);
                                 return fallbackResponse;
@@ -2026,7 +2028,38 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
                 if (!semesterToUse || !semesterToUse._id) {
                     console.warn('[v0] No current semester found, attempting to resolve from university...');
                     const storedUserData = JSON.parse(localStorage.getItem('currentUserData') || '{}');
-                    const uniId = storedUserData?.user?.university?._id || currentUser?.university?._id;
+                    let uniRef = storedUserData?.user?.university || currentUser?.university || currentUser?.customUniversity;
+                    let uniId = uniRef?._id || uniRef?.id || (typeof uniRef === 'string' ? uniRef : null);
+
+                    // If we have a university reference but no id, try to resolve by name
+                    if (!uniId && uniRef) {
+                        try {
+                            const universities = await fetchAllUniversities();
+                            const refName = (uniRef?.name || (typeof uniRef === 'string' ? uniRef : '')).toLowerCase().trim();
+                            const matchedUni = Array.isArray(universities) ? universities.find(u => {
+                                const candidateName = (u.name || u.universityName || u.title || '').toLowerCase().trim();
+                                return candidateName && candidateName === refName;
+                            }) : null;
+                            if (matchedUni) {
+                                uniId = matchedUni._id || matchedUni.id;
+                                console.log('[v0] Resolved university by name:', matchedUni);
+                                // Persist resolved university object
+                                const updatedUserDataPersist = {
+                                    ...storedUserData,
+                                    user: {
+                                        ...(storedUserData.user || currentUser || {}),
+                                        university: matchedUni
+                                    }
+                                };
+                                localStorage.setItem('currentUserData', JSON.stringify(updatedUserDataPersist));
+                            } else {
+                                console.warn('[v0] Could not resolve university by name:', refName);
+                            }
+                        } catch (e) {
+                            console.error('[v0] Error resolving university by name:', e);
+                        }
+                    }
+
                     if (uniId) {
                         const semesters = await fetchSemestersByUniversity(uniId);
                         if (Array.isArray(semesters) && semesters.length > 0) {
@@ -4026,11 +4059,6 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
                 
                 // Fetch streak data
                 updateLoadingText('Loading your progress...', 'Getting streak information');
-                const lastUpdate = localStorage.getItem('lastStreakUpdate');
-                if (lastUpdate && Date.now() - parseInt(lastUpdate) < 300000) { // 5 minutes
-                    console.log('[v0] Recent streak update detected on page load');
-                    fetchStreakData();
-                }
                 await fetchStreakData();
                 
                 // Initialize all components
