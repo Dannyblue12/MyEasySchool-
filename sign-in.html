@@ -456,7 +456,8 @@
     </div>
 
     <script>
-        const API_BASE = 'https://my-easy-school-api.onrender.com/api';
+        const isLocalHost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+        const API_BASE = isLocalHost ? '/api' : 'https://my-easy-school-api.onrender.com/api';
         const CORS_PROXY = 'https://corsproxy.io/?';
         
         // API Health Check and Retry Logic

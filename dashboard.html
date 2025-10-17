@@ -1616,7 +1616,7 @@
         let userAvatar = null;
 
         // API Base URLs
-        const isLocalHostOrIP = ['localhost', '127.0.0.1'].includes(window.location.hostname) || /^[0-9.]+$/.test(window.location.hostname);
+        const isLocalHostOrIP = ['localhost', '127.0.0.1'].includes(window.location.hostname);
         const API_BASE = isLocalHostOrIP ? '/api' : 'https://my-easy-school-api.onrender.com/api';
         const AUTH_BASE_URL = `${API_BASE}/auth`;
         const STREAK_BASE_URL = `${API_BASE}/users/streak`;
