@@ -1808,7 +1808,7 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
                 const timeoutId = setTimeout(() => {
                     console.log('[DEBUG] API test timeout, aborting...');
                     controller.abort();
-                }, 10000); // 10 second timeout
+                }, 5000); // 5 second timeout
                 
                 // Test with OPTIONS to check if the endpoint accepts requests
                 const response = await fetch(`${API_BASE}/users/me`, {
@@ -1872,9 +1872,9 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
                     
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => {
-                        console.log(`[DEBUG] Request timeout after 60s, aborting...`);
+                        console.log(`[DEBUG] Request timeout after 12s, aborting...`);
                         controller.abort();
-                    }, 60000); // 60 second timeout
+                    }, 12000); // 12 second timeout
                     
                     // Enhanced CORS configuration
                     const isGet = (options.method || 'GET').toUpperCase() === 'GET';
@@ -2562,9 +2562,18 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
                     // Test API endpoint first
                     const apiAccessible = await testAPIEndpoint();
                     if (!apiAccessible) {
-                        console.error('[DEBUG] API endpoint is not accessible');
-                        updateLoadingText('Server connection failed', 'API endpoint not accessible');
-                        return false;
+                        console.warn('[DEBUG] API endpoint not accessible, switching to offline mode');
+                        updateLoadingText('Working offline', 'Using saved profile');
+
+                        // Use stored user data for offline mode
+                        userId = user._id || user.id || 'user123';
+                        userName = user.fullName || user.name || 'Student';
+                        userAvatar = user.avatar;
+                        userToken = token;
+                        currentUser = user;
+
+                        updateUserInfo();
+                        return true; // Proceed with offline data
                     }
                     
                     updateLoadingText('Loading your profile...', 'Getting user information');
