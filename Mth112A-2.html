@@ -1,0 +1,1626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Quiz - Mth112A-1</title>
+    <link rel="icon" type="image/jpeg" href="WhatsApp Image 2025-07-06 at 09.14.34_436c71fc.jpg">
+    
+    <!-- MathJax Configuration -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)'], ['$', '$']],
+                displayMath: [['\\[', '\\]'], ['$$', '$$']],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .quiz-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            padding: 20px 20px 16px;
+            text-align: center;
+            position: relative;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .back-arrow {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.2s ease;
+            padding: 8px;
+        }
+
+        .back-arrow:hover {
+            color: #333;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 16px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            margin-bottom: 16px;
+            padding: 0 10px;
+        }
+
+        .progress-left {
+            color: #666;
+        }
+
+        .progress-right {
+            color: #666;
+        }
+
+        .progress-right .correct-count {
+            color: #00ff88;
+            font-weight: 600;
+        }
+
+        .progress-container {
+            display: flex;
+            gap: 3px;
+            margin: 0 20px;
+        }
+
+        .progress-segment {
+            height: 4px;
+            flex: 1;
+            background-color: #e9ecef;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .progress-segment.correct {
+            background-color: #00ff88;
+        }
+
+        .progress-segment.incorrect {
+            background-color: #ff4757;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tabs {
+            display: flex;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #666;
+            position: relative;
+            z-index: 2;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: white;
+            box-shadow: 0 2px 8px rgba(0, 255, 136, 0.3);
+            font-weight: 600;
+        }
+
+        .tab-content {
+            flex: 1;
+            position: relative;
+        }
+
+        .question-content {
+            opacity: 1;
+            transition: opacity 0.2s ease;
+        }
+
+        .solution-content {
+            opacity: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .solution-content.active {
+            opacity: 1;
+            position: relative;
+            pointer-events: all;
+        }
+
+        .question-content.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .question-number {
+            font-size: 32px;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .question-text {
+            font-size: 16px;
+            color: #333;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .question-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 12px;
+            margin: 16px 0 24px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none; /* Hidden by default, shown when image exists */
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .question-image.visible {
+            display: block;
+        }
+
+        .question-image:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .question-image.loading {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        .image-container {
+            width: 100%;
+            margin: 16px 0 24px 0;
+            position: relative;
+        }
+
+        .question-iframe {
+            width: 100%;
+            height: 300px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .question-iframe:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .solution-text {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #00ff88;
+            margin-bottom: 20px;
+        }
+
+        .navigation {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .nav-arrow {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #666;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-arrow:hover:not(:disabled) {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        .nav-arrow:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .answers-container {
+            flex: 1;
+            margin-bottom: 20px;
+        }
+
+        .answer-option {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+
+        .answer-option:hover:not(.disabled) {
+            background-color: #e9ecef;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .answer-option.selected {
+            background-color: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .answer-option.correct {
+            background: rgba(0, 255, 136, 0.15);
+            border: 3px solid #00ff88;
+            color: #006b3c;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 16px rgba(0, 255, 136, 0.3);
+        }
+
+        .answer-option.incorrect {
+            background: rgba(255, 71, 87, 0.15);
+            border: 3px solid #ff4757;
+            color: #c23616;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 16px rgba(255, 71, 87, 0.3);
+        }
+
+        .answer-option.disabled {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .option-letter {
+            font-weight: 600;
+            margin-right: 16px;
+            min-width: 20px;
+            font-size: 16px;
+        }
+
+        .option-text {
+            flex: 1;
+            font-size: 15px;
+        }
+
+        .check-button {
+            background-color: #dee2e6;
+            color: #6c757d;
+            border: none;
+            padding: 16px 24px;
+            margin: 0 20px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.6;
+        }
+
+        .check-button.active {
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            color: white;
+            opacity: 1;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .check-button.active:hover {
+            background: linear-gradient(135deg, #2d2d2d, #404040);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Loading and Error States */
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #333;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        /* Results Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .results-modal {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 350px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .results-modal {
+            transform: scale(1);
+        }
+
+        .fire-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            background: url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20-%202025-07-23T082911.331-ptcXc6Csp6CfcOsR3jFd1Ndmpqxg9c.jpeg') no-repeat center;
+            background-size: contain;
+        }
+
+        .score-display {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #00ff88;
+        }
+
+        .score-message {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 24px;
+            font-weight: 500;
+        }
+
+        .performance-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .stat-box {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e9ecef;
+        }
+
+        .stat-header {
+            background: linear-gradient(135deg, #51cf66, #40c057);
+            padding: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .stat-icon {
+            color: white;
+            font-size: 16px;
+        }
+
+        .stat-content {
+            padding: 12px 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #666;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .modal-button {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .modal-button.primary {
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-button.primary:hover {
+            background: linear-gradient(135deg, #2d2d2d, #404040);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-button.secondary {
+            background: transparent;
+            color: #666;
+            border: 1px solid #dee2e6;
+        }
+
+        .modal-button.secondary:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+
+            .quiz-container {
+                border-radius: 12px;
+                min-height: 100vh;
+            }
+
+            .header {
+                padding: 16px 16px 12px;
+            }
+
+            .content {
+                padding: 16px;
+            }
+
+            .question-number {
+                font-size: 28px;
+            }
+
+            .question-text {
+                font-size: 15px;
+            }
+
+            .answer-option {
+                padding: 14px 16px;
+                margin-bottom: 10px;
+            }
+
+            .check-button {
+                margin: 0 16px 16px;
+                padding: 14px 20px;
+            }
+
+            .results-modal {
+                padding: 24px;
+                margin: 20px;
+            }
+
+            .score-display {
+                font-size: 32px;
+            }
+
+            .progress-container {
+                margin: 0 16px;
+            }
+
+            .progress-info {
+                padding: 0 6px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .header-title {
+                font-size: 16px;
+            }
+
+            .question-number {
+                font-size: 24px;
+            }
+
+            .option-text {
+                font-size: 14px;
+            }
+
+            .progress-container {
+                margin: 0 12px;
+            }
+
+            .performance-stats {
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }
+
+            .stat-box {
+                display: flex;
+                align-items: center;
+            }
+
+            .stat-header {
+                width: 40px;
+                flex-shrink: 0;
+            }
+
+            .stat-content {
+                flex: 1;
+                padding: 8px 12px;
+                text-align: left;
+            }
+        }
+
+        /* Smooth transitions only */
+        .fade-transition {
+            transition: opacity 0.2s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="header">
+            <button class="back-arrow" onclick="goBackToQuizSelection()">‹</button>
+            <div class="header-title" id="header-title">Math Quiz - Mth112A-1</div>
+            <div class="progress-info">
+                <div class="progress-left">
+                    <span id="current-question">1</span> of <span id="total-questions">0</span>
+                </div>
+                <div class="progress-right">
+                    <span class="correct-count" id="correct-count">0</span>/<span id="answered-count">0</span>
+                </div>
+            </div>
+            <div class="progress-container" id="progress-container"></div>
+        </div>
+
+        <div class="content" id="quiz-content">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <p>Loading quiz questions...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="results-modal">
+            <div class="fire-icon"></div>
+            <div class="score-display" id="final-score">0/0</div>
+            <div class="score-message" id="score-message">Loading...</div>
+            
+            <div class="performance-stats">
+                <div class="stat-box">
+                    <div class="stat-header">
+                        <div class="stat-icon">❌</div>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="wrong-answers">0</div>
+                        <div class="stat-label">Wrong</div>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-header">
+                        <div class="stat-icon">⏱</div>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="time-committed">0m</div>
+                        <div class="stat-label">Speed</div>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-header">
+                        <div class="stat-icon">📊</div>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="grade">-</div>
+                        <div class="stat-label">Grade</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="modal-button primary" id="do-again-btn">Do it again</button>
+                <button class="modal-button secondary" id="view-results-btn">Back to Quiz Selection</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('[v0] 🚀 MTH112A-1.HTML LOADED - Console logging is working!');
+        
+        class QuizApp {
+            constructor() {
+                console.log('[v0] 🎯 QuizApp constructor called - initializing quiz application');
+                this.currentQuestion = 1;
+                this.totalQuestions = 0;
+                this.answers = [];
+                this.correctAnswers = [];
+                this.selectedAnswer = null;
+                this.isAnswered = false;
+                this.isChecked = false;
+                this.currentTab = 'question';
+                this.score = 0;
+                this.startTime = Date.now();
+                this.questions = [];
+                
+                this.initializeElements();
+                this.initQuiz();
+            }
+
+            extractImageUrl(imageUrl) {
+                if (!imageUrl || typeof imageUrl !== 'string') {
+                    return null;
+                }
+                
+                // Remove backticks and extra spaces that might be in the ImageUrl format
+                const cleanUrl = imageUrl.replace(/`/g, '').trim();
+                
+                // Validate that it's a proper URL
+                try {
+                    new URL(cleanUrl);
+                    return cleanUrl;
+                } catch (e) {
+                    console.log('[v0] Invalid image URL format:', imageUrl);
+                    return null;
+                }
+            }
+
+            initializeElements() {
+                this.headerTitle = document.getElementById('header-title');
+                this.currentQuestionEl = document.getElementById('current-question');
+                this.totalQuestionsEl = document.getElementById('total-questions');
+                this.correctCountEl = document.getElementById('correct-count');
+                this.answeredCountEl = document.getElementById('answered-count');
+                this.progressContainer = document.getElementById('progress-container');
+                this.quizContent = document.getElementById('quiz-content');
+                this.modalOverlay = document.getElementById('modal-overlay');
+            }
+
+            async initQuiz() {
+                this.headerTitle.textContent = 'Math Quiz - Mth112A-1';
+                await this.loadQuestions();
+            }
+
+            async loadQuestions() {
+                try {
+                    console.log('[v0] Loading quiz questions from embedded data...');
+                    const questions = [
+  {
+    "question": "Functions g and h are given by \\(g(x) = \\sqrt{x-1}\\) and \\(h(x) = x^2 + 1\\). Find the composite function \\((g \\circ h)(x)\\).",
+    "options": {
+      "A": "x^2",
+      "B": "2x",
+      "C": "x^3",
+      "D": "|x|",
+      "E": "4x^2"
+    },
+    "answer": "D",
+    "solution": "Step 1: Compute \\((g \\circ h)(x) = g(h(x))\\). Step 2: Substitute \\(h(x) = x^2 + 1\\) into \\(g(x)\\): \\(g(x^2 + 1) = \\sqrt{(x^2 + 1) - 1} = \\sqrt{x^2} = |x|\\). Therefore, the correct answer is D."
+  },
+  {
+    "question": "Find the range of \\(f(x) = -x^2 - 10\\).",
+    "options": {
+      "A": "(-∞, 10)",
+      "B": "(-∞, 9)",
+      "C": "(-∞, -10]",
+      "D": "(-∞, 9)",
+      "E": "(∞, 10)"
+    },
+    "answer": "C",
+    "solution": "Step 1: The function \\(f(x) = -x^2 - 10\\) is a downward-opening parabola. Step 2: The vertex is at \\(x = 0\\), with \\(f(0) = -10\\), the maximum value. Step 3: Since the parabola opens downward, the range is \\((-∞, -10]\\). Therefore, the correct answer is C."
+  },
+  {
+    "question": "Is the graph shown below that of a function?",
+    "options": {
+      "A": "yes",
+      "B": "no",
+      "C": "maybe",
+      "D": "none of the above",
+      "E": "all of the above"
+    },
+    "answer": "B",
+    "solution": "Refer to the provided graph (IMG_20241008_170004.jpg). Step 1: A graph represents a function if it passes the vertical line test, meaning no vertical line intersects the graph at more than one point. Step 2: If the graph fails the vertical line test, it is not a function. Based on the provided answer, the graph does not represent a function. Therefore, the correct answer is B."
+  },
+  {
+    "question": "Evaluate the function \\(f(x) = x^2 - 3x + 4\\) at \\(a + h\\).",
+    "options": {
+      "A": "a^2 + 2ah + h^2 - 3a - 3h + 4",
+      "B": "a^2 + ah + h^2 - 3a - 3h - 4",
+      "C": "a^2 + 2ah + h^2 - 3a - 5h + 4",
+      "D": "2a^2 + 2ah + h^2 - 3a - 3h + 4",
+      "E": "2a^2 + 2ah + 2h^2 - 3a - 3h + 4"
+    },
+    "answer": "A",
+    "solution": "Step 1: Substitute \\(a + h\\) into \\(f(x) = x^2 - 3x + 4\\): \\(f(a + h) = (a + h)^2 - 3(a + h) + 4\\). Step 2: Expand: \\((a + h)^2 = a^2 + 2ah + h^2\\), \\(-3(a + h) = -3a - 3h\\). Step 3: Combine: \\(a^2 + 2ah + h^2 - 3a - 3h + 4\\). Therefore, the correct answer is A."
+  },
+  {
+    "question": "Given the graph below, solve for \\(f(x) = -3\\).",
+    "options": {
+      "A": "2",
+      "B": "-3",
+      "C": "4",
+      "D": "1",
+      "E": "5"
+    },
+    "answer": "A",
+    "solution": "Refer to the provided graph (IMG_20241008_170031.jpg). Step 1: Find the value(s) of \\(x\\) where \\(f(x) = -3\\) by locating the points on the graph where the y-value is -3. Step 2: The graph indicates \\(x = 2\\) satisfies \\(f(x) = -3\\). Therefore, the correct answer is A."
+  },
+  {
+    "question": "Given the function \\(g(x) = 5 - x^2\\), simplify \\(\\frac{g(x + h) - g(x)}{h}, h ≠ 0\\).",
+    "options": {
+      "A": "2x + h",
+      "B": "x + h",
+      "C": "-(2x + h)",
+      "D": "x - h",
+      "E": "-(x + h)"
+    },
+    "answer": "C",
+    "solution": "Step 1: Compute \\(g(x + h) = 5 - (x + h)^2 = 5 - (x^2 + 2xh + h^2) = 5 - x^2 - 2xh - h^2\\). Step 2: Subtract \\(g(x) = 5 - x^2\\): \\(g(x + h) - g(x) = (-2xh - h^2)\\). Step 3: Divide by \\(h\\): \\(\\frac{-2xh - h^2}{h} = -2x - h\\). Therefore, the correct answer is C."
+  },
+  {
+    "question": "Evaluate the function \\(f(x) = |x - 1| - |x + 1|\\) at \\(f(2)\\).",
+    "options": {
+      "A": "2",
+      "B": "-1",
+      "C": "-3",
+      "D": "-2",
+      "E": "4"
+    },
+    "answer": "D",
+    "solution": "Step 1: Substitute \\(x = 2\\) into \\(f(x) = |x - 1| - |x + 1|\\): \\(f(2) = |2 - 1| - |2 + 1| = |1| - |3| = 1 - 3 = -2\\). Therefore, the correct answer is D."
+  },
+  {
+    "question": "Given that the function \\(k(t) = 2t - 1\\), solve \\(k(t) = 7\\).",
+    "options": {
+      "A": "3",
+      "B": "2",
+      "C": "1",
+      "D": "9",
+      "E": "4"
+    },
+    "answer": "E",
+    "solution": "Step 1: Set \\(k(t) = 2t - 1 = 7\\). Step 2: Solve: \\(2t = 8\\), \\(t = 4\\). Therefore, the correct answer is E."
+  },
+  {
+    "question": "Given that the function \\(f(x) = x^2 + 2x\\), simplify \\(\\frac{f(x) - f(a)}{x - a}, x ≠ a\\).",
+    "options": {
+      "A": "a + 2",
+      "B": "x + 2",
+      "C": "x + a + 1",
+      "D": "x - a + 1",
+      "E": "x + a + 2"
+    },
+    "answer": "E",
+    "solution": "Step 1: Compute \\(f(x) = x^2 + 2x\\) and \\(f(a) = a^2 + 2a\\). Step 2: Form the difference quotient: \\(\\frac{(x^2 + 2x) - (a^2 + 2a)}{x - a}\\). Step 3: Simplify: \\(\\frac{(x - a)(x + a) + 2(x - a)}{x - a} = x + a + 2\\). Therefore, the correct answer is E."
+  },
+  {
+    "question": "Consider the relationship \\(3r + 2t = 18\\). Write the relationship as a function \\(r = f(t)\\).",
+    "options": {
+      "A": "\\(r = f(t) = 6 - \\frac{2}{3} t\\)",
+      "B": "\\(r = f(t) = 3 - \\frac{2}{3} t\\)",
+      "C": "\\(r = f(t) = 6 + \\frac{2}{3} t\\)",
+      "D": "\\(r = f(t) = 4 - \\frac{2}{3} t\\)",
+      "E": "\\(r = f(t) = 5 + \\frac{2}{3} t\\)"
+    },
+    "answer": "A",
+    "solution": "Step 1: Start with \\(3r + 2t = 18\\). Step 2: Solve for \\(r\\): \\(3r = 18 - 2t\\), \\(r = \\frac{18 - 2t}{3} = 6 - \\frac{2}{3}t\\). Therefore, the correct answer is A."
+  },
+  {
+    "question": "Consider the relationship \\(3r + 2t = 18\\). Evaluate \\(f(-3)\\).",
+    "options": {
+      "A": "5",
+      "B": "4",
+      "C": "3",
+      "D": "6",
+      "E": "8"
+    },
+    "answer": "E",
+    "solution": "Step 1: From the relationship \\(3r + 2t = 18\\), express \\(r = f(t) = 6 - \\frac{2}{3}t\\). Step 2: Substitute \\(t = -3\\): \\(f(-3) = 6 - \\frac{2}{3}(-3) = 6 + 2 = 8\\). Therefore, the correct answer is E."
+  },
+  {
+    "question": "Consider the relationship \\(3r + 2t = 18\\). Solve \\(f(t) = 2\\).",
+    "options": {
+      "A": "5",
+      "B": "4",
+      "C": "3",
+      "D": "6",
+      "E": "8"
+    },
+    "answer": "D",
+    "solution": "Step 1: From \\(3r + 2t = 18\\), express \\(r = f(t) = 6 - \\frac{2}{3}t\\). Step 2: Set \\(f(t) = 2\\): \\(6 - \\frac{2}{3}t = 2\\). Step 3: Solve: \\(-\\frac{2}{3}t = -4\\), \\(t = 6\\). Therefore, the correct answer is D."
+  },
+  {
+    "question": "Evaluate the expression \\(3f(1) - 4g(-2)\\) given functions \\(f(x) = 3x - 2\\) and \\(g(x) = 5 - x^2\\).",
+    "options": {
+      "A": "0",
+      "B": "1",
+      "C": "-1",
+      "D": "2",
+      "E": "3"
+    },
+    "answer": "C",
+    "solution": "Step 1: Compute \\(f(1) = 3(1) - 2 = 1\\). Step 2: Compute \\(g(-2) = 5 - (-2)^2 = 5 - 4 = 1\\). Step 3: Evaluate \\(3f(1) - 4g(-2) = 3(1) - 4(1) = 3 - 4 = -1\\). Therefore, the correct answer is C."
+  },
+  {
+    "question": "Use the given table to evaluate \\(g(3)\\).",
+    "options": {
+      "A": "4",
+      "B": "2",
+      "C": "5",
+      "D": "4",
+      "E": "7"
+    },
+    "answer": "E",
+    "solution": "Step 1: Refer to the provided table (IMG_20241008_170056~2.jpg). When \\(n = 3\\), \\(g(n) = 7\\). Therefore, the correct answer is E."
+  },
+  {
+    "question": "Use the given table to solve \\(g(n) = 6\\).",
+    "options": {
+      "A": "2 and 4",
+      "B": "2 and 3",
+      "C": "-2 and 4",
+      "D": "5 and 7",
+      "E": "1 and 3"
+    },
+    "answer": "A",
+    "solution": "Step 1: Refer to the provided table (IMG_20241008_170056~2.jpg). \\(g(n) = 6\\) when \\(n = 2\\) and \\(n = 4\\). Therefore, the correct answer is A."
+  },
+  {
+    "question": "Evaluate \\(g(10)\\), given the function \\(g(x) = (x - 1)^{\\frac{3}{2}}\\).",
+    "options": {
+      "A": "21",
+      "B": "27",
+      "C": "9",
+      "D": "10",
+      "E": "7"
+    },
+    "answer": "B",
+    "solution": "Step 1: Substitute \\(x = 10\\) into \\(g(x) = (x - 1)^{\\frac{3}{2}}\\): \\(g(10) = (10 - 1)^{\\frac{3}{2}} = 9^{\\frac{3}{2}} = (\\sqrt{9})^3 = 3^3 = 27\\). Therefore, the correct answer is B."
+  },
+  {
+    "question": "Given the function \\(h(n) = \\sqrt{n - 4}\\), solve \\(h(n) = 2\\).",
+    "options": {
+      "A": "1",
+      "B": "3",
+      "C": "4",
+      "D": "8",
+      "E": "9"
+    },
+    "answer": "D",
+    "solution": "Step 1: Set \\(h(n) = \\sqrt{n - 4} = 2\\). Step 2: Square both sides: \\(n - 4 = 4\\). Step 3: Solve: \\(n = 8\\). Therefore, the correct answer is D."
+  },
+  {
+    "question": "Identify the graph of the function \\(f(x) = \\frac{1}{x}\\).",
+    "options": {
+      "A": "A",
+      "B": "B",
+      "C": "C",
+      "D": "D",
+      "E": "E"
+    },
+    "answer": "A",
+    "solution": "Refer to the provided graph (IMG_20241008_170056~2.jpg). Step 1: The function \\(f(x) = \\frac{1}{x}\\) is a hyperbola with vertical and horizontal asymptotes at \\(x = 0\\) and \\(y = 0\\). Step 2: Identify the graph matching this description. Based on the provided answer, the correct graph is labeled A. Therefore, the correct answer is A."
+  }
+];
+                    console.log('[v0] Questions loaded successfully:', questions);
+                    this.setupQuiz(questions);
+                } catch (error) {
+                    console.error('[v0] Error loading quiz questions:', error);
+                    this.displayError(`Unable to load quiz: ${error.message}`);
+                }
+            }
+
+            setupQuiz(questions) {
+                console.log('[v0] === SETUP QUIZ DEBUG ===');
+                console.log('[v0] Raw questions received:', questions);
+                
+                this.questions = questions.map((q, index) => {
+                    let options = q.options || q.choices || [];
+                    
+                    // Debug image URL processing - prioritize ImageUrl field as per API structure
+                    const rawImageUrl = q.ImageUrl || q.imageUrl || q.image || null;
+                    const processedImageUrl = this.extractImageUrl(rawImageUrl);
+                    console.log(`[v0] Question ${index + 1} image processing:`);
+                    console.log(`[v0]   - Raw ImageUrl: ${q.ImageUrl}`);
+                    console.log(`[v0]   - Raw imageUrl: ${q.imageUrl}`);
+                    console.log(`[v0]   - Raw image: ${q.image}`);
+                    console.log(`[v0]   - Selected raw: ${rawImageUrl}`);
+                    console.log(`[v0]   - Processed: ${processedImageUrl}`);
+                    
+                    // Ensure options is always an array - more robust handling
+                    if (!Array.isArray(options)) {
+                        console.log(`[v0] Options is not an array for question ${index + 1}:`, options);
+                        // Try to convert to array if it's an object
+                        if (typeof options === 'object' && options !== null) {
+                            // If it's an object, try to get values or convert to array
+                            if (Object.keys(options).length > 0) {
+                                options = Object.values(options);
+                            } else {
+                                options = [];
+                            }
+                        } else {
+                            options = [];
+                        }
+                    }
+                    
+                    console.log(`[v0] Final options array for question ${index + 1}:`, options);
+                    
+                    return {
+                        id: index + 1,
+                        text: q.question || q.text || 'Question text not available',
+                        options: options,
+                        correctAnswer: q.correctAnswer || q.answer || 0,
+                        solution: q.solution || q.explanation || 'No solution provided',
+                        imageUrl: processedImageUrl
+                    };
+                });
+                
+                console.log('[v0] Final processed questions:', this.questions);
+                console.log('[v0] === END SETUP DEBUG ===');
+
+                this.totalQuestions = this.questions.length;
+                this.answers = new Array(this.totalQuestions).fill(null);
+                // Use the transformed field 'correctAnswer' from setupQuiz
+                this.correctAnswers = this.questions.map(q => q.correctAnswer);
+                
+                console.log('[DEBUG] Total questions:', this.totalQuestions);
+                console.log('[DEBUG] correctAnswers array:', this.correctAnswers);
+                console.log('[DEBUG] First few questions answers:', this.questions.slice(0, 3).map(q => q.correctAnswer));
+
+                this.totalQuestionsEl.textContent = this.totalQuestions;
+                this.createProgressSegments();
+                this.renderQuizInterface();
+                this.loadQuestion();
+                this.bindEvents();
+            }
+
+            createProgressSegments() {
+                this.progressContainer.innerHTML = '';
+                for (let i = 0; i < this.totalQuestions; i++) {
+                    const segment = document.createElement('div');
+                    segment.className = 'progress-segment';
+                    segment.dataset.question = i + 1;
+                    this.progressContainer.appendChild(segment);
+                }
+            }
+
+            renderQuizInterface() {
+                this.quizContent.innerHTML = `
+                    <div class="tabs">
+                        <div class="tab active" id="question-tab">Question</div>
+                        <div class="tab" id="solution-tab">Solution</div>
+                    </div>
+
+                    <div class="tab-content">
+                        <div class="question-content" id="question-content">
+                            <div class="question-number" id="question-number">1</div>
+                            <div class="question-text" id="question-text">Loading question...</div>
+                            <div class="image-container">
+                                <img class="question-image" id="question-image" alt="Question illustration" />
+                                <iframe class="question-iframe" id="question-iframe" style="display: none;" frameborder="0"></iframe>
+                            </div>
+
+                            <div class="navigation">
+                                <button class="nav-arrow" id="prev-btn" disabled>‹</button>
+                                <button class="nav-arrow" id="next-btn">›</button>
+                            </div>
+
+                            <div class="answers-container" id="answers-container"></div>
+                        </div>
+
+                        <div class="solution-content" id="solution-content">
+                            <div class="solution-text" id="solution-text">Solution will appear here</div>
+                            <div class="question-number" id="solution-question-number">1</div>
+                        </div>
+                    </div>
+
+                    <button class="check-button" id="check-btn">Check</button>
+                `;
+            }
+
+            loadQuestion() {
+                const question = this.questions[this.currentQuestion - 1];
+                
+                // Debug: Log the complete question data
+                console.log('[v0] === QUESTION DEBUG ===');
+                console.log('[v0] Current question index:', this.currentQuestion - 1);
+                console.log('[v0] Total questions:', this.questions.length);
+                console.log('[v0] Complete question data:', question);
+                console.log('[v0] Question imageUrl:', question.imageUrl);
+                console.log('[v0] Question ImageUrl:', question.ImageUrl);
+                console.log('[v0] Question image:', question.image);
+                console.log('[v0] === END DEBUG ===');
+                
+                this.currentQuestionEl.textContent = this.currentQuestion;
+                document.getElementById('question-number').textContent = this.currentQuestion;
+                document.getElementById('solution-question-number').textContent = this.currentQuestion;
+                document.getElementById('question-text').innerHTML = question.text;
+                document.getElementById('solution-text').innerHTML = question.solution;
+                
+                // Process MathJax for the newly loaded content
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    window.MathJax.typesetPromise([
+                        document.getElementById('question-text'),
+                        document.getElementById('solution-text')
+                    ]).catch((err) => console.log('MathJax typeset error:', err));
+                }
+                
+                const questionImage = document.getElementById('question-image');
+                
+                // Enhanced image logging and handling
+                console.log('[v0] === IMAGE PROCESSING DEBUG ===');
+                console.log('[v0] Raw question.ImageUrl:', question.ImageUrl);
+                console.log('[v0] Raw question.imageUrl:', question.imageUrl);
+                console.log('[v0] Raw question.image:', question.image);
+                
+                // Use the processed imageUrl from setupQuiz
+                const imageUrl = question.imageUrl;
+                
+                if (imageUrl && imageUrl.trim() !== '') {
+                    console.log('[v0] ✅ IMAGE FOUND - Processing image URL:', imageUrl);
+                    
+                    // Clean up the imageUrl - remove any backticks and extra spaces
+                    const cleanImageUrl = imageUrl.replace(/`/g, '').trim();
+                    console.log('[v0] 🔧 Cleaned image URL:', cleanImageUrl);
+                    
+                    // Validate URL format
+                    try {
+                        new URL(cleanImageUrl);
+                        console.log('[v0] ✅ Valid URL format confirmed');
+                    } catch (e) {
+                        console.log('[v0] ❌ Invalid URL format:', cleanImageUrl);
+                        questionImage.classList.remove('visible', 'loading');
+                        questionImage.src = '';
+                        console.log('[v0] === END IMAGE PROCESSING DEBUG ===');
+                        return;
+                    }
+                    
+                    // Show loading state
+                    questionImage.classList.add('loading', 'visible');
+                    questionImage.src = '';
+                    console.log('[v0] 🔄 Loading image...');
+                    
+                    // Create a new image to preload
+                    const img = new Image();
+                    img.onload = function() {
+                        questionImage.src = cleanImageUrl;
+                        questionImage.classList.remove('loading');
+                        console.log('[v0] ✅ IMAGE LOADED SUCCESSFULLY:', cleanImageUrl);
+                    };
+                    img.onerror = function() {
+                        console.log('[v0] ❌ FAILED TO LOAD IMAGE:', cleanImageUrl);
+                        questionImage.classList.remove('visible', 'loading');
+                        questionImage.src = '';
+                    };
+                    img.src = cleanImageUrl;
+                } else {
+                    console.log('[v0] ❌ NO IMAGE FOUND - No image URL available for this question');
+                    questionImage.classList.remove('visible', 'loading');
+                    questionImage.src = '';
+                }
+                console.log('[v0] === END IMAGE PROCESSING DEBUG ===');
+                
+                const answersContainer = document.getElementById('answers-container');
+                answersContainer.innerHTML = '';
+                
+                const options = question.options || question.choices || [];
+                console.log('[v0] Question options:', options); // Debug log
+                
+                if (options.length === 0) {
+                    console.log('[v0] No options found for question:', question);
+                    answersContainer.innerHTML = '<div class="no-options">No options available for this question</div>';
+                    return;
+                }
+                
+                options.forEach((option, index) => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'answer-option';
+                    optionDiv.dataset.option = index;
+                    
+                    let optionText = '';
+                    if (typeof option === 'string') {
+                        optionText = option;
+                    } else if (option.text) {
+                        optionText = option.text;
+                    } else if (option.option) {
+                        optionText = option.option;
+                    } else if (option.answer) {
+                        optionText = option.answer;
+                    } else {
+                        optionText = `Option ${index + 1}`;
+                    }
+                    
+                    optionDiv.innerHTML = `
+                        <span class="option-letter">${String.fromCharCode(65 + index)}</span>
+                        <span class="option-text">${optionText}</span>
+                    `;
+                    
+                    if (this.answers[this.currentQuestion - 1] === index) {
+                        optionDiv.classList.add('selected');
+                        this.selectedAnswer = index;
+                    }
+                    
+                    optionDiv.addEventListener('click', () => {
+                        if (!optionDiv.classList.contains('disabled')) {
+                            this.selectAnswer(index);
+                        }
+                    });
+                    
+                    answersContainer.appendChild(optionDiv);
+                });
+                
+                // Process MathJax for the answer options
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    window.MathJax.typesetPromise([answersContainer]).catch((err) => console.log('MathJax options typeset error:', err));
+                }
+                
+                document.getElementById('prev-btn').disabled = this.currentQuestion === 1;
+                document.getElementById('next-btn').disabled = this.currentQuestion === this.totalQuestions;
+                
+                this.updateProgressBar();
+                this.updateCheckButton();
+                this.isAnswered = this.answers[this.currentQuestion - 1] !== null;
+                this.isChecked = this.isAnswered;
+            }
+
+            updateProgressBar() {
+                const segments = this.progressContainer.querySelectorAll('.progress-segment');
+                let answeredCount = 0;
+                let correctCount = 0;
+
+                segments.forEach((segment, index) => {
+                    segment.classList.remove('correct', 'incorrect');
+                    
+                    if (this.answers[index] !== null) {
+                        answeredCount++;
+                        if (this.answers[index] === this.correctAnswers[index]) {
+                            segment.classList.add('correct');
+                            correctCount++;
+                        } else {
+                            segment.classList.add('incorrect');
+                        }
+                    }
+                });
+
+                this.correctCountEl.textContent = correctCount;
+                this.answeredCountEl.textContent = answeredCount;
+            }
+
+            updateCheckButton() {
+                const checkBtn = document.getElementById('check-btn');
+                if (this.selectedAnswer !== null && !this.isChecked) {
+                    checkBtn.classList.add('active');
+                } else {
+                    checkBtn.classList.remove('active');
+                }
+            }
+
+            selectAnswer(optionIndex) {
+                console.log('[v0] Selecting answer:', optionIndex);
+                
+                // Remove previous selection
+                document.querySelectorAll('.answer-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                
+                // Add selection to clicked option
+                const selectedOption = document.querySelector(`[data-option="${optionIndex}"]`);
+                if (selectedOption) {
+                    selectedOption.classList.add('selected');
+                }
+                
+                this.selectedAnswer = optionIndex;
+                this.answers[this.currentQuestion - 1] = optionIndex;
+                this.isAnswered = true;
+                this.updateCheckButton();
+            }
+
+            checkAnswer() {
+                if (this.selectedAnswer === null || this.isChecked) return;
+                
+                const answerOptions = document.querySelectorAll('.answer-option');
+                const selectedOption = answerOptions[this.selectedAnswer];
+                
+                // Convert letter answer to numeric index (A=0, B=1, C=2, D=3, E=4)
+                const correctAnswerLetter = this.correctAnswers[this.currentQuestion - 1];
+                console.log('[DEBUG] correctAnswers:', this.correctAnswers);
+                console.log('[DEBUG] currentQuestion:', this.currentQuestion);
+                console.log('[DEBUG] correctAnswerLetter:', correctAnswerLetter);
+                
+                // If the correct answer is a number (already index), convert to letter for consistency
+                let correctAnswerIndex;
+                if (typeof correctAnswerLetter === 'number') {
+                    correctAnswerIndex = correctAnswerLetter;
+                } else if (typeof correctAnswerLetter === 'string' && correctAnswerLetter.length > 0) {
+                    correctAnswerIndex = correctAnswerLetter.charCodeAt(0) - 65; // 'A'.charCodeAt(0) = 65
+                } else {
+                    console.error('[ERROR] correctAnswerLetter is invalid:', correctAnswerLetter);
+                    return;
+                }
+                const correctOption = answerOptions[correctAnswerIndex];
+                
+                this.answers[this.currentQuestion - 1] = this.selectedAnswer;
+                this.isChecked = true;
+                this.isAnswered = true;
+                
+                answerOptions.forEach(option => option.classList.add('disabled'));
+                
+                if (this.selectedAnswer === correctAnswerIndex) {
+                    selectedOption.classList.add('correct');
+                    this.score++;
+                } else {
+                    selectedOption.classList.add('incorrect');
+                    correctOption.classList.add('correct');
+                }
+                
+                this.updateProgressBar();
+                this.updateCheckButton();
+                
+                setTimeout(() => {
+                    if (this.currentQuestion === this.totalQuestions) {
+                        this.endQuiz();
+                    } else {
+                        this.nextQuestion();
+                    }
+                }, 1000);
+            }
+
+            switchTab(tab) {
+                if (tab === this.currentTab) return;
+                
+                this.currentTab = tab;
+                
+                const questionTab = document.getElementById('question-tab');
+                const solutionTab = document.getElementById('solution-tab');
+                const questionContent = document.getElementById('question-content');
+                const solutionContent = document.getElementById('solution-content');
+                
+                if (tab === 'solution') {
+                    questionTab.classList.remove('active');
+                    solutionTab.classList.add('active');
+                    questionContent.classList.add('hidden');
+                    solutionContent.classList.add('active');
+                } else {
+                    solutionTab.classList.remove('active');
+                    questionTab.classList.add('active');
+                    solutionContent.classList.remove('active');
+                    questionContent.classList.remove('hidden');
+                }
+            }
+
+            nextQuestion() {
+                if (this.currentQuestion < this.totalQuestions) {
+                    this.currentQuestion++;
+                    this.selectedAnswer = null;
+                    this.isAnswered = false;
+                    this.isChecked = false;
+                    this.switchTab('question');
+                    this.loadQuestion();
+                }
+            }
+
+            prevQuestion() {
+                if (this.currentQuestion > 1) {
+                    this.currentQuestion--;
+                    this.selectedAnswer = null;
+                    this.isAnswered = false;
+                    this.isChecked = false;
+                    this.switchTab('question');
+                    this.loadQuestion();
+                }
+            }
+
+            endQuiz() {
+                this.showResults();
+            }
+
+            showResults() {
+                const timeSpent = Math.floor((Date.now() - this.startTime) / 1000 / 60 * 100) / 100;
+                const wrongAnswers = this.totalQuestions - this.score;
+                const percentage = (this.score / this.totalQuestions) * 100;
+                
+                let grade = 'F';
+                if (percentage >= 90) grade = 'A+';
+                else if (percentage >= 85) grade = 'A';
+                else if (percentage >= 80) grade = 'A-';
+                else if (percentage >= 75) grade = 'B+';
+                else if (percentage >= 70) grade = 'B';
+                else if (percentage >= 65) grade = 'B-';
+                else if (percentage >= 60) grade = 'C+';
+                else if (percentage >= 55) grade = 'C';
+                else if (percentage >= 50) grade = 'C-';
+                else if (percentage >= 45) grade = 'D+';
+                else if (percentage >= 40) grade = 'D';
+                else if (percentage >= 35) grade = 'D-';
+                
+                let message = 'Keep practicing!';
+                if (percentage >= 90) message = 'Outstanding!';
+                else if (percentage >= 80) message = 'You are amazing!';
+                else if (percentage >= 70) message = 'Great job!';
+                else if (percentage >= 60) message = 'Good work!';
+                else if (percentage >= 50) message = 'Not bad!';
+                
+                document.getElementById('final-score').textContent = `${this.score}/${this.totalQuestions}`;
+                document.getElementById('score-message').textContent = message;
+                document.getElementById('wrong-answers').textContent = wrongAnswers;
+                document.getElementById('time-committed').textContent = `${timeSpent}m`;
+                document.getElementById('grade').textContent = grade;
+                
+                this.modalOverlay.classList.add('active');
+                
+                console.log('[v0] 🎯 Quiz completed! Calling updateStreak...');
+                // Update streak after completing quiz
+                this.updateStreak();
+            }
+
+            resetQuiz() {
+                this.currentQuestion = 1;
+                this.answers = new Array(this.totalQuestions).fill(null);
+                this.selectedAnswer = null;
+                this.isAnswered = false;
+                this.isChecked = false;
+                this.score = 0;
+                this.startTime = Date.now();
+                
+                this.modalOverlay.classList.remove('active');
+                this.switchTab('question');
+                this.loadQuestion();
+            }
+
+            displayError(message) {
+                this.quizContent.innerHTML = `
+                    <div class="error-message">
+                        <h3>Error</h3>
+                        <p>${message}</p>
+                        <button class="modal-button primary" onclick="location.reload()" style="margin-top: 15px;">Try Again</button>
+                    </div>
+                `;
+            }
+
+            bindEvents() {
+                // Answer selection
+                document.addEventListener('click', (e) => {
+                    const option = e.target.closest('.answer-option');
+                    if (option && !this.isChecked) {
+                        const optionIndex = parseInt(option.dataset.option);
+                        this.selectAnswer(optionIndex);
+                    }
+                });
+
+                // Check button
+                document.addEventListener('click', (e) => {
+                    if (e.target.id === 'check-btn') {
+                        if (this.currentQuestion === this.totalQuestions && this.isChecked) {
+                            this.endQuiz();
+                        } else {
+                            this.checkAnswer();
+                        }
+                    }
+                });
+
+                // Navigation
+                document.addEventListener('click', (e) => {
+                    if (e.target.id === 'next-btn') this.nextQuestion();
+                    if (e.target.id === 'prev-btn') this.prevQuestion();
+                });
+
+                // Tabs
+                document.addEventListener('click', (e) => {
+                    if (e.target.id === 'question-tab') this.switchTab('question');
+                    if (e.target.id === 'solution-tab') this.switchTab('solution');
+                });
+
+                // Modal buttons
+                document.addEventListener('click', (e) => {
+                    if (e.target.id === 'do-again-btn') this.resetQuiz();
+                    if (e.target.id === 'view-results-btn') goBackToQuizSelection();
+                });
+
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    switch(e.key) {
+                        case 'ArrowLeft':
+                            if (this.currentQuestion > 1) this.prevQuestion();
+                            break;
+                        case 'ArrowRight':
+                            if (this.currentQuestion < this.totalQuestions) this.nextQuestion();
+                            break;
+                        case '1':
+                        case '2':
+                        case '3':
+                        case '4':
+                            if (!this.isChecked) {
+                                const optionIndex = parseInt(e.key) - 1;
+                                if (optionIndex < this.questions[this.currentQuestion - 1].options.length) {
+                                    this.selectAnswer(optionIndex);
+                                }
+                            }
+                            break;
+                        case 'Enter':
+                        case ' ':
+                            e.preventDefault();
+                            const checkBtn = document.getElementById('check-btn');
+                            if (checkBtn && checkBtn.classList.contains('active')) {
+                                this.checkAnswer();
+                            }
+                            break;
+                    }
+                });
+            }
+
+            updateStreak() {
+                console.log('[v0] === STREAK UPDATE START ===');
+                
+                try {
+                    const currentStreak = parseInt(localStorage.getItem('userStreak') || '0');
+                    const lastQuizDate = localStorage.getItem('lastQuizDate');
+                    const today = new Date().toDateString();
+                    
+                    console.log('[v0] Current streak:', currentStreak);
+                    console.log('[v0] Last quiz date:', lastQuizDate);
+                    console.log('[v0] Today:', today);
+                    
+                    let newStreak;
+                    
+                    if (lastQuizDate === today) {
+                        // Already completed a quiz today, don't increment
+                        newStreak = currentStreak;
+                        console.log('[v0] Quiz already completed today, streak remains:', newStreak);
+                    } else {
+                        // Increment streak
+                        newStreak = currentStreak + 1;
+                        console.log('[v0] Incrementing streak to:', newStreak);
+                        
+                        // Update localStorage
+                        localStorage.setItem('userStreak', newStreak.toString());
+                        localStorage.setItem('lastQuizDate', today);
+                        
+                        // Update max streak if needed
+                        const maxStreak = parseInt(localStorage.getItem('maxStreak') || '0');
+                        if (newStreak > maxStreak) {
+                            localStorage.setItem('maxStreak', newStreak.toString());
+                        }
+                    }
+                    
+                    console.log('[v0] Streak updated successfully! New streak:', newStreak);
+
+                } catch (error) {
+                    console.error('[v0] Error updating streak:', error);
+                }
+                
+                console.log('[v0] === STREAK UPDATE END ===');
+            }
+        }
+
+        // Global functions for navigation
+        function goBackToQuizSelection() {
+            // Navigate back to main quiz selection page
+            window.location.href = 'index.html';
+        }
+
+        // Initialize the quiz app
+        document.addEventListener('DOMContentLoaded', () => {
+            window.quizApp = new QuizApp();
+        });
+    </script>
+</body>
+</html>

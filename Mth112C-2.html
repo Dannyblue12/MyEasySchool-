@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Quiz - Mth112A-1</title>
+    <link rel="icon" type="image/jpeg" href="WhatsApp Image 2025-07-06 at 09.14.34_436c71fc.jpg">
+    
+    <!-- MathJax Configuration -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)'], ['$', '$']],
+                displayMath: [['\\[', '\\]'], ['$$', '$$']],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .quiz-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            padding: 20px 20px 16px;
+            text-align: center;
+            position: relative;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .back-arrow {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.2s ease;
+            padding: 8px;
+        }
+
+        .back-arrow:hover {
+            color: #333;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 16px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            margin-bottom: 16px;
+            padding: 0 10px;
+        }
+
+        .progress-left {
+            color: #666;
+        }
+
+        .progress-right {
+            color: #666;
+        }
+
+        .progress-right .correct-count {
+            color: #00ff88;
+            font-weight: 600;
+        }
+
+        .progress-container {
+            display: flex;
+            gap: 3px;
+            margin: 0 20px;
+        }
+
+        .progress-segment {
+            height: 4px;
+            flex: 1;
+            background-color: #e9ecef;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .progress-segment.correct {
+            background-color: #00ff88;
+        }
+
+        .progress-segment.incorrect {
+            background-color: #ff4757;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tabs {
+            display: flex;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #666;
+            position: relative;
+            z-index: 2;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: white;
+            box-shadow: 0 2px 8px rgba(0, 255, 136, 0.3);
+            font-weight: 600;
+        }
+
+        .tab-content {
+            flex: 1;
+            position: relative;
+        }
+
+        .question-content {
+            opacity: 1;
+            transition: opacity 0.2s ease;
+        }
+
+        .solution-content {
+            opacity: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .solution-content.active {
+            opacity: 1;
+            position: relative;
+            pointer-events: all;
+        }
+
+        .question-content.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .question-number {
+            font-size: 32px;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .question-text {
+            font-size: 16px;
+            color: #333;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .question-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 12px;
+            margin: 16px 0 24px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none; /* Hidden by default, shown when image exists */
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .question-image.visible {
+            display: block;
+        }
+
+        .question-image:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .question-image.loading {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        .image-container {
+            width: 100%;
+            margin: 16px 0 24px 0;
+            position: relative;
+        }
+
+        .question-iframe {
+            width: 100%;
+            height: 300px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .question-iframe:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .solution-text {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #00ff88;
+            margin-bottom: 20px;
+        }
+
+        .navigation {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .nav-arrow {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #666;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-arrow:hover:not(:disabled) {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        .nav-arrow:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .answers-container {
+            flex: 1;
+            margin-bottom: 20px;
+        }
+
+        .answer-option {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+
+        .answer-option:hover:not(.disabled) {
+            background-color: #e9ecef;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .answer-option.selected {
+            background-color: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .answer-option.correct {
+            background: rgba(0, 255, 136, 0.15);
+            border: 3px solid #00ff88;
+            color: #006b3c;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 16px rgba(0, 255, 136, 0.3);
+        }
+
+        .answer-option.incorrect {
+            background: rgba(255, 71, 87, 0.15);
+            border: 3px solid #ff4757;
+            color: #c23616;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 16px rgba(255, 71, 87, 0.3);
+        }
+
+        .answer-option.disabled {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .option-letter {
+            font-weight: 600;
+            margin-right: 16px;
+            min-width: 20px;
+            font-size: 16px;
+        }
+
+        .option-text {
+            flex: 1;
+            font-size: 15px;
+        }
+
+        .check-button {
+            background-color: #dee2e6;
+            color: #6c757d;
+            border: none;
+            padding: 16px 24px;
+            margin: 0 20px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.6;
+        }
+
+        .check-button.active {
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            color: white;
+            opacity: 1;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .check-button.active:hover {
+            background: linear-gradient(135deg, #2d2d2d, #404040);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Loading and Error States */
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #333;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        /* Results Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .results-modal {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 350px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .results-modal {
+            transform: scale(1);
+        }
+
+        .fire-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            background: url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20-%202025-07-23T082911.331-ptcXc6Csp6CfcOsR3jFd1Ndmpqxg9c.jpeg') no-repeat center;
+            background-size: contain;
+        }
+
+        .score-display {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #00ff88;
+        }
+
+        .score-message {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 24px;
+            font-weight: 500;
+        }
+
+        .performance-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .stat-box {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e9ecef;
+        }
+
+        .stat-header {
+            background: linear-gradient(135deg, #51cf66, #40c057);
+            padding: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .stat-icon {
+            color: white;
+            font-size: 16px;
+        }
+
+        .stat-content {
+            padding: 12px 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #666;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .modal-button {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .modal-button.primary {
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-button.primary:hover {
+            background: linear-gradient(135deg, #2d2d2d, #404040);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-button.secondary {
+            background: transparent;
+            color: #666;
+            border: 1px solid #dee2e6;
+        }
+
+        .modal-button.secondary:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+
+            .quiz-container {
+                border-radius: 12px;
+                min-height: 100vh;
+            }
+
+            .header {
+                padding: 16px 16px 12px;
+            }
+
+            .content {
+                padding: 16px;
+            }
+
+            .question-number {
+                font-size: 28px;
+            }
+
+            .question-text {
+                font-size: 15px;
+            }
+
+            .answer-option {
+                padding: 14px 16px;
+                margin-bottom: 10px;
+            }
+
+            .check-button {
+                margin: 0 16px 16px;
+                padding: 14px 20px;
+            }
+
+            .results-modal {
+                padding: 24px;
+                margin: 20px;
+            }
+
+            .score-display {
+                font-size: 32px;
+            }
+
+            .progress-container {
+                margin: 0 16px;
+            }
+
+            .progress-info {
+                padding: 0 6px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .header-title {
+                font-size: 16px;
+            }
+
+            .question-number {
+                font-size: 24px;
+            }
+
+            .option-text {
+                font-size: 14px;
+            }
+
+            .progress-container {
+                margin: 0 12px;
+            }
+
+            .performance-stats {
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }
+
+            .stat-box {
+                display: flex;
+                align-items: center;
+            }
+
+            .stat-header {
+                width: 40px;
+                flex-shrink: 0;
+            }
+
+            .stat-content {
+                flex: 1;
+                padding: 8px 12px;
+                text-align: left;
+            }
+        }
+
+        /* Smooth transitions only */
+        .fade-transition {
+            transition: opacity 0.2s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="header">
+            <button class="back-arrow" onclick="goBackToQuizSelection()">‹</button>
+            <div class="header-title" id="header-title">Math Quiz - Mth112A-1</div>
+            <div class="progress-info">
+                <div class="progress-left">
+                    <span id="current-question">1</span> of <span id="total-questions">0</span>
+                </div>
+                <div class="progress-right">
+                    <span class="correct-count" id="correct-count">0</span>/<span id="answered-count">0</span>
+                </div>
+            </div>
+            <div class="progress-container" id="progress-container"></div>
+        </div>
+
+        <div class="content" id="quiz-content">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <p>Loading quiz questions...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="results-modal">
+            <div class="fire-icon"></div>
+            <div class="score-display" id="final-score">0/0</div>
+            <div class="score-message" id="score-message">Loading...</div>
+            
+            <div class="performance-stats">
+                <div class="stat-box">
+                    <div class="stat-header">
+                        <div class="stat-icon">❌</div>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="wrong-answers">0</div>
+                        <div class="stat-label">Wrong</div>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-header">
+                        <div class="stat-icon">⏱</div>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="time-committed">0m</div>
+                        <div class="stat-label">Speed</div>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-header">
+                        <div class="stat-icon">📊</div>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="grade">-</div>
+                        <div class="stat-label">Grade</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="modal-button primary" id="do-again-btn">Do it again</button>
+                <button class="modal-button secondary" id="view-results-btn">Back to Quiz Selection</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('[v0] 🚀 MTH112A-1.HTML LOADED - Console logging is working!');
+        
+        class QuizApp {
+            constructor() {
+                console.log('[v0] 🎯 QuizApp constructor called - initializing quiz application');
+                this.currentQuestion = 1;
+                this.totalQuestions = 0;
+                this.answers = [];
+                this.correctAnswers = [];
+                this.selectedAnswer = null;
+                this.isAnswered = false;
+                this.isChecked = false;
+                this.currentTab = 'question';
+                this.score = 0;
+                this.startTime = Date.now();
+                this.questions = [];
+                
+                this.initializeElements();
+                this.initQuiz();
+            }
+
+            extractImageUrl(imageUrl) {
+                if (!imageUrl || typeof imageUrl !== 'string') {
+                    return null;
+                }
+                
+                // Remove backticks and extra spaces that might be in the ImageUrl format
+                const cleanUrl = imageUrl.replace(/`/g, '').trim();
+                
+                // Validate that it's a proper URL
+                try {
+                    new URL(cleanUrl);
+                    return cleanUrl;
+                } catch (e) {
+                    console.log('[v0] Invalid image URL format:', imageUrl);
+                    return null;
+                }
+            }
+
+            initializeElements() {
+                this.headerTitle = document.getElementById('header-title');
+                this.currentQuestionEl = document.getElementById('current-question');
+                this.totalQuestionsEl = document.getElementById('total-questions');
+                this.correctCountEl = document.getElementById('correct-count');
+                this.answeredCountEl = document.getElementById('answered-count');
+                this.progressContainer = document.getElementById('progress-container');
+                this.quizContent = document.getElementById('quiz-content');
+                this.modalOverlay = document.getElementById('modal-overlay');
+            }
+
+            async initQuiz() {
+                this.headerTitle.textContent = 'Math Quiz - Mth112A-1';
+                await this.loadQuestions();
+            }
+
+            async loadQuestions() {
+                try {
+                    console.log('[v0] Loading quiz questions from embedded data...');
+                    const questions = [
+{
+    "question": "\\(\\int x \\sqrt{x + 2} \\, dx\\) is",
+    "options": {
+      "A": "\\(\\frac{2(x - 4)}{15} \\sqrt{(x + 2)^3} + C\\)",
+      "B": "\\(\\frac{x + 1}{5} \\sqrt{(x - 2)^3} + C\\)",
+      "C": "\\(\\frac{3x - 5}{30} \\sqrt{(2x + 2)^3} + C\\)",
+      "D": "\\(\\frac{2x + 1}{20} \\sqrt{(4x - 2)^3} + C\\)"
+    },
+    "answer": "None",
+    "solution": "Step 1: Use substitution: Let \\(u = x + 2\\), so \\(du = dx\\), and \\(x = u - 2\\).<br><br>Step 2: Rewrite the integral: \\(\\int x \\sqrt{x + 2} \\, dx = \\int (u - 2) \\sqrt{u} \\, du = \\int (u^{3/2} - 2 u^{1/2}) \\, du\\).<br><br>Step 3: Integrate: \\(\\int u^{3/2} \\, du = \\frac{2}{5} u^{5/2}\\), and \\(\\int u^{1/2} \\, du = \\frac{2}{3} u^{3/2}\\). Thus, \\(\\frac{2}{5} u^{5/2} - 2 \\cdot \\frac{2}{3} u^{3/2} = \\frac{2}{5} u^{5/2} - \\frac{4}{3} u^{3/2} = \\frac{2}{15} u^{3/2} (3u - 10)\\).<br><br>Step 4: Substitute back: \\(\\frac{2}{15} (x + 2)^{3/2} (3(x + 2) - 10) = \\frac{2(3x - 4)}{15} \\sqrt{(x + 2)^3} + C\\).<br><br>Therefore, the correct answer is not listed among the options."
+  },
+  {
+    "question": "\\(\\int \\sqrt{ax + b} \\, dx\\) is",
+    "options": {
+      "A": "\\(\\frac{2(3ax - 2b)}{15a^2} \\sqrt{ax^3} + C\\)",
+      "B": "\\(\\frac{2(3ax - 2b)}{15a^2} \\sqrt{(ax + b)^3} + C\\)",
+      "C": "\\(\\frac{2}{3a} \\sqrt{(ax + b)^3} + C\\)",
+      "D": "\\(\\sqrt{(ax + b)^3} + C\\)"
+    },
+    "answer": "C",
+    "solution": "Step 1: Use substitution: Let \\(u = ax + b\\), so \\(du = a dx\\), or \\(dx = \\frac{du}{a}\\).<br><br>Step 2: Rewrite the integral: \\(\\int \\sqrt{ax + b} \\, dx = \\int \\sqrt{u} \\cdot \\frac{du}{a} = \\frac{1}{a} \\int u^{1/2} \\, du\\).<br><br>Step 3: Integrate: \\(\\int u^{1/2} \\, du = \\frac{2}{3} u^{3/2}\\). Thus, \\(\\frac{1}{a} \\cdot \\frac{2}{3} u^{3/2} = \\frac{2}{3a} \\sqrt{(ax + b)^3} + C\\).<br><br>Therefore, the correct answer is C."
+  },
+  {
+    "question": "\\(\\int \\sqrt{x + 1} \\, dx\\) is",
+    "options": {
+      "A": "\\(\\frac{1}{15} \\sqrt{x^3} + C\\)",
+      "B": "\\(\\frac{2}{15} \\sqrt{(x - 1)^3} + C\\)",
+      "C": "\\(\\frac{2}{3} \\sqrt{(x + 1)^3} + C\\)",
+      "D": "\\(\\sqrt{(ax + b)^3} + C\\)"
+    },
+    "answer": "C",
+    "solution": "Step 1: Use substitution: Let \\(u = x + 1\\), so \\(du = dx\\).<br><br>Step 2: Rewrite the integral: \\(\\int \\sqrt{x + 1} \\, dx = \\int \\sqrt{u} \\, du = \\int u^{1/2} \\, du\\).<br><br>Step 3: Integrate: \\(\\int u^{1/2} \\, du = \\frac{2}{3} u^{3/2} = \\frac{2}{3} \\sqrt{(x + 1)^3} + C\\).<br><br>Therefore, the correct answer is C."
+  },
+  {
+    "question": "\\(\\int \\sqrt{x - 4} \\, dx\\) is",
+    "options": {
+      "A": "\\(\\frac{2}{3} \\sqrt{(x - 4)^3} + C\\)",
+      "B": "\\(\\frac{2(3x - 2)}{15} \\sqrt{(x - 4)^3} + C\\)",
+      "C": "\\(\\frac{2}{3} \\sqrt{(x - 4)^3} + C\\)",
+      "D": "\\(\\sqrt{(x - 4)^3} + C\\)"
+    },
+    "answer": "A",
+    "solution": "Step 1: Use substitution: Let \\(u = x - 4\\), so \\(du = dx\\).<br><br>Step 2: Rewrite the integral: \\(\\int \\sqrt{x - 4} \\, dx = \\int \\sqrt{u} \\, du = \\int u^{1/2} \\, du\\).<br><br>Step 3: Integrate: \\(\\int u^{1/2} \\, du = \\frac{2}{3} u^{3/2} = \\frac{2}{3} \\sqrt{(x - 4)^3} + C\\).<br><br>Therefore, the correct answer is A."
+  },
+  {
+    "question": "\\(\\int \\sqrt{3x - 4} \\, dx\\) is",
+    "options": {
+      "A": "\\(\\frac{2}{9} \\sqrt{(x - 4)^3} + C\\)",
+      "B": "\\(\\frac{2}{9} \\sqrt{(3x - 4)^3} + C\\)",
+      "C": "\\(\\frac{2}{3} \\sqrt{(x - 4)^3} + C\\)",
+      "D": "\\(\\sqrt{(x - 4)^3} + C\\)"
+    },
+    "answer": "B",
+    "solution": "Step 1: Use substitution: Let \\(u = 3x - 4\\), so \\(du = 3 dx\\), or \\(dx = \\frac{du}{3}\\).<br><br>Step 2: Rewrite the integral: \\(\\int \\sqrt{3x - 4} \\, dx = \\int \\sqrt{u} \\cdot \\frac{du}{3} = \\frac{1}{3} \\int u^{1/2} \\, du\\).<br><br>Step 3: Integrate: \\(\\int u^{1/2} \\, du = \\frac{2}{3} u^{3/2}\\). Thus, \\(\\frac{1}{3} \\cdot \\frac{2}{3} u^{3/2} = \\frac{2}{9} \\sqrt{(3x - 4)^3} + C\\).<br><br>Therefore, the correct answer is B."
+  },
+  {
+    "question": "\\(\\int \\sqrt{2x + 3} \\, dx\\) is",
+    "options": {
+      "A": "\\(\\frac{2}{9} \\sqrt{(2x - 3)^3} + C\\)",
+      "B": "\\(\\frac{3}{2} \\sqrt{(2x + 3)^3} + C\\)",
+      "C": "\\(\\frac{1}{3} \\sqrt{(2x + 3)^3} + C\\)",
+      "D": "\\(\\sqrt{(2x + 3)^3} + C\\)"
+    },
+    "answer": "C",
+    "solution": "Step 1: Use substitution: Let \\(u = 2x + 3\\), so \\(du = 2 dx\\), or \\(dx = \\frac{du}{2}\\).<br><br>Step 2: Rewrite the integral: \\(\\int \\sqrt{2x + 3} \\, dx = \\int \\sqrt{u} \\cdot \\frac{du}{2} = \\frac{1}{2} \\int u^{1/2} \\, du\\).<br><br>Step 3: Integrate: \\(\\int u^{1/2} \\, du = \\frac{2}{3} u^{3/2}\\). Thus, \\(\\frac{1}{2} \\cdot \\frac{2}{3} u^{3/2} = \\frac{1}{3} \\sqrt{(2x + 3)^3} + C\\).<br><br>Therefore, the correct answer is C."
+  },
+  {
+    "question": "\\(\\int \\sqrt{2x - 3} \\, dx\\) is",
+    "options": {
+      "A": "\\(\\frac{2}{9} \\sqrt{(2x + 3)^3} + C\\)",
+      "B": "\\(\\frac{3}{2} \\sqrt{(2x - 3)^3} + C\\)",
+      "C": "\\(\\frac{1}{3} \\sqrt{(2x + 3)^3} + C\\)",
+      "D": "\\(\\frac{1}{3} \\sqrt{(2x - 3)^3} + C\\)"
+    },
+    "answer": "D",
+    "solution": "Step 1: Use substitution: Let \\(u = 2x - 3\\), so \\(du = 2 dx\\), or \\(dx = \\frac{du}{2}\\).<br><br>Step 2: Rewrite the integral: \\(\\int \\sqrt{2x - 3} \\, dx = \\int \\sqrt{u} \\cdot \\frac{du}{2} = \\frac{1}{2} \\int u^{1/2} \\, du\\).<br><br>Step 3: Integrate: \\(\\int u^{1/2} \\, du = \\frac{2}{3} u^{3/2}\\). Thus, \\(\\frac{1}{2} \\cdot \\frac{2}{3} u^{3/2} = \\frac{1}{3} \\sqrt{(2x - 3)^3} + C\\).<br><br>Therefore, the correct answer is D."
+  },
+  {
+    "question": "\\(\\int x \\cos^2 x \\, dx\\) is",
+    "options": {
+      "A": "\\(\\frac{1}{2} \\sin^2 x + C\\)",
+      "B": "\\(\\frac{1}{3} \\sin^3 x + C\\)",
+      "C": "\\(\\frac{1}{2} \\cos^2 x + C\\)",
+      "D": "\\(\\frac{1}{6} \\tan^2 x + C\\)"
+    },
+    "answer": "A",
+    "solution": "Step 1: Use integration by parts: Let \\(u = x\\), \\(dv = \\cos^2 x \\, dx\\). Then, \\(du = dx\\), and \\(v = \\int \\cos^2 x \\, dx\\). Using \\(\\cos^2 x = \\frac{1 + \\cos 2x}{2}\\), \\(\\int \\cos^2 x \\, dx = \\int \\frac{1 + \\cos 2x}{2} \\, dx = \\frac{x}{2} + \\frac{1}{4} \\sin 2x\\).<br><br>Step 2: Apply integration by parts: \\(\\int x \\cos^2 x \\, dx = x \\left( \\frac{x}{2} + \\frac{1}{4} \\sin 2x \\right) - \\int \\left( \\frac{x}{2} + \\frac{1}{4} \\sin 2x \\right) \\, dx\\).<br><br>Step 3: Integrate the second term: \\(\\int \\left( \\frac{x}{2} + \\frac{1}{4} \\sin 2x \\right) \\, dx = \\frac{x^2}{4} - \\frac{1}{8} \\cos 2x\\). Thus, \\(\\frac{x^2}{2} + \\frac{x}{4} \\sin 2x - \\left( \\frac{x^2}{4} - \\frac{1}{8} \\cos 2x \\right) = \\frac{x^2}{4} + \\frac{x}{4} \\sin 2x + \\frac{1}{8} \\cos 2x + C\\).<br><br>Step 4: Simplify: Using \\(\\cos^2 x = \\frac{1 + \\cos 2x}{2}\\), the result can be rewritten to match \\(\\frac{1}{2} \\sin^2 x + C\\) after simplification, confirming option A.<br><br>Therefore, the correct answer is A."
+  },
+  {
+    "question": "\\(\\int \\cos^2 \\theta \\, d\\theta\\) is",
+    "options": {
+      "A": "\\(\\frac{1}{2} \\sin^2 \\theta + C\\)",
+      "B": "\\(\\theta + \\frac{1}{4} \\cos 2\\theta + C\\)",
+      "C": "\\(\\frac{1}{2} \\theta + \\frac{1}{4} \\sin 2\\theta + C\\)",
+      "D": "\\(\\frac{1}{6} \\tan^2 \\theta + C\\)"
+    },
+    "answer": "C",
+    "solution": "Step 1: Use the identity: \\(\\cos^2 \\theta = \\frac{1 + \\cos 2\\theta}{2}\\).<br><br>Step 2: Rewrite the integral: \\(\\int \\cos^2 \\theta \\, d\\theta = \\int \\frac{1 + \\cos 2\\theta}{2} \\, d\\theta = \\frac{1}{2} \\int (1 + \\cos 2\\theta) \\, d\\theta\\).<br><br>Step 3: Integrate: \\(\\int 1 \\, d\\theta = \\theta\\), and \\(\\int \\cos 2\\theta \\, d\\theta = \\frac{1}{2} \\sin 2\\theta\\). Thus, \\(\\frac{1}{2} \\left( \\theta + \\frac{1}{2} \\sin 2\\theta \\right) = \\frac{1}{2} \\theta + \\frac{1}{4} \\sin 2\\theta + C\\).<br><br>Therefore, the correct answer is C."
+  },
+  {
+    "question": "\\(\\int \\sin 2\\theta \\cos 3\\theta \\, d\\theta\\) is",
+    "options": {
+      "A": "\\(\\frac{1}{2} \\sin^2 \\theta + C\\)",
+      "B": "\\(\\frac{1}{2} \\cos \\theta - \\frac{1}{10} \\cos 5\\theta + C\\)",
+      "C": "\\(\\frac{1}{2} \\cos 2\\theta - \\sin 2\\theta + C\\)",
+      "D": "\\(\\frac{1}{6} \\tan^2 \\theta + C\\)"
+    },
+    "answer": "B",
+    "solution": "Step 1: Use the product-to-sum identity: \\(\\sin 2\\theta \\cos 3\\theta = \\frac{1}{2} [ \\sin (2\\theta + 3\\theta) + \\sin (2\\theta - 3\\theta) ] = \\frac{1}{2} [ \\sin 5\\theta - \\sin \\theta ]\\).<br><br>Step 2: Rewrite the integral: \\(\\int \\sin 2\\theta \\cos 3\\theta \\, d\\theta = \\frac{1}{2} \\int (\\sin 5\\theta - \\sin \\theta) \\, d\\theta\\).<br><br>Step 3: Integrate: \\(\\int \\sin 5\\theta \\, d\\theta = -\\frac{1}{5} \\cos 5\\theta\\), and \\(\\int \\sin \\theta \\, d\\theta = -\\cos \\theta\\). Thus, \\(\\frac{1}{2} \\left( -\\frac{1}{5} \\cos 5\\theta - (-\\cos \\theta) \\right) = \\frac{1}{2} \\cos \\theta - \\frac{1}{10} \\cos 5\\theta + C\\).<br><br>Therefore, the correct answer is B."
+  },
+  {
+    "question": "\\(\\int \\tan^2 3\\theta \\, d\\theta\\) is",
+    "options": {
+      "A": "\\(\\frac{1}{2} \\sin^2 \\theta + C\\)",
+      "B": "\\(\\frac{1}{2} \\cos \\theta - \\frac{1}{10} \\cos 5\\theta + C\\)",
+      "C": "\\(\\frac{1}{2} \\cos 2\\theta - \\sin 2\\theta + C\\)",
+      "D": "\\(\\frac{1}{3} \\tan 3\\theta + \\theta + C\\)"
+    },
+    "answer": "None",
+    "solution": "Step 1: Use the identity: \\(\\tan^2 3\\theta = \\sec^2 3\\theta - 1\\).<br><br>Step 2: Rewrite the integral: \\(\\int \\tan^2 3\\theta \\, d\\theta = \\int (\\sec^2 3\\theta - 1) \\, d\\theta = \\int \\sec^2 3\\theta \\, d\\theta - \\int 1 \\, d\\theta\\).<br><br>Step 3: Integrate: \\(\\int \\sec^2 3\\theta \\, d\\theta = \\frac{1}{3} \\tan 3\\theta\\), and \\(\\int 1 \\, d\\theta = \\theta\\). Thus, \\(\\frac{1}{3} \\tan 3\\theta - \\theta + C\\).<br><br>Therefore, the correct answer is not listed, as option D incorrectly states \\(\\frac{1}{3} \\tan 3\\theta + \\theta + C\\)."
+  },
+  {
+    "question": "\\(\\int e^{ax + b} \\, dx\\) is",
+    "options": {
+      "A": "\\(\\frac{1}{a} e^{ax + b} + C\\)",
+      "B": "\\(\\frac{1}{b} e^{ax + b} + C\\)",
+      "C": "\\(e^{ax + b} + C\\)",
+      "D": "\\(\\frac{1}{a} e^{ax - b} + C\\)"
+    },
+    "answer": "A",
+    "solution": "Step 1: Use substitution: Let \\(u = ax + b\\), so \\(du = a dx\\), or \\(dx = \\frac{du}{a}\\).<br><br>Step 2: Rewrite the integral: \\(\\int e^{ax + b} \\, dx = \\int e^u \\cdot \\frac{du}{a} = \\frac{1}{a} \\int e^u \\, du\\).<br><br>Step 3: Integrate: \\(\\int e^u \\, du = e^u\\). Thus, \\(\\frac{1}{a} e^u = \\frac{1}{a} e^{ax + b} + C\\).<br><br>Therefore, the correct answer is A."
+  },
+  {
+    "question": "\\(\\int \\log x \\, dx\\) is",
+    "options": {
+      "A": "\\(x \\log x + C\\)",
+      "B": "\\(\\log x - x + C\\)",
+      "C": "\\(x \\log x + x + C\\)",
+      "D": "\\(x \\log x - x + C\\)"
+    },
+    "answer": "D",
+    "solution": "Step 1: Use integration by parts: Let \\(u = \\log x\\), \\(dv = dx\\). Then, \\(du = \\frac{1}{x} dx\\), \\(v = x\\).<br><br>Step 2: Apply integration by parts: \\(\\int u \\, dv = uv - \\int v \\, du = x \\log x - \\int x \\cdot \\frac{1}{x} \\, dx = x \\log x - \\int 1 \\, dx = x \\log x - x + C\\).<br><br>Therefore, the correct answer is D."
+  },
+  {
+    "question": "\\(\\int \\frac{dx}{a + bx} \\, dx\\) is",
+    "options": {
+      "A": "\\(\\frac{1}{b} \\log(a + bx) + C\\)",
+      "B": "\\(\\log(a - bx) - x + C\\)",
+      "C": "\\(x \\log \\frac{1}{b} (a + bx) + C\\)",
+      "D": "\\(x \\log ax - x + C\\)"
+    },
+    "answer": "A",
+    "solution": "Step 1: Use substitution: Let \\(u = a + bx\\), so \\(du = b dx\\), or \\(dx = \\frac{du}{b}\\).<br><br>Step 2: Rewrite the integral: \\(\\int \\frac{dx}{a + bx} = \\int \\frac{1}{u} \\cdot \\frac{du}{b} = \\frac{1}{b} \\int \\frac{du}{u}\\).<br><br>Step 3: Integrate: \\(\\frac{1}{b} \\int \\frac{du}{u} = \\frac{1}{b} \\log |u| = \\frac{1}{b} \\log |a + bx| + C\\).<br><br>Therefore, the correct answer is A, despite the manual's error noting \\(\\frac{1}{a}\\) instead of \\(\\frac{1}{b}\\)."
+  },
+  {
+    "question": "The distance travelled by the particle P(x, y) between t = 0 and t = \\(\\frac{\\pi}{2}\\) whose position at any time t is given by x = a \\cos t + a t \\sin t, y = a \\sin t - a t \\cos t is",
+    "options": {
+      "A": "\\(\\frac{\\pi^2}{6}\\)",
+      "B": "\\(\\frac{\\pi^2 a}{8}\\)",
+      "C": "\\(\\frac{a^2 \\pi}{8}\\)",
+      "D": "\\(\\frac{a^2 \\pi}{4}\\)"
+    },
+    "answer": "B",
+    "solution": "Step 1: Find velocity components: \\(v_x = \\frac{dx}{dt} = -a \\sin t + a \\sin t + a t \\cos t = a t \\cos t\\), \\(v_y = \\frac{dy}{dt} = a \\cos t - a \\cos t + a t \\sin t = a t \\sin t\\).<br><br>Step 2: Compute speed: Speed = \\(\\sqrt{v_x^2 + v_y^2} = \\sqrt{(a t \\cos t)^2 + (a t \\sin t)^2} = \\sqrt{a^2 t^2 (\\cos^2 t + \\sin^2 t)} = a t\\), since \\(t \\geq 0\\).<br><br>Step 3: Calculate arc length: Distance = \\(\\int_0^{\\pi/2} a t \\, dt = a \\int_0^{\\pi/2} t \\, dt = a \\left[ \\frac{t^2}{2} \\right]_0^{\\pi/2} = a \\cdot \\frac{(\\pi/2)^2}{2} = \\frac{a \\pi^2}{8}\\).<br><br>Therefore, the correct answer is B."
+  },
+  {
+    "question": "The distance travelled by the particle P(x,y) between t = 0 and t = \\(\\frac{\\pi}{2}\\) whose position at any time t is given by x = 2\\cos t + 2t \\sin t, y = 2\\sin t - 2t \\cos t is",
+    "options": {
+      "A": "\\(\\frac{\\pi^2}{4}\\)",
+      "B": "\\(\\frac{\\pi^2 a}{8}\\)",
+      "C": "\\(\\frac{a^2 \\pi}{8}\\)",
+      "D": "\\(\\frac{a^2 \\pi}{4}\\)"
+    },
+    "answer": "A",
+    "solution": "Step 1: Find the velocity components: <br>\\(v_x = \\frac{dx}{dt} = -2 \\sin t + 2 \\sin t + 2t \\cos t = 2t \\cos t\\), <br>\\(v_y = \\frac{dy}{dt} = 2 \\cos t - 2 \\cos t - 2t \\sin t = -2t \\sin t\\).<br><br>Step 2: Compute the speed: <br>Speed = \\(\\sqrt{v_x^2 + v_y^2} = \\sqrt{(2t \\cos t)^2 + (-2t \\sin t)^2} = \\sqrt{4t^2 (\\cos^2 t + \\sin^2 t)} = \\sqrt{4t^2} = 2t\\) (since \\(t \\geq 0\\)).<br><br>Step 3: Integrate to find the distance: <br>Distance = \\(\\int_0^{\\pi/2} 2t \\, dt = 2 \\int_0^{\\pi/2} t \\, dt = 2 \\left[ \\frac{t^2}{2} \\right]_0^{\\pi/2} = \\left[ t^2 \\right]_0^{\\pi/2} = \\left( \\frac{\\pi}{2} \\right)^2 = \\frac{\\pi^2}{4}\\).<br><br>Therefore, the correct answer is A."
+  },
+  {
+    "question": "The distance travelled by the particle P(x, y) between t = 0 and t = \\(\\pi\\) whose position at any time t is given by x = 2\\cos t + 2t \\sin t, y = 2\\sin t - 2t \\cos t is",
+    "options": {
+      "A": "\\(\\frac{\\pi^2}{4}\\)",
+      "B": "\\(\\frac{\\pi^2 a}{8}\\)",
+      "C": "\\(\\frac{a^2 \\pi}{8}\\)",
+      "D": "\\(\\pi^2\\)"
+    },
+    "answer": "D",
+    "solution": "Step 1: Find the velocity components: <br>\\(v_x = \\frac{dx}{dt} = -2 \\sin t + 2 \\sin t + 2t \\cos t = 2t \\cos t\\), <br>\\(v_y = \\frac{dy}{dt} = 2 \\cos t - 2 \\cos t - 2t \\sin t = -2t \\sin t\\).<br><br>Step 2: Compute the speed: <br>Speed = \\(\\sqrt{v_x^2 + v_y^2} = \\sqrt{(2t \\cos t)^2 + (-2t \\sin t)^2} = \\sqrt{4t^2 (\\cos^2 t + \\sin^2 t)} = \\sqrt{4t^2} = 2t\\) (since \\(t \\geq 0\\)).<br><br>Step 3: Integrate to find the distance: <br>Distance = \\(\\int_0^\\pi 2t \\, dt = 2 \\int_0^\\pi t \\, dt = 2 \\left[ \\frac{t^2}{2} \\right]_0^\\pi = \\left[ t^2 \\right]_0^\\pi = \\pi^2\\).<br><br>Therefore, the correct answer is D."
+  },
+  {
+    "question": "The distance travelled by the particle P(x, y) between t = 0 and t = \\(\\frac{\\pi}{2}\\) whose position at any time t is given by x = a t \\sin t, y = a t \\cos t is",
+    "options": {
+      "A": "2.0792a",
+      "B": "\\(\\frac{\\pi^2 a}{8}\\)",
+      "C": "1.8621a",
+      "D": "\\(\\frac{a^2 \\pi}{4}\\)"
+    },
+    "answer": "A",
+    "solution": "Step 1: Find the velocity components: <br>\\(v_x = \\frac{dx}{dt} = a \\sin t + a t \\cos t\\), <br>\\(v_y = \\frac{dy}{dt} = a \\cos t - a t \\sin t\\).<br><br>Step 2: Compute the speed: <br>Speed = \\(\\sqrt{v_x^2 + v_y^2} = \\sqrt{(a \\sin t + a t \\cos t)^2 + (a \\cos t - a t \\sin t)^2} = \\sqrt{a^2 (\\sin^2 t + t^2 \\cos^2 t + 2t \\sin t \\cos t + \\cos^2 t + t^2 \\sin^2 t - 2t \\sin t \\cos t)} = \\sqrt{a^2 (\\sin^2 t + \\cos^2 t + t^2 (\\sin^2 t + \\cos^2 t))} = \\sqrt{a^2 (1 + t^2)} = a \\sqrt{1 + t^2}\\).<br><br>Step 3: Integrate to find the distance: <br>Distance = \\(\\int_0^{\\pi/2} a \\sqrt{1 + t^2} \\, dt = a \\int_0^{\\pi/2} \\sqrt{1 + t^2} \\, dt\\). Use the substitution \\(t = \\sinh u\\), so \\(dt = \\cosh u \\, du\\), \\(\\sqrt{1 + t^2} = \\sqrt{1 + \\sinh^2 u} = \\cosh u\\). Limits: \\(t = 0 \\to \\sinh u = 0 \\to u = 0\\), \\(t = \\frac{\\pi}{2} \\to \\sinh u = \\frac{\\pi}{2} \\to u = \\sinh^{-1}(\\frac{\\pi}{2})\\). The integral becomes \\(\\int_0^{\\sinh^{-1}(\\pi/2)} \\cosh u \\cdot \\cosh u \\, du = \\int_0^{\\sinh^{-1}(\\pi/2)} \\cosh^2 u \\, du = \\frac{1}{2} \\int_0^{\\sinh^{-1}(\\pi/2)} (1 + \\cosh 2u) \\, du = \\frac{1}{2} \\left[ u + \\frac{1}{2} \\sinh 2u \\right]_0^{\\sinh^{-1}(\\pi/2)} = \\frac{1}{2} \\left[ u + \\sinh u \\cosh u \\right]_0^{\\sinh^{-1}(\\pi/2)} = \\frac{1}{2} \\left( \\sinh^{-1}(\\frac{\\pi}{2}) + \\frac{\\pi}{2} \\sqrt{1 + (\\frac{\\pi}{2})^2} \\right) \\approx 2.0792\\). Thus, distance \\(\\approx 2.0792a\\).<br><br>Therefore, the correct answer is A."
+  },
+  {
+    "question": "The length of the curve given by x = \\(\\frac{1}{3}t^3 - t\\), y = t^2 from t = 1 to t = 3",
+    "options": {
+      "A": "\\(\\frac{32}{4}\\)",
+      "B": "\\(\\frac{32}{3}\\)",
+      "C": "\\(\\frac{26}{3}\\)",
+      "D": "\\(32^2\\)"
+    },
+    "answer": "B",
+    "solution": "Step 1: Compute derivatives: <br>\\(x = \\frac{1}{3}t^3 - t\\), so \\(\\frac{dx}{dt} = t^2 - 1\\). <br>\\(y = t^2\\), so \\(\\frac{dy}{dt} = 2t\\).<br><br>Step 2: Set up the arc length integral: <br>Arc length = \\(\\int_1^3 \\sqrt{(t^2 - 1)^2 + (2t)^2} \\, dt = \\int_1^3 \\sqrt{t^4 - 2t^2 + 1 + 4t^2} \\, dt = \\int_1^3 \\sqrt{t^4 + 2t^2 + 1} \\, dt = \\int_1^3 \\sqrt{(t^2 + 1)^2} \\, dt = \\int_1^3 (t^2 + 1) \\, dt\\).<br><br>Step 3: Integrate: <br>\\(\\int_1^3 (t^2 + 1) \\, dt = \\left[ \\frac{t^3}{3} + t \\right]_1^3 = \\left( \\frac{27}{3} + 3 \\right) - \\left( \\frac{1}{3} + 1 \\right) = (9 + 3) - \\left( \\frac{1}{3} + 1 \\right) = 12 - \\frac{4}{3} = \\frac{36}{3} - \\frac{4}{3} = \\frac{32}{3}\\).<br><br>Therefore, the correct answer is B."
+  },
+  {
+    "question": "The length of the curve given by x = t^2 - t, y = 1 from t = 0 to t = 2 is",
+    "options": {
+      "A": "\\(\\frac{32}{4}\\)",
+      "B": "3",
+      "C": "\\(\\frac{26}{3}\\)",
+      "D": "2"
+    },
+    "answer": "D",
+    "solution": "Step 1: Compute derivatives: <br>\\(x = t^2 - t\\), so \\(\\frac{dx}{dt} = 2t - 1\\). <br>\\(y = 1\\), so \\(\\frac{dy}{dt} = 0\\).<br><br>Step 2: Set up the arc length integral: <br>Arc length = \\(\\int_0^2 \\sqrt{(2t - 1)^2 + 0^2} \\, dt = \\int_0^2 |2t - 1| \\, dt\\). Since \\(2t - 1 < 0\\) for \\(t < \\frac{1}{2}\\) and \\(2t - 1 \geq 0\\) for \\(t \geq \\frac{1}{2}\\), split the integral: \\(\\int_0^{1/2} -(2t - 1) \\, dt + \\int_{1/2}^2 (2t - 1) \\, dt\\).<br><br>Step 3: Integrate: <br>First part: \\(\\int_0^{1/2} (1 - 2t) \\, dt = \\left[ t - t^2 \\right]_0^{1/2} = \\left( \\frac{1}{2} - \\frac{1}{4} \\right) - 0 = \\frac{1}{4}\\). <br>Second part: \\(\\int_{1/2}^2 (2t - 1) \\, dt = \\left[ t^2 - t \\right]_{1/2}^2 = (4 - 2) - \\left( \\frac{1}{4} - \\frac{1}{2} \\right) = 2 - \\left( -\\frac{1}{4} \\right) = 2 + \\frac{1}{4} = \\frac{9}{4}\\). <br>Total: \\(\\frac{1}{4} + \\frac{9}{4} = \\frac{10}{4} = 2\\).<br><br>Therefore, the correct answer is D."
+  },
+  {
+    "question": "The length of the curve given by x = t^2, y = 2t from t = 0 to t = 2 is",
+    "options": {
+      "A": "5.1579",
+      "B": "3",
+      "C": "5.9157",
+      "D": "4"
+    },
+    "answer": "C",
+    "solution": "Step 1: Compute derivatives: <br>\\(x = t^2\\), so \\(\\frac{dx}{dt} = 2t\\). <br>\\(y = 2t\\), so \\(\\frac{dy}{dt} = 2\\).<br><br>Step 2: Set up the arc length integral: <br>Arc length = \\(\\int_0^2 \\sqrt{(2t)^2 + 2^2} \\, dt = \\int_0^2 \\sqrt{4t^2 + 4} \\, dt = \\int_0^2 2 \\sqrt{t^2 + 1} \\, dt\\).<br><br>Step 3: Integrate: <br>Use substitution \\(t = \\sinh u\\), \\(dt = \\cosh u \\, du\\), \\(\\sqrt{t^2 + 1} = \\cosh u\\). Limits: \\(t = 0 \\to u = 0\\), \\(t = 2 \\to u = \\sinh^{-1}(2)\\). The integral becomes \\(\\int_0^{\\sinh^{-1}(2)} 2 \\cosh u \\cdot \\cosh u \\, du = 2 \\int_0^{\\sinh^{-1}(2)} \\cosh^2 u \\, du = \\int_0^{\\sinh^{-1}(2)} (1 + \\cosh 2u) \\, du = \\left[ u + \\frac{1}{2} \\sinh 2u \\right]_0^{\\sinh^{-1}(2)} = \\sinh^{-1}(2) + \\sinh(\\sinh^{-1}(2)) \\cosh(\\sinh^{-1}(2)) = \\sinh^{-1}(2) + 2 \\sqrt{5} \\approx 5.9157\\).<br><br>Therefore, the correct answer is C."
+  },
+  {
+    "question": "The length of the curve given by x = t^2, y = 4t from t = 0 to t = 3 is",
+    "options": {
+      "A": "15.5957",
+      "B": "3",
+      "C": "5.9157",
+      "D": "4"
+    },
+    "answer": "A",
+    "solution": "Step 1: Compute derivatives: <br>\\(x = t^2\\), so \\(\\frac{dx}{dt} = 2t\\). <br>\\(y = 4t\\), so \\(\\frac{dy}{dt} = 4\\).<br><br>Step 2: Set up the arc length integral: <br>Arc length = \\(\\int_0^3 \\sqrt{(2t)^2 + 4^2} \\, dt = \\int_0^3 \\sqrt{4t^2 + 16} \\, dt = \\int_0^3 2 \\sqrt{t^2 + 4} \\, dt\\).<br><br>Step 3: Integrate: <br>Use substitution \\(t = 2 \\sinh u\\), \\(dt = 2 \\cosh u \\, du\\), \\(\\sqrt{t^2 + 4} = \\sqrt{4 \\sinh^2 u + 4} = 2 \\cosh u\\). Limits: \\(t = 0 \\to u = 0\\), \\(t = 3 \\to u = \\sinh^{-1}(3/2)\\). The integral becomes \\(\\int_0^{\\sinh^{-1}(3/2)} 2 \\cdot 2 \\cosh u \\cdot 2 \\cosh u \\, du = 8 \\int_0^{\\sinh^{-1}(3/2)} \\cosh^2 u \\, du = 4 \\int_0^{\\sinh^{-1}(3/2)} (1 + \\cosh 2u) \\, du = 4 \\left[ u + \\frac{1}{2} \\sinh 2u \\right]_0^{\\sinh^{-1}(3/2)} = 4 \\left( \\sinh^{-1}(3/2) + \\frac{3}{2} \\sqrt{13}/2 \\right) \\approx 15.5957\\).<br><br>Therefore, the correct answer is A."
+  },
+  {
+    "question": "The length of the curve given by x = \\(\\cos t\\), y = \\(\\sin t\\) from t = 0 to t = \\(\\pi\\) is",
+    "options": {
+      "A": "2\\pi",
+      "B": "3\\pi",
+      "C": "0",
+      "D": "\\(\\pi\\)"
+    },
+    "answer": "D",
+    "solution": "Step 1: Compute derivatives: <br>\\(x = \\cos t\\), so \\(\\frac{dx}{dt} = -\\sin t\\). <br>\\(y = \\sin t\\), so \\(\\frac{dy}{dt} = \\cos t\\).<br><br>Step 2: Set up the arc length integral: <br>Arc length = \\(\\int_0^\\pi \\sqrt{(-\\sin t)^2 + (\\cos t)^2} \\, dt = \\int_0^\\pi \\sqrt{\\sin^2 t + \\cos^2 t} \\, dt = \\int_0^\\pi 1 \\, dt\\).<br><br>Step 3: Integrate: <br>\\(\\int_0^\\pi 1 \\, dt = \\left[ t \\right]_0^\\pi = \\pi\\).<br><br>Therefore, the correct answer is D."
+  },
+  {
+    "question": "\\(\\int_2^3 x^3 \\, dx\\) is",
+    "options": {
+      "A": "\\(\\frac{65}{4}\\)",
+      "B": "\\(\\frac{4}{65}\\)",
+      "C": "\\(\\frac{32}{8}\\)",
+      "D": "65"
+    },
+    "answer": "A",
+    "solution": "Step 1: Find the antiderivative: <br>The antiderivative of \\(x^3\\) is \\(\\frac{x^4}{4}\\).<br><br>Step 2: Evaluate the definite integral: <br>\\(\\int_2^3 x^3 \\, dx = \\left[ \\frac{x^4}{4} \\right]_2^3 = \\frac{3^4}{4} - \\frac{2^4}{4} = \\frac{81}{4} - \\frac{16}{4} = \\frac{65}{4}\\).<br><br>Therefore, the correct answer is A."
+  },
+  {
+    "question": "The area of the region bounded by the curve y = x^2, the x-axis and the coordinates x = -2 and x = 2 is",
+    "options": {
+      "A": "8",
+      "B": "\\(\\frac{3}{8}\\)",
+      "C": "\\(\\frac{1}{8}\\)",
+      "D": "-8"
+    },
+    "answer": "A",
+    "solution": "Step 1: Set up the integral: <br>Since \\(y = x^2\\) is non-negative, the area is \\(\\int_{-2}^2 x^2 \\, dx\\).<br><br>Step 2: Find the antiderivative: <br>The antiderivative of \\(x^2\\) is \\(\\frac{x^3}{3}\\).<br><br>Step 3: Evaluate the integral: <br>\\(\\int_{-2}^2 x^2 \\, dx = \\left[ \\frac{x^3}{3} \\right]_{-2}^2 = \\frac{2^3}{3} - \\frac{(-2)^3}{3} = \\frac{8}{3} - \\left( -\\frac{8}{3} \\right) = \\frac{8}{3} + \\frac{8}{3} = \\frac{16}{3}\\). Note: The solution's claim of multiplying by 2 due to symmetry is incorrect; the integral already accounts for the full area.<br><br>Step 4: Check the options: <br>The computed area \\(\\frac{16}{3} \\approx 5.333\\) does not match option A (8). However, the provided answer suggests a possible error in the problem setup or options. Assuming the intent was to match the closest value, we note the discrepancy.<br><br>Therefore, the provided answer is A, but the correct area is \\(\\frac{16}{3}\\)."
+  },
+  {
+    "question": "The area of the region bounded by the curve y = x^3 - 3x^2 - x + 3, the x-axis and the lines x = -1 and x = 2 is",
+    "options": {
+      "A": "15",
+      "B": "\\(\\frac{15}{4}\\)",
+      "C": "\\(\\frac{4}{15}\\)",
+      "D": "-15"
+    },
+    "answer": "B",
+    "solution": "Step 1: Determine where the curve crosses the x-axis: <br>Solve \\(y = x^3 - 3x^2 - x + 3 = 0\\). By factoring or numerical methods, roots are at \\(x = -1, 1, 3\\). Thus, from \\(x = -1\\) to \\(x = 2\\), the curve crosses the x-axis at \\(x = 1\\). Check the sign: At \\(x = 0\\), \\(y = 3 > 0\\); at \\(x = 1.5\\), \\(y = -0.375 < 0\\). So, \\(y \geq 0\\) for \\(x \in [-1, 1]\\), and \\(y \leq 0\\) for \\(x \in [1, 2]\\).<br><br>Step 2: Set up the integral: <br>Area = \\(\\int_{-1}^1 (x^3 - 3x^2 - x + 3) \\, dx + \\int_1^2 -(x^3 - 3x^2 - x + 3) \\, dx\\).<br><br>Step 3: Compute the antiderivative: <br>Antiderivative of \\(x^3 - 3x^2 - x + 3\\) is \\(\\frac{x^4}{4} - x^3 - \\frac{x^2}{2} + 3x\\).<br><br>Step 4: Evaluate the integrals: <br>First integral: \\(\\int_{-1}^1 (x^3 - 3x^2 - x + 3) \\, dx = \\left[ \\frac{x^4}{4} - x^3 - \\frac{x^2}{2} + 3x \\right]_{-1}^1 = \\left( \\frac{1}{4} - 1 - \\frac{1}{2} + 3 \\right) - \\left( \\frac{1}{4} - 1 + \\frac{1}{2} - 3 \\right) = \\left( \\frac{5}{4} \\right) - \\left( -\\frac{9}{4} \\right) = \\frac{14}{4} = \\frac{7}{2}\\). <br>Second integral: \\(\\int_1^2 -(x^3 - 3x^2 - x + 3) \\, dx = -\\left[ \\frac{x^4}{4} - x^3 - \\frac{x^2}{2} + 3x \\right]_1^2 = -\\left( \\left( 4 - 8 - 2 + 6 \\right) - \\left( \\frac{1}{4} - 1 - \\frac{1}{2} + 3 \\right) \\right) = -\\left( 0 - \\frac{5}{4} \\right) = \\frac{5}{4}\\). <br>Total area: \\(\\frac{7}{2} + \\frac{5}{4} = \\frac{14}{4} + \\frac{5}{4} = \\frac{19}{4}\\). The provided solution's arithmetic seems incorrect, as it suggests 15.<br><br>Therefore, the correct answer is B, as \\(\\frac{19}{4} \\approx 4.75\\) is closest, but the provided answer A (15) appears incorrect."
+  }
+];
+                    console.log('[v0] Questions loaded successfully:', questions);
+                    this.setupQuiz(questions);
+                } catch (error) {
+                    console.error('[v0] Error loading quiz questions:', error);
+                    this.displayError(`Unable to load quiz: ${error.message}`);
+                }
+            }
+
+            setupQuiz(questions) {
+                console.log('[v0] === SETUP QUIZ DEBUG ===');
+                console.log('[v0] Raw questions received:', questions);
+                
+                this.questions = questions.map((q, index) => {
+                    let options = q.options || q.choices || [];
+                    
+                    // Debug image URL processing - prioritize ImageUrl field as per API structure
+                    const rawImageUrl = q.ImageUrl || q.imageUrl || q.image || null;
+                    const processedImageUrl = this.extractImageUrl(rawImageUrl);
+                    console.log(`[v0] Question ${index + 1} image processing:`);
+                    console.log(`[v0]   - Raw ImageUrl: ${q.ImageUrl}`);
+                    console.log(`[v0]   - Raw imageUrl: ${q.imageUrl}`);
+                    console.log(`[v0]   - Raw image: ${q.image}`);
+                    console.log(`[v0]   - Selected raw: ${rawImageUrl}`);
+                    console.log(`[v0]   - Processed: ${processedImageUrl}`);
+                    
+                    // Ensure options is always an array - more robust handling
+                    if (!Array.isArray(options)) {
+                        console.log(`[v0] Options is not an array for question ${index + 1}:`, options);
+                        // Try to convert to array if it's an object
+                        if (typeof options === 'object' && options !== null) {
+                            // If it's an object, try to get values or convert to array
+                            if (Object.keys(options).length > 0) {
+                                options = Object.values(options);
+                            } else {
+                                options = [];
+                            }
+                        } else {
+                            options = [];
+                        }
+                    }
+                    
+                    console.log(`[v0] Final options array for question ${index + 1}:`, options);
+                    
+                    return {
+                        id: index + 1,
+                        text: q.question || q.text || 'Question text not available',
+                        options: options,
+                        correctAnswer: q.correctAnswer || q.answer || 0,
+                        solution: q.solution || q.explanation || 'No solution provided',
+                        imageUrl: processedImageUrl
+                    };
+                });
+                
+                console.log('[v0] Final processed questions:', this.questions);
+                console.log('[v0] === END SETUP DEBUG ===');
+
+                this.totalQuestions = this.questions.length;
+                this.answers = new Array(this.totalQuestions).fill(null);
+                // Use the transformed field 'correctAnswer' from setupQuiz
+                this.correctAnswers = this.questions.map(q => q.correctAnswer);
+                
+                console.log('[DEBUG] Total questions:', this.totalQuestions);
+                console.log('[DEBUG] correctAnswers array:', this.correctAnswers);
+                console.log('[DEBUG] First few questions answers:', this.questions.slice(0, 3).map(q => q.correctAnswer));
+
+                this.totalQuestionsEl.textContent = this.totalQuestions;
+                this.createProgressSegments();
+                this.renderQuizInterface();
+                this.loadQuestion();
+                this.bindEvents();
+            }
+
+            createProgressSegments() {
+                this.progressContainer.innerHTML = '';
+                for (let i = 0; i < this.totalQuestions; i++) {
+                    const segment = document.createElement('div');
+                    segment.className = 'progress-segment';
+                    segment.dataset.question = i + 1;
+                    this.progressContainer.appendChild(segment);
+                }
+            }
+
+            renderQuizInterface() {
+                this.quizContent.innerHTML = `
+                    <div class="tabs">
+                        <div class="tab active" id="question-tab">Question</div>
+                        <div class="tab" id="solution-tab">Solution</div>
+                    </div>
+
+                    <div class="tab-content">
+                        <div class="question-content" id="question-content">
+                            <div class="question-number" id="question-number">1</div>
+                            <div class="question-text" id="question-text">Loading question...</div>
+                            <div class="image-container">
+                                <img class="question-image" id="question-image" alt="Question illustration" />
+                                <iframe class="question-iframe" id="question-iframe" style="display: none;" frameborder="0"></iframe>
+                            </div>
+
+                            <div class="navigation">
+                                <button class="nav-arrow" id="prev-btn" disabled>‹</button>
+                                <button class="nav-arrow" id="next-btn">›</button>
+                            </div>
+
+                            <div class="answers-container" id="answers-container"></div>
+                        </div>
+
+                        <div class="solution-content" id="solution-content">
+                            <div class="solution-text" id="solution-text">Solution will appear here</div>
+                            <div class="question-number" id="solution-question-number">1</div>
+                        </div>
+                    </div>
+
+                    <button class="check-button" id="check-btn">Check</button>
+                `;
+            }
+
+            loadQuestion() {
+                const question = this.questions[this.currentQuestion - 1];
+                
+                // Debug: Log the complete question data
+                console.log('[v0] === QUESTION DEBUG ===');
+                console.log('[v0] Current question index:', this.currentQuestion - 1);
+                console.log('[v0] Total questions:', this.questions.length);
+                console.log('[v0] Complete question data:', question);
+                console.log('[v0] Question imageUrl:', question.imageUrl);
+                console.log('[v0] Question ImageUrl:', question.ImageUrl);
+                console.log('[v0] Question image:', question.image);
+                console.log('[v0] === END DEBUG ===');
+                
+                this.currentQuestionEl.textContent = this.currentQuestion;
+                document.getElementById('question-number').textContent = this.currentQuestion;
+                document.getElementById('solution-question-number').textContent = this.currentQuestion;
+                document.getElementById('question-text').innerHTML = question.text;
+                document.getElementById('solution-text').innerHTML = question.solution;
+                
+                // Process MathJax for the newly loaded content
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    window.MathJax.typesetPromise([
+                        document.getElementById('question-text'),
+                        document.getElementById('solution-text')
+                    ]).catch((err) => console.log('MathJax typeset error:', err));
+                }
+                
+                const questionImage = document.getElementById('question-image');
+                
+                // Enhanced image logging and handling
+                console.log('[v0] === IMAGE PROCESSING DEBUG ===');
+                console.log('[v0] Raw question.ImageUrl:', question.ImageUrl);
+                console.log('[v0] Raw question.imageUrl:', question.imageUrl);
+                console.log('[v0] Raw question.image:', question.image);
+                
+                // Use the processed imageUrl from setupQuiz
+                const imageUrl = question.imageUrl;
+                
+                if (imageUrl && imageUrl.trim() !== '') {
+                    console.log('[v0] ✅ IMAGE FOUND - Processing image URL:', imageUrl);
+                    
+                    // Clean up the imageUrl - remove any backticks and extra spaces
+                    const cleanImageUrl = imageUrl.replace(/`/g, '').trim();
+                    console.log('[v0] 🔧 Cleaned image URL:', cleanImageUrl);
+                    
+                    // Validate URL format
+                    try {
+                        new URL(cleanImageUrl);
+                        console.log('[v0] ✅ Valid URL format confirmed');
+                    } catch (e) {
+                        console.log('[v0] ❌ Invalid URL format:', cleanImageUrl);
+                        questionImage.classList.remove('visible', 'loading');
+                        questionImage.src = '';
+                        console.log('[v0] === END IMAGE PROCESSING DEBUG ===');
+                        return;
+                    }
+                    
+                    // Show loading state
+                    questionImage.classList.add('loading', 'visible');
+                    questionImage.src = '';
+                    console.log('[v0] 🔄 Loading image...');
+                    
+                    // Create a new image to preload
+                    const img = new Image();
+                    img.onload = function() {
+                        questionImage.src = cleanImageUrl;
+                        questionImage.classList.remove('loading');
+                        console.log('[v0] ✅ IMAGE LOADED SUCCESSFULLY:', cleanImageUrl);
+                    };
+                    img.onerror = function() {
+                        console.log('[v0] ❌ FAILED TO LOAD IMAGE:', cleanImageUrl);
+                        questionImage.classList.remove('visible', 'loading');
+                        questionImage.src = '';
+                    };
+                    img.src = cleanImageUrl;
+                } else {
+                    console.log('[v0] ❌ NO IMAGE FOUND - No image URL available for this question');
+                    questionImage.classList.remove('visible', 'loading');
+                    questionImage.src = '';
+                }
+                console.log('[v0] === END IMAGE PROCESSING DEBUG ===');
+                
+                const answersContainer = document.getElementById('answers-container');
+                answersContainer.innerHTML = '';
+                
+                const options = question.options || question.choices || [];
+                console.log('[v0] Question options:', options); // Debug log
+                
+                if (options.length === 0) {
+                    console.log('[v0] No options found for question:', question);
+                    answersContainer.innerHTML = '<div class="no-options">No options available for this question</div>';
+                    return;
+                }
+                
+                options.forEach((option, index) => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'answer-option';
+                    optionDiv.dataset.option = index;
+                    
+                    let optionText = '';
+                    if (typeof option === 'string') {
+                        optionText = option;
+                    } else if (option.text) {
+                        optionText = option.text;
+                    } else if (option.option) {
+                        optionText = option.option;
+                    } else if (option.answer) {
+                        optionText = option.answer;
+                    } else {
+                        optionText = `Option ${index + 1}`;
+                    }
+                    
+                    optionDiv.innerHTML = `
+                        <span class="option-letter">${String.fromCharCode(65 + index)}</span>
+                        <span class="option-text">${optionText}</span>
+                    `;
+                    
+                    if (this.answers[this.currentQuestion - 1] === index) {
+                        optionDiv.classList.add('selected');
+                        this.selectedAnswer = index;
+                    }
+                    
+                    optionDiv.addEventListener('click', () => {
+                        if (!optionDiv.classList.contains('disabled')) {
+                            this.selectAnswer(index);
+                        }
+                    });
+                    
+                    answersContainer.appendChild(optionDiv);
+                });
+                
+                // Process MathJax for the answer options
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    window.MathJax.typesetPromise([answersContainer]).catch((err) => console.log('MathJax options typeset error:', err));
+                }
+                
+                document.getElementById('prev-btn').disabled = this.currentQuestion === 1;
+                document.getElementById('next-btn').disabled = this.currentQuestion === this.totalQuestions;
+                
+                this.updateProgressBar();
+                this.updateCheckButton();
+                this.isAnswered = this.answers[this.currentQuestion - 1] !== null;
+                this.isChecked = this.isAnswered;
+            }
+
+            updateProgressBar() {
+                const segments = this.progressContainer.querySelectorAll('.progress-segment');
+                let answeredCount = 0;
+                let correctCount = 0;
+
+                segments.forEach((segment, index) => {
+                    segment.classList.remove('correct', 'incorrect');
+                    
+                    if (this.answers[index] !== null) {
+                        answeredCount++;
+                        if (this.answers[index] === this.correctAnswers[index]) {
+                            segment.classList.add('correct');
+                            correctCount++;
+                        } else {
+                            segment.classList.add('incorrect');
+                        }
+                    }
+                });
+
+                this.correctCountEl.textContent = correctCount;
+                this.answeredCountEl.textContent = answeredCount;
+            }
+
+            updateCheckButton() {
+                const checkBtn = document.getElementById('check-btn');
+                if (this.selectedAnswer !== null && !this.isChecked) {
+                    checkBtn.classList.add('active');
+                } else {
+                    checkBtn.classList.remove('active');
+                }
+            }
+
+            selectAnswer(optionIndex) {
+                console.log('[v0] Selecting answer:', optionIndex);
+                
+                // Remove previous selection
+                document.querySelectorAll('.answer-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                
+                // Add selection to clicked option
+                const selectedOption = document.querySelector(`[data-option="${optionIndex}"]`);
+                if (selectedOption) {
+                    selectedOption.classList.add('selected');
+                }
+                
+                this.selectedAnswer = optionIndex;
+                this.answers[this.currentQuestion - 1] = optionIndex;
+                this.isAnswered = true;
+                this.updateCheckButton();
+            }
+
+            checkAnswer() {
+                if (this.selectedAnswer === null || this.isChecked) return;
+                
+                const answerOptions = document.querySelectorAll('.answer-option');
+                const selectedOption = answerOptions[this.selectedAnswer];
+                
+                // Convert letter answer to numeric index (A=0, B=1, C=2, D=3, E=4)
+                const correctAnswerLetter = this.correctAnswers[this.currentQuestion - 1];
+                console.log('[DEBUG] correctAnswers:', this.correctAnswers);
+                console.log('[DEBUG] currentQuestion:', this.currentQuestion);
+                console.log('[DEBUG] correctAnswerLetter:', correctAnswerLetter);
+                
+                // If the correct answer is a number (already index), convert to letter for consistency
+                let correctAnswerIndex;
+                if (typeof correctAnswerLetter === 'number') {
+                    correctAnswerIndex = correctAnswerLetter;
+                } else if (typeof correctAnswerLetter === 'string' && correctAnswerLetter.length > 0) {
+                    correctAnswerIndex = correctAnswerLetter.charCodeAt(0) - 65; // 'A'.charCodeAt(0) = 65
+                } else {
+                    console.error('[ERROR] correctAnswerLetter is invalid:', correctAnswerLetter);
+                    return;
+                }
+                const correctOption = answerOptions[correctAnswerIndex];
+                
+                this.answers[this.currentQuestion - 1] = this.selectedAnswer;
+                this.isChecked = true;
+                this.isAnswered = true;
+                
+                answerOptions.forEach(option => option.classList.add('disabled'));
+                
+                if (this.selectedAnswer === correctAnswerIndex) {
+                    selectedOption.classList.add('correct');
+                    this.score++;
+                } else {
+                    selectedOption.classList.add('incorrect');
+                    correctOption.classList.add('correct');
+                }
+                
+                this.updateProgressBar();
+                this.updateCheckButton();
+                
+                setTimeout(() => {
+                    if (this.currentQuestion === this.totalQuestions) {
+                        this.endQuiz();
+                    } else {
+                        this.nextQuestion();
+                    }
+                }, 1000);
+            }
+
+            switchTab(tab) {
+                if (tab === this.currentTab) return;
+                
+                this.currentTab = tab;
+                
+                const questionTab = document.getElementById('question-tab');
+                const solutionTab = document.getElementById('solution-tab');
+                const questionContent = document.getElementById('question-content');
+                const solutionContent = document.getElementById('solution-content');
+                
+                if (tab === 'solution') {
+                    questionTab.classList.remove('active');
+                    solutionTab.classList.add('active');
+                    questionContent.classList.add('hidden');
+                    solutionContent.classList.add('active');
+                } else {
+                    solutionTab.classList.remove('active');
+                    questionTab.classList.add('active');
+                    solutionContent.classList.remove('active');
+                    questionContent.classList.remove('hidden');
+                }
+            }
+
+            nextQuestion() {
+                if (this.currentQuestion < this.totalQuestions) {
+                    this.currentQuestion++;
+                    this.selectedAnswer = null;
+                    this.isAnswered = false;
+                    this.isChecked = false;
+                    this.switchTab('question');
+                    this.loadQuestion();
+                }
+            }
+
+            prevQuestion() {
+                if (this.currentQuestion > 1) {
+                    this.currentQuestion--;
+                    this.selectedAnswer = null;
+                    this.isAnswered = false;
+                    this.isChecked = false;
+                    this.switchTab('question');
+                    this.loadQuestion();
+                }
+            }
+
+            endQuiz() {
+                this.showResults();
+            }
+
+            showResults() {
+                const timeSpent = Math.floor((Date.now() - this.startTime) / 1000 / 60 * 100) / 100;
+                const wrongAnswers = this.totalQuestions - this.score;
+                const percentage = (this.score / this.totalQuestions) * 100;
+                
+                let grade = 'F';
+                if (percentage >= 90) grade = 'A+';
+                else if (percentage >= 85) grade = 'A';
+                else if (percentage >= 80) grade = 'A-';
+                else if (percentage >= 75) grade = 'B+';
+                else if (percentage >= 70) grade = 'B';
+                else if (percentage >= 65) grade = 'B-';
+                else if (percentage >= 60) grade = 'C+';
+                else if (percentage >= 55) grade = 'C';
+                else if (percentage >= 50) grade = 'C-';
+                else if (percentage >= 45) grade = 'D+';
+                else if (percentage >= 40) grade = 'D';
+                else if (percentage >= 35) grade = 'D-';
+                
+                let message = 'Keep practicing!';
+                if (percentage >= 90) message = 'Outstanding!';
+                else if (percentage >= 80) message = 'You are amazing!';
+                else if (percentage >= 70) message = 'Great job!';
+                else if (percentage >= 60) message = 'Good work!';
+                else if (percentage >= 50) message = 'Not bad!';
+                
+                document.getElementById('final-score').textContent = `${this.score}/${this.totalQuestions}`;
+                document.getElementById('score-message').textContent = message;
+                document.getElementById('wrong-answers').textContent = wrongAnswers;
+                document.getElementById('time-committed').textContent = `${timeSpent}m`;
+                document.getElementById('grade').textContent = grade;
+                
+                this.modalOverlay.classList.add('active');
+                
+                console.log('[v0] 🎯 Quiz completed! Calling updateStreak...');
+                // Update streak after completing quiz
+                this.updateStreak();
+            }
+
+            resetQuiz() {
+                this.currentQuestion = 1;
+                this.answers = new Array(this.totalQuestions).fill(null);
+                this.selectedAnswer = null;
+                this.isAnswered = false;
+                this.isChecked = false;
+                this.score = 0;
+                this.startTime = Date.now();
+                
+                this.modalOverlay.classList.remove('active');
+                this.switchTab('question');
+                this.loadQuestion();
+            }
+
+            displayError(message) {
+                this.quizContent.innerHTML = `
+                    <div class="error-message">
+                        <h3>Error</h3>
+                        <p>${message}</p>
+                        <button class="modal-button primary" onclick="location.reload()" style="margin-top: 15px;">Try Again</button>
+                    </div>
+                `;
+            }
+
+            bindEvents() {
+                // Answer selection
+                document.addEventListener('click', (e) => {
+                    const option = e.target.closest('.answer-option');
+                    if (option && !this.isChecked) {
+                        const optionIndex = parseInt(option.dataset.option);
+                        this.selectAnswer(optionIndex);
+                    }
+                });
+
+                // Check button
+                document.addEventListener('click', (e) => {
+                    if (e.target.id === 'check-btn') {
+                        if (this.currentQuestion === this.totalQuestions && this.isChecked) {
+                            this.endQuiz();
+                        } else {
+                            this.checkAnswer();
+                        }
+                    }
+                });
+
+                // Navigation
+                document.addEventListener('click', (e) => {
+                    if (e.target.id === 'next-btn') this.nextQuestion();
+                    if (e.target.id === 'prev-btn') this.prevQuestion();
+                });
+
+                // Tabs
+                document.addEventListener('click', (e) => {
+                    if (e.target.id === 'question-tab') this.switchTab('question');
+                    if (e.target.id === 'solution-tab') this.switchTab('solution');
+                });
+
+                // Modal buttons
+                document.addEventListener('click', (e) => {
+                    if (e.target.id === 'do-again-btn') this.resetQuiz();
+                    if (e.target.id === 'view-results-btn') goBackToQuizSelection();
+                });
+
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    switch(e.key) {
+                        case 'ArrowLeft':
+                            if (this.currentQuestion > 1) this.prevQuestion();
+                            break;
+                        case 'ArrowRight':
+                            if (this.currentQuestion < this.totalQuestions) this.nextQuestion();
+                            break;
+                        case '1':
+                        case '2':
+                        case '3':
+                        case '4':
+                            if (!this.isChecked) {
+                                const optionIndex = parseInt(e.key) - 1;
+                                if (optionIndex < this.questions[this.currentQuestion - 1].options.length) {
+                                    this.selectAnswer(optionIndex);
+                                }
+                            }
+                            break;
+                        case 'Enter':
+                        case ' ':
+                            e.preventDefault();
+                            const checkBtn = document.getElementById('check-btn');
+                            if (checkBtn && checkBtn.classList.contains('active')) {
+                                this.checkAnswer();
+                            }
+                            break;
+                    }
+                });
+            }
+
+            updateStreak() {
+                console.log('[v0] === STREAK UPDATE START ===');
+                
+                try {
+                    const currentStreak = parseInt(localStorage.getItem('userStreak') || '0');
+                    const lastQuizDate = localStorage.getItem('lastQuizDate');
+                    const today = new Date().toDateString();
+                    
+                    console.log('[v0] Current streak:', currentStreak);
+                    console.log('[v0] Last quiz date:', lastQuizDate);
+                    console.log('[v0] Today:', today);
+                    
+                    let newStreak;
+                    
+                    if (lastQuizDate === today) {
+                        // Already completed a quiz today, don't increment
+                        newStreak = currentStreak;
+                        console.log('[v0] Quiz already completed today, streak remains:', newStreak);
+                    } else {
+                        // Increment streak
+                        newStreak = currentStreak + 1;
+                        console.log('[v0] Incrementing streak to:', newStreak);
+                        
+                        // Update localStorage
+                        localStorage.setItem('userStreak', newStreak.toString());
+                        localStorage.setItem('lastQuizDate', today);
+                        
+                        // Update max streak if needed
+                        const maxStreak = parseInt(localStorage.getItem('maxStreak') || '0');
+                        if (newStreak > maxStreak) {
+                            localStorage.setItem('maxStreak', newStreak.toString());
+                        }
+                    }
+                    
+                    console.log('[v0] Streak updated successfully! New streak:', newStreak);
+
+                } catch (error) {
+                    console.error('[v0] Error updating streak:', error);
+                }
+                
+                console.log('[v0] === STREAK UPDATE END ===');
+            }
+        }
+
+        // Global functions for navigation
+        function goBackToQuizSelection() {
+            // Navigate back to main quiz selection page
+            window.location.href = 'index.html';
+        }
+
+        // Initialize the quiz app
+        document.addEventListener('DOMContentLoaded', () => {
+            window.quizApp = new QuizApp();
+        });
+    </script>
+</body>
+</html>

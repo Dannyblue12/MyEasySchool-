@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Quiz - Mth112A-1</title>
+    <link rel="icon" type="image/jpeg" href="WhatsApp Image 2025-07-06 at 09.14.34_436c71fc.jpg">
+    
+    <!-- MathJax Configuration -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)'], ['$', '$']],
+                displayMath: [['\\[', '\\]'], ['$$', '$$']],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .quiz-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            padding: 20px 20px 16px;
+            text-align: center;
+            position: relative;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .back-arrow {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.2s ease;
+            padding: 8px;
+        }
+
+        .back-arrow:hover {
+            color: #333;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 16px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            margin-bottom: 16px;
+            padding: 0 10px;
+        }
+
+        .progress-left {
+            color: #666;
+        }
+
+        .progress-right {
+            color: #666;
+        }
+
+        .progress-right .correct-count {
+            color: #00ff88;
+            font-weight: 600;
+        }
+
+        .progress-container {
+            display: flex;
+            gap: 3px;
+            margin: 0 20px;
+        }
+
+        .progress-segment {
+            height: 4px;
+            flex: 1;
+            background-color: #e9ecef;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .progress-segment.correct {
+            background-color: #00ff88;
+        }
+
+        .progress-segment.incorrect {
+            background-color: #ff4757;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tabs {
+            display: flex;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #666;
+            position: relative;
+            z-index: 2;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: white;
+            box-shadow: 0 2px 8px rgba(0, 255, 136, 0.3);
+            font-weight: 600;
+        }
+
+        .tab-content {
+            flex: 1;
+            position: relative;
+        }
+
+        .question-content {
+            opacity: 1;
+            transition: opacity 0.2s ease;
+        }
+
+        .solution-content {
+            opacity: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .solution-content.active {
+            opacity: 1;
+            position: relative;
+            pointer-events: all;
+        }
+
+        .question-content.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .question-number {
+            font-size: 32px;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .question-text {
+            font-size: 16px;
+            color: #333;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .question-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 12px;
+            margin: 16px 0 24px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none; /* Hidden by default, shown when image exists */
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .question-image.visible {
+            display: block;
+        }
+
+        .question-image:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .question-image.loading {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        .image-container {
+            width: 100%;
+            margin: 16px 0 24px 0;
+            position: relative;
+        }
+
+        .question-iframe {
+            width: 100%;
+            height: 300px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .question-iframe:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .solution-text {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #00ff88;
+            margin-bottom: 20px;
+        }
+
+        .navigation {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .nav-arrow {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #666;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-arrow:hover:not(:disabled) {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        .nav-arrow:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .answers-container {
+            flex: 1;
+            margin-bottom: 20px;
+        }
+
+        .answer-option {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+
+        .answer-option:hover:not(.disabled) {
+            background-color: #e9ecef;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .answer-option.selected {
+            background-color: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .answer-option.correct {
+            background: rgba(0, 255, 136, 0.15);
+            border: 3px solid #00ff88;
+            color: #006b3c;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 16px rgba(0, 255, 136, 0.3);
+        }
+
+        .answer-option.incorrect {
+            background: rgba(255, 71, 87, 0.15);
+            border: 3px solid #ff4757;
+            color: #c23616;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 16px rgba(255, 71, 87, 0.3);
+        }
+
+        .answer-option.disabled {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .option-letter {
+            font-weight: 600;
+            margin-right: 16px;
+            min-width: 20px;
+            font-size: 16px;
+        }
+
+        .option-text {
+            flex: 1;
+            font-size: 15px;
+        }
+
+        .check-button {
+            background-color: #dee2e6;
+            color: #6c757d;
+            border: none;
+            padding: 16px 24px;
+            margin: 0 20px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.6;
+        }
+
+        .check-button.active {
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            color: white;
+            opacity: 1;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .check-button.active:hover {
+            background: linear-gradient(135deg, #2d2d2d, #404040);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Loading and Error States */
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #333;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        /* Results Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .results-modal {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 350px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .results-modal {
+            transform: scale(1);
+        }
+
+        .fire-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            background: url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20-%202025-07-23T082911.331-ptcXc6Csp6CfcOsR3jFd1Ndmpqxg9c.jpeg') no-repeat center;
+            background-size: contain;
+        }
+
+        .score-display {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #00ff88;
+        }
+
+        .score-message {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 24px;
+            font-weight: 500;
+        }
+
+        .performance-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .stat-box {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e9ecef;
+        }
+
+        .stat-header {
+            background: linear-gradient(135deg, #51cf66, #40c057);
+            padding: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .stat-icon {
+            color: white;
+            font-size: 16px;
+        }
+
+        .stat-content {
+            padding: 12px 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #666;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .modal-button {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .modal-button.primary {
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-button.primary:hover {
+            background: linear-gradient(135deg, #2d2d2d, #404040);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-button.secondary {
+            background: transparent;
+            color: #666;
+            border: 1px solid #dee2e6;
+        }
+
+        .modal-button.secondary:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+
+            .quiz-container {
+                border-radius: 12px;
+                min-height: 100vh;
+            }
+
+            .header {
+                padding: 16px 16px 12px;
+            }
+
+            .content {
+                padding: 16px;
+            }
+
+            .question-number {
+                font-size: 28px;
+            }
+
+            .question-text {
+                font-size: 15px;
+            }
+
+            .answer-option {
+                padding: 14px 16px;
+                margin-bottom: 10px;
+            }
+
+            .check-button {
+                margin: 0 16px 16px;
+                padding: 14px 20px;
+            }
+
+            .results-modal {
+                padding: 24px;
+                margin: 20px;
+            }
+
+            .score-display {
+                font-size: 32px;
+            }
+
+            .progress-container {
+                margin: 0 16px;
+            }
+
+            .progress-info {
+                padding: 0 6px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .header-title {
+                font-size: 16px;
+            }
+
+            .question-number {
+                font-size: 24px;
+            }
+
+            .option-text {
+                font-size: 14px;
+            }
+
+            .progress-container {
+                margin: 0 12px;
+            }
+
+            .performance-stats {
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }
+
+            .stat-box {
+                display: flex;
+                align-items: center;
+            }
+
+            .stat-header {
+                width: 40px;
+                flex-shrink: 0;
+            }
+
+            .stat-content {
+                flex: 1;
+                padding: 8px 12px;
+                text-align: left;
+            }
+        }
+
+        /* Smooth transitions only */
+        .fade-transition {
+            transition: opacity 0.2s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="header">
+            <button class="back-arrow" onclick="goBackToQuizSelection()">‹</button>
+            <div class="header-title" id="header-title">Math Quiz - Mth112A-1</div>
+            <div class="progress-info">
+                <div class="progress-left">
+                    <span id="current-question">1</span> of <span id="total-questions">0</span>
+                </div>
+                <div class="progress-right">
+                    <span class="correct-count" id="correct-count">0</span>/<span id="answered-count">0</span>
+                </div>
+            </div>
+            <div class="progress-container" id="progress-container"></div>
+        </div>
+
+        <div class="content" id="quiz-content">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <p>Loading quiz questions...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="results-modal">
+            <div class="fire-icon"></div>
+            <div class="score-display" id="final-score">0/0</div>
+            <div class="score-message" id="score-message">Loading...</div>
+            
+            <div class="performance-stats">
+                <div class="stat-box">
+                    <div class="stat-header">
+                        <div class="stat-icon">❌</div>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="wrong-answers">0</div>
+                        <div class="stat-label">Wrong</div>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-header">
+                        <div class="stat-icon">⏱</div>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="time-committed">0m</div>
+                        <div class="stat-label">Speed</div>
+                    </div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-header">
+                        <div class="stat-icon">📊</div>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="grade">-</div>
+                        <div class="stat-label">Grade</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="modal-button primary" id="do-again-btn">Do it again</button>
+                <button class="modal-button secondary" id="view-results-btn">Back to Quiz Selection</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('[v0] 🚀 MTH112A-1.HTML LOADED - Console logging is working!');
+        
+        class QuizApp {
+            constructor() {
+                console.log('[v0] 🎯 QuizApp constructor called - initializing quiz application');
+                this.currentQuestion = 1;
+                this.totalQuestions = 0;
+                this.answers = [];
+                this.correctAnswers = [];
+                this.selectedAnswer = null;
+                this.isAnswered = false;
+                this.isChecked = false;
+                this.currentTab = 'question';
+                this.score = 0;
+                this.startTime = Date.now();
+                this.questions = [];
+                
+                this.initializeElements();
+                this.initQuiz();
+            }
+
+            extractImageUrl(imageUrl) {
+                if (!imageUrl || typeof imageUrl !== 'string') {
+                    return null;
+                }
+                
+                // Remove backticks and extra spaces that might be in the ImageUrl format
+                const cleanUrl = imageUrl.replace(/`/g, '').trim();
+                
+                // Validate that it's a proper URL
+                try {
+                    new URL(cleanUrl);
+                    return cleanUrl;
+                } catch (e) {
+                    console.log('[v0] Invalid image URL format:', imageUrl);
+                    return null;
+                }
+            }
+
+            initializeElements() {
+                this.headerTitle = document.getElementById('header-title');
+                this.currentQuestionEl = document.getElementById('current-question');
+                this.totalQuestionsEl = document.getElementById('total-questions');
+                this.correctCountEl = document.getElementById('correct-count');
+                this.answeredCountEl = document.getElementById('answered-count');
+                this.progressContainer = document.getElementById('progress-container');
+                this.quizContent = document.getElementById('quiz-content');
+                this.modalOverlay = document.getElementById('modal-overlay');
+            }
+
+            async initQuiz() {
+                this.headerTitle.textContent = 'Math Quiz - Mth112A-1';
+                await this.loadQuestions();
+            }
+
+            async loadQuestions() {
+                try {
+                    console.log('[v0] Loading quiz questions from embedded data...');
+                    const questions = [
+{
+    "question": "Evaluate \\(\\lim_{x \\rightarrow 1} \\frac{x^2 - 1}{x^2 + 3x - 4}\\)",
+    "options": {
+      "A": "\\(\\frac{1}{5}\\)",
+      "B": "\\(\\frac{2}{5}\\)",
+      "C": "\\(\\frac{3}{5}\\)",
+      "D": "\\(\\frac{4}{5}\\)"
+    },
+    "answer": "B",
+    "solution": "Step 1: Factor the numerator and denominator. The expression is \\(\\frac{x^2 - 1}{x^2 + 3x - 4}\\). Numerator: \\(x^2 - 1 = (x - 1)(x + 1)\\). Denominator: \\(x^2 + 3x - 4 = (x + 4)(x - 1)\\). Step 2: Simplify by canceling \\((x - 1)\\): \\(\\frac{x + 1}{x + 4}\\). Step 3: Substitute \\(x = 1\\): \\(\\frac{1 + 1}{1 + 4} = \\frac{2}{5}\\). Therefore, the correct answer is B."
+  },
+  {
+    "question": "Evaluate \\(\\lim_{x \\rightarrow 4} \\frac{x - 4}{x^2 - x - 12}\\)",
+    "options": {
+      "A": "Undefined",
+      "B": "Infinity",
+      "C": "0",
+      "D": "\\(\\frac{1}{7}\\)"
+    },
+    "answer": "D",
+    "solution": "Step 1: Factor the denominator: \\(x^2 - x - 12 = (x - 4)(x + 3)\\). The expression becomes \\(\\frac{x - 4}{(x - 4)(x + 3)}\\). Step 2: Cancel \\((x - 4)\\): \\(\\frac{1}{x + 3}\\). Step 3: Substitute \\(x = 4\\): \\(\\frac{1}{4 + 3} = \\frac{1}{7}\\). Therefore, the correct answer is D."
+  },
+  {
+    "question": "Evaluate \\(\\lim_{x \\rightarrow 4} \\frac{x^2 - 6}{x - 4}\\)",
+    "options": {
+      "A": "0",
+      "B": "1",
+      "C": "8",
+      "D": "16"
+    },
+    "answer": "C",
+    "solution": "Step 1: Substituting \\(x = 4\\) gives \\(\\frac{0}{0}\\), an indeterminate form. Step 2: Apply L'Hôpital's Rule. Differentiate numerator: \\(\\frac{d}{dx}(x^2 - 6) = 2x\\). Differentiate denominator: \\(\\frac{d}{dx}(x - 4) = 1\\). The limit becomes \\(\\lim_{x \\rightarrow 4} \\frac{2x}{1} = 2(4) = 8\\). Therefore, the correct answer is C."
+  },
+  {
+    "question": "Evaluate \\(\\lim_{x \\rightarrow 2} \\frac{x^2 - 4}{x - 2}\\)",
+    "options": {
+      "A": "0",
+      "B": "2",
+      "C": "4",
+      "D": "6"
+    },
+    "answer": "C",
+    "solution": "Step 1: Substituting \\(x = 2\\) gives \\(\\frac{0}{0}\\). Step 2: Factor the numerator: \\(x^2 - 4 = (x - 2)(x + 2)\\). The expression becomes \\(\\frac{(x - 2)(x + 2)}{x - 2}\\). Step 3: Cancel \\((x - 2)\\): \\(x + 2\\). Step 4: Substitute \\(x = 2\\): \\(2 + 2 = 4\\). Therefore, the correct answer is C."
+  },
+  {
+    "question": "Evaluate \\(\\lim_{x \\rightarrow 0}\\frac{1 - \\cos x}{x^2}\\)",
+    "options": {
+      "A": "0",
+      "B": "\\(\\frac{1}{2}\\)",
+      "C": "2",
+      "D": "\\(-\\frac{1}{2}\\)"
+    },
+    "answer": "B",
+    "solution": "Step 1: Substituting \\(x = 0\\) gives \\(\\frac{0}{0}\\). Step 2: Use the approximation \\(1 - \\cos x \\approx \\frac{x^2}{2}\\) for small \\(x\\). The expression becomes \\(\\lim_{x \\rightarrow 0} \\frac{\\frac{x^2}{2}}{x^2} = \\frac{1}{2}\\). Therefore, the correct answer is B."
+  },
+  {
+    "question": "Evaluate \\(\\lim_{x \\rightarrow \\infty}\\frac{x + 4}{x - 4}\\)",
+    "options": {
+      "A": "1",
+      "B": "0",
+      "C": "2",
+      "D": "Infinite"
+    },
+    "answer": "A",
+    "solution": "Step 1: As \\(x \\rightarrow \\infty\\), factor out \\(x\\): \\(\\frac{x(1 + \\frac{4}{x})}{x(1 - \\frac{4}{x})} = \\frac{1 + \\frac{4}{x}}{1 - \\frac{4}{x}}\\). Step 2: As \\(x \\rightarrow \\infty\\), \\(\\frac{4}{x} \\rightarrow 0\\), so the limit is \\(\\frac{1 + 0}{1 - 0} = 1\\). Therefore, the correct answer is A."
+  },
+  {
+    "question": "Evaluate \\(\\lim_{x \\rightarrow 1}(2 - x)^{\\tan\\frac{\\pi x}{2}}\\)",
+    "options": {
+      "A": "\\(e^{2\\pi}\\)",
+      "B": "\\(e^{\\frac{2}{\\pi}}\\)",
+      "C": "0",
+      "D": "1"
+    },
+    "answer": "B",
+    "solution": "Step 1: Substituting \\(x = 1\\) gives \\(0^\\infty\\). Step 2: Take the natural logarithm: \\(\\ln L = \\lim_{x \\rightarrow 1} \\tan\\frac{\\pi x}{2} \\cdot \\ln(2 - x)\\). Step 3: Rewrite as \\(\\frac{\\ln(2 - x)}{\\cot\\frac{\\pi x}{2}}\\) and apply L'Hôpital's Rule, yielding \\(\\ln L = \\frac{2}{\\pi}\\). Thus, \\(L = e^{\\frac{2}{\\pi}}\\). Therefore, the correct answer is B."
+  },
+  {
+    "question": "Differentiate \\(y = e^x\\cos(x^2)\\)",
+    "options": {
+      "A": "\\(e^x \\sin(x^2)\\)",
+      "B": "\\(e^x (\\cos(x^2) - 2x\\sin(x^2))\\)",
+      "C": "\\(e^x \\cos(x^2) - 2x\\sin(x^2)\\)",
+      "D": "\\(-2xe^x \\sin(x^2)\\)"
+    },
+    "answer": "B",
+    "solution": "Step 1: Apply the product rule with \\(u = e^x\\), \\(v = \\cos(x^2)\\). Step 2: Compute \\(u' = e^x\\), \\(v' = -2x\\sin(x^2)\\). Step 3: The derivative is \\(y' = e^x\\cos(x^2) + e^x(-2x\\sin(x^2)) = e^x(\\cos(x^2) - 2x\\sin(x^2))\\). Therefore, the correct answer is B."
+  },
+  {
+    "question": "Differentiate \\(y = \\sec(x^2 + 2)\\)",
+    "options": {
+      "A": "2x\\cos(x^2 + 2)",
+      "B": "-\\cos(x^2 + 2) \\cot(x^2 + 2)",
+      "C": "2x\\sec(x^2 + 2) \\tan(x^2 + 2)",
+      "D": "\\cos(x^2 + 2)"
+    },
+    "answer": "C",
+    "solution": "Step 1: Apply the chain rule with \\(u = x^2 + 2\\), \\(y = \\sec(u)\\). Step 2: The derivative of \\(\\sec(u)\\) is \\(\\sec(u)\\tan(u)\\), and \\(u' = 2x\\). Step 3: Combine: \\(\\frac{dy}{dx} = 2x \\sec(x^2 + 2) \\tan(x^2 + 2)\\). Therefore, the correct answer is C."
+  },
+  {
+    "question": "What is the derivative of \\(y = (x + 1)^3 - x^3\\) with respect to x?",
+    "options": {
+      "A": "6x + 3",
+      "B": "3x - 3",
+      "C": "6x - 3",
+      "D": "3x + 6"
+    },
+    "answer": "A",
+    "solution": "Step 1: Expand \\((x + 1)^3 = x^3 + 3x^2 + 3x + 1\\), so \\(y = (x^3 + 3x^2 + 3x + 1) - x^3 = 3x^2 + 3x + 1\\). Step 2: Differentiate: \\(\\frac{dy}{dx} = 6x + 3\\). Therefore, the correct answer is A."
+  },
+  {
+    "question": "Differentiate \\(y = \\log_{10}(x^2 + 1)^2\\) with respect to x.",
+    "options": {
+      "A": "4x(x^2+1)",
+      "B": "\\(\\log_e^x(x^2 + 1)\\)",
+      "C": "2x(x^2 + 1)",
+      "D": "\\(\\frac{4x \\log_{10}e}{(x^2 + 1)}\\)"
+    },
+    "answer": "D",
+    "solution": "Step 1: Let \\(u = (x^2 + 1)^2\\), so \\(y = \\log_{10} u\\). Step 2: Differentiate: \\(\\frac{dy}{dx} = \\frac{1}{u \\ln 10} \\cdot 4x(x^2 + 1)\\). Step 3: Substitute \\(u\\): \\(\\frac{4x(x^2 + 1)}{(x^2 + 1)^2 \\ln 10} = \\frac{4x}{(x^2 + 1) \\ln 10}\\). Since \\(\\log_{10} e = \\frac{1}{\\ln 10}\\), the derivative is \\(\\frac{4x \\log_{10} e}{(x^2 + 1)}\\). Therefore, the correct answer is D."
+  },
+  {
+    "question": "Differentiate \\(y = (x^2 + 2)^{\\frac{1}{2}}\\)",
+    "options": {
+      "A": "\\(\\frac{(x^2 + 2)^{\\frac{1}{2}}}{2}\\)",
+      "B": "\\(\\frac{x}{(x^2 + 2)^{\\frac{1}{2}}}\\)",
+      "C": "\\(\\frac{2x}{(x^2 + 2)^{\\frac{1}{2}}}\\)",
+      "D": "\\((x^2 + 2)^{\\frac{3}{2}}\\)"
+    },
+    "answer": "B",
+    "solution": "Step 1: Let \\(u = x^2 + 2\\), so \\(y = u^{\\frac{1}{2}}\\). Step 2: Differentiate: \\(\\frac{dy}{dx} = \\frac{1}{2} u^{-\\frac{1}{2}} \\cdot 2x = \\frac{x}{(x^2 + 2)^{\\frac{1}{2}}}\\). Therefore, the correct answer is B."
+  },
+  {
+    "question": "Find the critical points of the curve \\(y = 2 + 12x - x^3\\).",
+    "options": {
+      "A": "(2,18) and (-2,-14)",
+      "B": "(2,18) and (2,-14)",
+      "C": "(-2,18) and (2,-14)",
+      "D": "(-2,18) and (-2,14)"
+    },
+    "answer": "A",
+    "solution": "Step 1: Differentiate: \\(\\frac{dy}{dx} = 12 - 3x^2\\). Step 2: Set \\(\\frac{dy}{dx} = 0\\): \\(12 - 3x^2 = 0\\), so \\(x^2 = 4\\), \\(x = \\pm 2\\). Step 3: Evaluate at \\(x = 2\\): \\(y = 2 + 12(2) - 2^3 = 18\\). At \\(x = -2\\): \\(y = 2 + 12(-2) - (-2)^3 = -14\\). The critical points are \\((2, 18)\\) and \\((-2, -14)\\). Therefore, the correct answer is A."
+  },
+  {
+    "question": "Which of the following is false? i. The derivative of a sum is the sum of the derivatives. ii. The derivative of a product is the first function times the derivative of the second plus the second function times the derivative of the first. iii. The derivative of a quotient is the denominator times the derivative of the numerator minus the numerator times the derivative of the denominator, all divided by the square of the denominator. iv. The derivative of a composite function is the derivative of the outer function evaluated at the inner function times the derivative of the inner function. v. The derivative of a power function is the exponent times the function raised to one less than the exponent.",
+    "options": {
+      "A": "i, ii and iii",
+      "B": "iii, iv and v",
+      "C": "None of the above",
+      "D": "All of the above"
+    },
+    "answer": "C",
+    "solution": "Step 1: Analyze each statement. i. Sum rule is correct. ii. Product rule is correct. iii. Quotient rule is correct. iv. Chain rule is correct. v. Power rule is correct. Since all statements are true, none are false. Therefore, the correct answer is C."
+  },
+  {
+    "question": "Which of the following is/are true? i. The derivative of a quotient is the denominator times the derivative of the numerator minus the numerator times the derivative of the denominator, all divided by the square of the denominator. ii. The derivative of a composite function is the derivative of the outer function evaluated at the inner function times the derivative of the inner function. iii. The derivative of a power function is the exponent times the function raised to one less than the exponent.",
+    "options": {
+      "A": "i, ii and iii",
+      "B": "ii and iii",
+      "C": "i and ii only",
+      "D": "All of the above"
+    },
+    "answer": "A",
+    "solution": "Step 1: Evaluate each statement. i. Quotient rule is correct. ii. Chain rule is correct. iii. Power rule is correct. All statements are true. Therefore, the correct answer is A."
+  },
+  {
+    "question": "Differentiate \\(y = 20x^{-4} + 9\\)",
+    "options": {
+      "A": "\\(y' = -80x^{-5}\\)",
+      "B": "\\(y' = -80x^{-3}\\)",
+      "C": "\\(y' = 80x^{-5}\\)",
+      "D": "\\(y' = \\frac{-80}{x^3}\\)"
+    },
+    "answer": "A",
+    "solution": "Step 1: Differentiate \\(20x^{-4}\\) using the power rule: \\(20 \\cdot (-4)x^{-5} = -80x^{-5}\\). The derivative of the constant 9 is 0. Thus, \\(y' = -80x^{-5}\\). Therefore, the correct answer is A."
+  },
+  {
+    "question": "Find \\(\\frac{dy}{dx}\\) if \\(y = 25^x\\) and \\(\\ln 25 = 3.2\\)",
+    "options": {
+      "A": "200x",
+      "B": "2000",
+      "C": "\\(3.2^x * 25\\)",
+      "D": "\\(3.2 * 25^x\\)"
+    },
+    "answer": "D",
+    "solution": "Step 1: For \\(y = 25^x\\), the derivative is \\(\\frac{dy}{dx} = 25^x \\ln 25\\). Step 2: Substitute \\(\\ln 25 = 3.2\\): \\(\\frac{dy}{dx} = 3.2 \\cdot 25^x\\). Therefore, the correct answer is D."
+  },
+  {
+    "question": "Differentiate \\(y = \\sin(3x + 5)\\)",
+    "options": {
+      "A": "\\(y' = 5\\cos(5x + 3)\\)",
+      "B": "\\(y' = -5\\cos(3x + 5)\\)",
+      "C": "\\(y' = 3\\cos(3x + 5)\\)",
+      "D": "\\(y' = 3\\cos(5x + 3)\\)"
+    },
+    "answer": "C",
+    "solution": "Step 1: Let \\(u = 3x + 5\\), so \\(y = \\sin(u)\\). Step 2: The derivative of \\(\\sin(u)\\) is \\(\\cos(u)\\), and \\(u' = 3\\). Step 3: Combine: \\(y' = \\cos(3x + 5) \\cdot 3 = 3\\cos(3x + 5)\\). Therefore, the correct answer is C."
+  },
+  {
+    "question": "The first derivative of \\(\\tan^2 x\\) is",
+    "options": {
+      "A": "\\(2\\tan x \\tan^2 x\\)",
+      "B": "\\(2\\sec x \\tan^2 x\\)",
+      "C": "\\(2\\sec x \\sec^2 x\\)",
+      "D": "\\(2\\tan x \\sec^2 x\\)"
+    },
+    "answer": "D",
+    "solution": "Step 1: Let \\(y = (\\tan x)^2\\). Step 2: Differentiate using the chain rule: outer derivative is \\(2\\tan x\\), inner derivative is \\(\\sec^2 x\\). Step 3: Combine: \\(y' = 2\\tan x \\cdot \\sec^2 x\\). Therefore, the correct answer is D."
+  },
+  {
+    "question": "Compute the derivative of \\(f(x) = \\sin^2 x\\)",
+    "options": {
+      "A": "\\(f'(x) = (2\\sin x)(2\\cos x)\\)",
+      "B": "\\(f'(x) = 2 \\sin x \\cos x\\)",
+      "C": "\\(f'(x) = 2\\sin x \\sin x\\)",
+      "D": "\\(f'(x) = 2\\cos x \\cos x\\)"
+    },
+    "answer": "B",
+    "solution": "Step 1: Let \\(f(x) = (\\sin x)^2\\). Step 2: Chain rule: outer derivative is \\(2\\sin x\\), inner derivative is \\(\\cos x\\). Step 3: Combine: \\(f'(x) = 2\\sin x \\cos x\\). Therefore, the correct answer is B."
+  },
+  {
+    "question": "Give the derivatives of the function with respect to x: \\(y = e^{\\tan x}\\)",
+    "options": {
+      "A": "\\(e^{\\tan x} \\sec^2 x\\)",
+      "B": "\\(e^{\\sec x} \\tan^2 x\\)",
+      "C": "\\(e^{\\tan x} \\tan^2 x\\)",
+      "D": "\\(e^{\\sec x} \\sec^2 x\\)"
+    },
+    "answer": "A",
+    "solution": "Step 1: Let \\(u = \\tan x\\), so \\(y = e^u\\). Step 2: The derivative of \\(e^u\\) is \\(e^u\\), and \\(u' = \\sec^2 x\\). Step 3: Combine: \\(y' = e^{\\tan x} \\sec^2 x\\). Therefore, the correct answer is A."
+  },
+  {
+    "question": "Give the derivatives of the function with respect to x: \\(y = \\sin^2(2x + 1)\\)",
+    "options": {
+      "A": "\\(2\\cos(4x + 2)\\)",
+      "B": "\\(2\\sin(2x + 4)\\)",
+      "C": "\\(4\\sin(4x + 2)\\)",
+      "D": "\\(2\\sin(4x + 2)\\)"
+    },
+    "answer": "D",
+    "solution": "Step 1: Let \\(u = \\sin(2x + 1)\\), so \\(y = u^2\\). Step 2: Outer derivative: \\(2u\\). Inner derivative: \\(\\cos(2x + 1) \\cdot 2\\). Step 3: Combine: \\(y' = 2\\sin(2x + 1) \\cdot 2\\cos(2x + 1) = 4\\sin(2x + 1)\\cos(2x + 1)\\). Step 4: Use identity \\(\\sin(4x + 2) = 2\\sin(2x + 1)\\cos(2x + 1)\\), so \\(y' = 2\\sin(4x + 2)\\). Therefore, the correct answer is D."
+  },
+  {
+    "question": "Give the derivatives of the function with respect to x: \\(y = \\log_7(2x - 3)\\)",
+    "options": {
+      "A": "\\(\\frac{2}{(3x - 2) \\log 7}\\)",
+      "B": "\\(\\frac{3}{(2x - 3) \\log 7}\\)",
+      "C": "\\(\\frac{2}{(2x - 3) \\log 7}\\)",
+      "D": "\\(\\frac{2}{(2x + 3) \\log 7}\\)"
+    },
+    "answer": "C",
+    "solution": "Step 1: Let \\(u = 2x - 3\\), so \\(y = \\log_7 u\\). Step 2: Differentiate: \\(\\frac{dy}{dx} = \\frac{1}{u \\ln 7} \\cdot 2 = \\frac{2}{(2x - 3) \\ln 7}\\). Since \\(\\ln 7 = \\log_e 7\\), and in this context \\(\\log 7\\) refers to \\(\\ln 7\\), the derivative is \\(\\frac{2}{(2x - 3) \\log 7}\\). Therefore, the correct answer is C."
+  },
+  {
+    "question": "Find the derivative of \\(y = \\log_x 3\\) with respect to x.",
+    "options": {
+      "A": "\\(\\frac{-1}{x \\log 3 \\cdot (\\log_3 x)^2}\\)",
+      "B": "\\(\\frac{-1}{x \\log 3 \\cdot (\\log_x 3)^2}\\)",
+      "C": "\\(\\frac{-1}{3 \\log 3 \\cdot (\\log_3 x)^2}\\)",
+      "D": "\\(\\frac{-1}{3 \\log 3 \\cdot (\\log_3 x)^2}\\)"
+    },
+    "answer": "A",
+    "solution": "Step 1: Rewrite using the change of base formula: \\(y = \\log_x 3 = \\frac{\\log 3}{\\log x}\\).<br><br>Step 2: Apply the quotient rule to differentiate. Let the numerator be \\(u = \\log 3\\) (constant) and the denominator \\(v = \\log x\\), so \\(v' = \\frac{1}{x \\ln 10}\\). The derivative is \\(y' = \\frac{0 \\cdot \\log x - \\log 3 \\cdot \\frac{1}{x \\ln 10}}{(\\log x)^2} = \\frac{-\\log 3}{x \\ln 10 \\cdot (\\log x)^2}\\).<br><br>Step 3: Since \\(\\log x = \\frac{\\ln x}{\\ln 10}\\) and \\(\\log_3 x = \\frac{\\ln x}{\\ln 3}\\), rewrite the expression to match: \\(y' = \\frac{-1}{x \\log 3 \\cdot (\\log_3 x)^2}\\).<br><br>Therefore, the correct answer is A."
+  },
+  {
+    "question": "Find the derivative of \\(y = 3^{x \\log x}\\) with respect to x.",
+    "options": {
+      "A": "\\(3^{x \\log x} \\log 3 (1 + \\log x)\\)",
+      "B": "\\(3^{3 \\log x} \\log 3 (1 + \\log x)\\)",
+      "C": "\\(3^{x \\log x} \\log x (1 + \\log x)\\)",
+      "D": "\\(3^{x \\log 3} \\log 3 (1 + \\log x)\\)"
+    },
+    "answer": "A",
+    "solution": "Step 1: Let \\(u = x \\log x\\), so \\(y = 3^u\\).<br><br>Step 2: Differentiate \\(y = 3^u\\) using the chain rule: \\(y' = 3^u \\ln 3 \\cdot u'\\).<br><br>Step 3: Differentiate \\(u = x \\log x\\) using the product rule: \\(u' = \\log x + x \\cdot \\frac{1}{x} = \\log x + 1\\).<br><br>Step 4: Combine: \\(y' = 3^{x \\log x} \\ln 3 (\\log x + 1)\\).<br><br>Therefore, the correct answer is A."
+  },
+  {
+    "question": "Find the derivative of \\(y = \\frac{x + 1}{x}\\) with respect to x.",
+    "options": {
+      "A": "\\(\\frac{-1}{x^2}\\)",
+      "B": "\\(\\frac{-2}{x^2}\\)",
+      "C": "\\(\\frac{1}{x^2}\\)",
+      "D": "\\(-x^2\\)"
+    },
+    "answer": "A",
+    "solution": "Step 1: Simplify the function: \\(y = \\frac{x + 1}{x} = 1 + \\frac{1}{x}\\).<br><br>Step 2: Differentiate each term: The derivative of 1 is 0, and the derivative of \\(\\frac{1}{x} = x^{-1}\\) is \\(-x^{-2} = -\\frac{1}{x^2}\\).<br><br>Step 3: Combine: \\(y' = 0 - \\frac{1}{x^2} = -\\frac{1}{x^2}\\).<br><br>Therefore, the correct answer is A."
+  }
+];
+                    console.log('[v0] Questions loaded successfully:', questions);
+                    this.setupQuiz(questions);
+                } catch (error) {
+                    console.error('[v0] Error loading quiz questions:', error);
+                    this.displayError(`Unable to load quiz: ${error.message}`);
+                }
+            }
+
+            setupQuiz(questions) {
+                console.log('[v0] === SETUP QUIZ DEBUG ===');
+                console.log('[v0] Raw questions received:', questions);
+                
+                this.questions = questions.map((q, index) => {
+                    let options = q.options || q.choices || [];
+                    
+                    // Debug image URL processing - prioritize ImageUrl field as per API structure
+                    const rawImageUrl = q.ImageUrl || q.imageUrl || q.image || null;
+                    const processedImageUrl = this.extractImageUrl(rawImageUrl);
+                    console.log(`[v0] Question ${index + 1} image processing:`);
+                    console.log(`[v0]   - Raw ImageUrl: ${q.ImageUrl}`);
+                    console.log(`[v0]   - Raw imageUrl: ${q.imageUrl}`);
+                    console.log(`[v0]   - Raw image: ${q.image}`);
+                    console.log(`[v0]   - Selected raw: ${rawImageUrl}`);
+                    console.log(`[v0]   - Processed: ${processedImageUrl}`);
+                    
+                    // Ensure options is always an array - more robust handling
+                    if (!Array.isArray(options)) {
+                        console.log(`[v0] Options is not an array for question ${index + 1}:`, options);
+                        // Try to convert to array if it's an object
+                        if (typeof options === 'object' && options !== null) {
+                            // If it's an object, try to get values or convert to array
+                            if (Object.keys(options).length > 0) {
+                                options = Object.values(options);
+                            } else {
+                                options = [];
+                            }
+                        } else {
+                            options = [];
+                        }
+                    }
+                    
+                    console.log(`[v0] Final options array for question ${index + 1}:`, options);
+                    
+                    return {
+                        id: index + 1,
+                        text: q.question || q.text || 'Question text not available',
+                        options: options,
+                        correctAnswer: q.correctAnswer || q.answer || 0,
+                        solution: q.solution || q.explanation || 'No solution provided',
+                        imageUrl: processedImageUrl
+                    };
+                });
+                
+                console.log('[v0] Final processed questions:', this.questions);
+                console.log('[v0] === END SETUP DEBUG ===');
+
+                this.totalQuestions = this.questions.length;
+                this.answers = new Array(this.totalQuestions).fill(null);
+                // Use the transformed field 'correctAnswer' from setupQuiz
+                this.correctAnswers = this.questions.map(q => q.correctAnswer);
+                
+                console.log('[DEBUG] Total questions:', this.totalQuestions);
+                console.log('[DEBUG] correctAnswers array:', this.correctAnswers);
+                console.log('[DEBUG] First few questions answers:', this.questions.slice(0, 3).map(q => q.correctAnswer));
+
+                this.totalQuestionsEl.textContent = this.totalQuestions;
+                this.createProgressSegments();
+                this.renderQuizInterface();
+                this.loadQuestion();
+                this.bindEvents();
+            }
+
+            createProgressSegments() {
+                this.progressContainer.innerHTML = '';
+                for (let i = 0; i < this.totalQuestions; i++) {
+                    const segment = document.createElement('div');
+                    segment.className = 'progress-segment';
+                    segment.dataset.question = i + 1;
+                    this.progressContainer.appendChild(segment);
+                }
+            }
+
+            renderQuizInterface() {
+                this.quizContent.innerHTML = `
+                    <div class="tabs">
+                        <div class="tab active" id="question-tab">Question</div>
+                        <div class="tab" id="solution-tab">Solution</div>
+                    </div>
+
+                    <div class="tab-content">
+                        <div class="question-content" id="question-content">
+                            <div class="question-number" id="question-number">1</div>
+                            <div class="question-text" id="question-text">Loading question...</div>
+                            <div class="image-container">
+                                <img class="question-image" id="question-image" alt="Question illustration" />
+                                <iframe class="question-iframe" id="question-iframe" style="display: none;" frameborder="0"></iframe>
+                            </div>
+
+                            <div class="navigation">
+                                <button class="nav-arrow" id="prev-btn" disabled>‹</button>
+                                <button class="nav-arrow" id="next-btn">›</button>
+                            </div>
+
+                            <div class="answers-container" id="answers-container"></div>
+                        </div>
+
+                        <div class="solution-content" id="solution-content">
+                            <div class="solution-text" id="solution-text">Solution will appear here</div>
+                            <div class="question-number" id="solution-question-number">1</div>
+                        </div>
+                    </div>
+
+                    <button class="check-button" id="check-btn">Check</button>
+                `;
+            }
+
+            loadQuestion() {
+                const question = this.questions[this.currentQuestion - 1];
+                
+                // Debug: Log the complete question data
+                console.log('[v0] === QUESTION DEBUG ===');
+                console.log('[v0] Current question index:', this.currentQuestion - 1);
+                console.log('[v0] Total questions:', this.questions.length);
+                console.log('[v0] Complete question data:', question);
+                console.log('[v0] Question imageUrl:', question.imageUrl);
+                console.log('[v0] Question ImageUrl:', question.ImageUrl);
+                console.log('[v0] Question image:', question.image);
+                console.log('[v0] === END DEBUG ===');
+                
+                this.currentQuestionEl.textContent = this.currentQuestion;
+                document.getElementById('question-number').textContent = this.currentQuestion;
+                document.getElementById('solution-question-number').textContent = this.currentQuestion;
+                document.getElementById('question-text').innerHTML = question.text;
+                document.getElementById('solution-text').innerHTML = question.solution;
+                
+                // Process MathJax for the newly loaded content
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    window.MathJax.typesetPromise([
+                        document.getElementById('question-text'),
+                        document.getElementById('solution-text')
+                    ]).catch((err) => console.log('MathJax typeset error:', err));
+                }
+                
+                const questionImage = document.getElementById('question-image');
+                
+                // Enhanced image logging and handling
+                console.log('[v0] === IMAGE PROCESSING DEBUG ===');
+                console.log('[v0] Raw question.ImageUrl:', question.ImageUrl);
+                console.log('[v0] Raw question.imageUrl:', question.imageUrl);
+                console.log('[v0] Raw question.image:', question.image);
+                
+                // Use the processed imageUrl from setupQuiz
+                const imageUrl = question.imageUrl;
+                
+                if (imageUrl && imageUrl.trim() !== '') {
+                    console.log('[v0] ✅ IMAGE FOUND - Processing image URL:', imageUrl);
+                    
+                    // Clean up the imageUrl - remove any backticks and extra spaces
+                    const cleanImageUrl = imageUrl.replace(/`/g, '').trim();
+                    console.log('[v0] 🔧 Cleaned image URL:', cleanImageUrl);
+                    
+                    // Validate URL format
+                    try {
+                        new URL(cleanImageUrl);
+                        console.log('[v0] ✅ Valid URL format confirmed');
+                    } catch (e) {
+                        console.log('[v0] ❌ Invalid URL format:', cleanImageUrl);
+                        questionImage.classList.remove('visible', 'loading');
+                        questionImage.src = '';
+                        console.log('[v0] === END IMAGE PROCESSING DEBUG ===');
+                        return;
+                    }
+                    
+                    // Show loading state
+                    questionImage.classList.add('loading', 'visible');
+                    questionImage.src = '';
+                    console.log('[v0] 🔄 Loading image...');
+                    
+                    // Create a new image to preload
+                    const img = new Image();
+                    img.onload = function() {
+                        questionImage.src = cleanImageUrl;
+                        questionImage.classList.remove('loading');
+                        console.log('[v0] ✅ IMAGE LOADED SUCCESSFULLY:', cleanImageUrl);
+                    };
+                    img.onerror = function() {
+                        console.log('[v0] ❌ FAILED TO LOAD IMAGE:', cleanImageUrl);
+                        questionImage.classList.remove('visible', 'loading');
+                        questionImage.src = '';
+                    };
+                    img.src = cleanImageUrl;
+                } else {
+                    console.log('[v0] ❌ NO IMAGE FOUND - No image URL available for this question');
+                    questionImage.classList.remove('visible', 'loading');
+                    questionImage.src = '';
+                }
+                console.log('[v0] === END IMAGE PROCESSING DEBUG ===');
+                
+                const answersContainer = document.getElementById('answers-container');
+                answersContainer.innerHTML = '';
+                
+                const options = question.options || question.choices || [];
+                console.log('[v0] Question options:', options); // Debug log
+                
+                if (options.length === 0) {
+                    console.log('[v0] No options found for question:', question);
+                    answersContainer.innerHTML = '<div class="no-options">No options available for this question</div>';
+                    return;
+                }
+                
+                options.forEach((option, index) => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'answer-option';
+                    optionDiv.dataset.option = index;
+                    
+                    let optionText = '';
+                    if (typeof option === 'string') {
+                        optionText = option;
+                    } else if (option.text) {
+                        optionText = option.text;
+                    } else if (option.option) {
+                        optionText = option.option;
+                    } else if (option.answer) {
+                        optionText = option.answer;
+                    } else {
+                        optionText = `Option ${index + 1}`;
+                    }
+                    
+                    optionDiv.innerHTML = `
+                        <span class="option-letter">${String.fromCharCode(65 + index)}</span>
+                        <span class="option-text">${optionText}</span>
+                    `;
+                    
+                    if (this.answers[this.currentQuestion - 1] === index) {
+                        optionDiv.classList.add('selected');
+                        this.selectedAnswer = index;
+                    }
+                    
+                    optionDiv.addEventListener('click', () => {
+                        if (!optionDiv.classList.contains('disabled')) {
+                            this.selectAnswer(index);
+                        }
+                    });
+                    
+                    answersContainer.appendChild(optionDiv);
+                });
+                
+                // Process MathJax for the answer options
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    window.MathJax.typesetPromise([answersContainer]).catch((err) => console.log('MathJax options typeset error:', err));
+                }
+                
+                document.getElementById('prev-btn').disabled = this.currentQuestion === 1;
+                document.getElementById('next-btn').disabled = this.currentQuestion === this.totalQuestions;
+                
+                this.updateProgressBar();
+                this.updateCheckButton();
+                this.isAnswered = this.answers[this.currentQuestion - 1] !== null;
+                this.isChecked = this.isAnswered;
+            }
+
+            updateProgressBar() {
+                const segments = this.progressContainer.querySelectorAll('.progress-segment');
+                let answeredCount = 0;
+                let correctCount = 0;
+
+                segments.forEach((segment, index) => {
+                    segment.classList.remove('correct', 'incorrect');
+                    
+                    if (this.answers[index] !== null) {
+                        answeredCount++;
+                        if (this.answers[index] === this.correctAnswers[index]) {
+                            segment.classList.add('correct');
+                            correctCount++;
+                        } else {
+                            segment.classList.add('incorrect');
+                        }
+                    }
+                });
+
+                this.correctCountEl.textContent = correctCount;
+                this.answeredCountEl.textContent = answeredCount;
+            }
+
+            updateCheckButton() {
+                const checkBtn = document.getElementById('check-btn');
+                if (this.selectedAnswer !== null && !this.isChecked) {
+                    checkBtn.classList.add('active');
+                } else {
+                    checkBtn.classList.remove('active');
+                }
+            }
+
+            selectAnswer(optionIndex) {
+                console.log('[v0] Selecting answer:', optionIndex);
+                
+                // Remove previous selection
+                document.querySelectorAll('.answer-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                
+                // Add selection to clicked option
+                const selectedOption = document.querySelector(`[data-option="${optionIndex}"]`);
+                if (selectedOption) {
+                    selectedOption.classList.add('selected');
+                }
+                
+                this.selectedAnswer = optionIndex;
+                this.answers[this.currentQuestion - 1] = optionIndex;
+                this.isAnswered = true;
+                this.updateCheckButton();
+            }
+
+            checkAnswer() {
+                if (this.selectedAnswer === null || this.isChecked) return;
+                
+                const answerOptions = document.querySelectorAll('.answer-option');
+                const selectedOption = answerOptions[this.selectedAnswer];
+                
+                // Convert letter answer to numeric index (A=0, B=1, C=2, D=3, E=4)
+                const correctAnswerLetter = this.correctAnswers[this.currentQuestion - 1];
+                console.log('[DEBUG] correctAnswers:', this.correctAnswers);
+                console.log('[DEBUG] currentQuestion:', this.currentQuestion);
+                console.log('[DEBUG] correctAnswerLetter:', correctAnswerLetter);
+                
+                // If the correct answer is a number (already index), convert to letter for consistency
+                let correctAnswerIndex;
+                if (typeof correctAnswerLetter === 'number') {
+                    correctAnswerIndex = correctAnswerLetter;
+                } else if (typeof correctAnswerLetter === 'string' && correctAnswerLetter.length > 0) {
+                    correctAnswerIndex = correctAnswerLetter.charCodeAt(0) - 65; // 'A'.charCodeAt(0) = 65
+                } else {
+                    console.error('[ERROR] correctAnswerLetter is invalid:', correctAnswerLetter);
+                    return;
+                }
+                const correctOption = answerOptions[correctAnswerIndex];
+                
+                this.answers[this.currentQuestion - 1] = this.selectedAnswer;
+                this.isChecked = true;
+                this.isAnswered = true;
+                
+                answerOptions.forEach(option => option.classList.add('disabled'));
+                
+                if (this.selectedAnswer === correctAnswerIndex) {
+                    selectedOption.classList.add('correct');
+                    this.score++;
+                } else {
+                    selectedOption.classList.add('incorrect');
+                    correctOption.classList.add('correct');
+                }
+                
+                this.updateProgressBar();
+                this.updateCheckButton();
+                
+                setTimeout(() => {
+                    if (this.currentQuestion === this.totalQuestions) {
+                        this.endQuiz();
+                    } else {
+                        this.nextQuestion();
+                    }
+                }, 1000);
+            }
+
+            switchTab(tab) {
+                if (tab === this.currentTab) return;
+                
+                this.currentTab = tab;
+                
+                const questionTab = document.getElementById('question-tab');
+                const solutionTab = document.getElementById('solution-tab');
+                const questionContent = document.getElementById('question-content');
+                const solutionContent = document.getElementById('solution-content');
+                
+                if (tab === 'solution') {
+                    questionTab.classList.remove('active');
+                    solutionTab.classList.add('active');
+                    questionContent.classList.add('hidden');
+                    solutionContent.classList.add('active');
+                } else {
+                    solutionTab.classList.remove('active');
+                    questionTab.classList.add('active');
+                    solutionContent.classList.remove('active');
+                    questionContent.classList.remove('hidden');
+                }
+            }
+
+            nextQuestion() {
+                if (this.currentQuestion < this.totalQuestions) {
+                    this.currentQuestion++;
+                    this.selectedAnswer = null;
+                    this.isAnswered = false;
+                    this.isChecked = false;
+                    this.switchTab('question');
+                    this.loadQuestion();
+                }
+            }
+
+            prevQuestion() {
+                if (this.currentQuestion > 1) {
+                    this.currentQuestion--;
+                    this.selectedAnswer = null;
+                    this.isAnswered = false;
+                    this.isChecked = false;
+                    this.switchTab('question');
+                    this.loadQuestion();
+                }
+            }
+
+            endQuiz() {
+                this.showResults();
+            }
+
+            showResults() {
+                const timeSpent = Math.floor((Date.now() - this.startTime) / 1000 / 60 * 100) / 100;
+                const wrongAnswers = this.totalQuestions - this.score;
+                const percentage = (this.score / this.totalQuestions) * 100;
+                
+                let grade = 'F';
+                if (percentage >= 90) grade = 'A+';
+                else if (percentage >= 85) grade = 'A';
+                else if (percentage >= 80) grade = 'A-';
+                else if (percentage >= 75) grade = 'B+';
+                else if (percentage >= 70) grade = 'B';
+                else if (percentage >= 65) grade = 'B-';
+                else if (percentage >= 60) grade = 'C+';
+                else if (percentage >= 55) grade = 'C';
+                else if (percentage >= 50) grade = 'C-';
+                else if (percentage >= 45) grade = 'D+';
+                else if (percentage >= 40) grade = 'D';
+                else if (percentage >= 35) grade = 'D-';
+                
+                let message = 'Keep practicing!';
+                if (percentage >= 90) message = 'Outstanding!';
+                else if (percentage >= 80) message = 'You are amazing!';
+                else if (percentage >= 70) message = 'Great job!';
+                else if (percentage >= 60) message = 'Good work!';
+                else if (percentage >= 50) message = 'Not bad!';
+                
+                document.getElementById('final-score').textContent = `${this.score}/${this.totalQuestions}`;
+                document.getElementById('score-message').textContent = message;
+                document.getElementById('wrong-answers').textContent = wrongAnswers;
+                document.getElementById('time-committed').textContent = `${timeSpent}m`;
+                document.getElementById('grade').textContent = grade;
+                
+                this.modalOverlay.classList.add('active');
+                
+                console.log('[v0] 🎯 Quiz completed! Calling updateStreak...');
+                // Update streak after completing quiz
+                this.updateStreak();
+            }
+
+            resetQuiz() {
+                this.currentQuestion = 1;
+                this.answers = new Array(this.totalQuestions).fill(null);
+                this.selectedAnswer = null;
+                this.isAnswered = false;
+                this.isChecked = false;
+                this.score = 0;
+                this.startTime = Date.now();
+                
+                this.modalOverlay.classList.remove('active');
+                this.switchTab('question');
+                this.loadQuestion();
+            }
+
+            displayError(message) {
+                this.quizContent.innerHTML = `
+                    <div class="error-message">
+                        <h3>Error</h3>
+                        <p>${message}</p>
+                        <button class="modal-button primary" onclick="location.reload()" style="margin-top: 15px;">Try Again</button>
+                    </div>
+                `;
+            }
+
+            bindEvents() {
+                // Answer selection
+                document.addEventListener('click', (e) => {
+                    const option = e.target.closest('.answer-option');
+                    if (option && !this.isChecked) {
+                        const optionIndex = parseInt(option.dataset.option);
+                        this.selectAnswer(optionIndex);
+                    }
+                });
+
+                // Check button
+                document.addEventListener('click', (e) => {
+                    if (e.target.id === 'check-btn') {
+                        if (this.currentQuestion === this.totalQuestions && this.isChecked) {
+                            this.endQuiz();
+                        } else {
+                            this.checkAnswer();
+                        }
+                    }
+                });
+
+                // Navigation
+                document.addEventListener('click', (e) => {
+                    if (e.target.id === 'next-btn') this.nextQuestion();
+                    if (e.target.id === 'prev-btn') this.prevQuestion();
+                });
+
+                // Tabs
+                document.addEventListener('click', (e) => {
+                    if (e.target.id === 'question-tab') this.switchTab('question');
+                    if (e.target.id === 'solution-tab') this.switchTab('solution');
+                });
+
+                // Modal buttons
+                document.addEventListener('click', (e) => {
+                    if (e.target.id === 'do-again-btn') this.resetQuiz();
+                    if (e.target.id === 'view-results-btn') goBackToQuizSelection();
+                });
+
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    switch(e.key) {
+                        case 'ArrowLeft':
+                            if (this.currentQuestion > 1) this.prevQuestion();
+                            break;
+                        case 'ArrowRight':
+                            if (this.currentQuestion < this.totalQuestions) this.nextQuestion();
+                            break;
+                        case '1':
+                        case '2':
+                        case '3':
+                        case '4':
+                            if (!this.isChecked) {
+                                const optionIndex = parseInt(e.key) - 1;
+                                if (optionIndex < this.questions[this.currentQuestion - 1].options.length) {
+                                    this.selectAnswer(optionIndex);
+                                }
+                            }
+                            break;
+                        case 'Enter':
+                        case ' ':
+                            e.preventDefault();
+                            const checkBtn = document.getElementById('check-btn');
+                            if (checkBtn && checkBtn.classList.contains('active')) {
+                                this.checkAnswer();
+                            }
+                            break;
+                    }
+                });
+            }
+
+            updateStreak() {
+                console.log('[v0] === STREAK UPDATE START ===');
+                
+                try {
+                    const currentStreak = parseInt(localStorage.getItem('userStreak') || '0');
+                    const lastQuizDate = localStorage.getItem('lastQuizDate');
+                    const today = new Date().toDateString();
+                    
+                    console.log('[v0] Current streak:', currentStreak);
+                    console.log('[v0] Last quiz date:', lastQuizDate);
+                    console.log('[v0] Today:', today);
+                    
+                    let newStreak;
+                    
+                    if (lastQuizDate === today) {
+                        // Already completed a quiz today, don't increment
+                        newStreak = currentStreak;
+                        console.log('[v0] Quiz already completed today, streak remains:', newStreak);
+                    } else {
+                        // Increment streak
+                        newStreak = currentStreak + 1;
+                        console.log('[v0] Incrementing streak to:', newStreak);
+                        
+                        // Update localStorage
+                        localStorage.setItem('userStreak', newStreak.toString());
+                        localStorage.setItem('lastQuizDate', today);
+                        
+                        // Update max streak if needed
+                        const maxStreak = parseInt(localStorage.getItem('maxStreak') || '0');
+                        if (newStreak > maxStreak) {
+                            localStorage.setItem('maxStreak', newStreak.toString());
+                        }
+                    }
+                    
+                    console.log('[v0] Streak updated successfully! New streak:', newStreak);
+
+                } catch (error) {
+                    console.error('[v0] Error updating streak:', error);
+                }
+                
+                console.log('[v0] === STREAK UPDATE END ===');
+            }
+        }
+
+        // Global functions for navigation
+        function goBackToQuizSelection() {
+            // Navigate back to main quiz selection page
+            window.location.href = 'index.html';
+        }
+
+        // Initialize the quiz app
+        document.addEventListener('DOMContentLoaded', () => {
+            window.quizApp = new QuizApp();
+        });
+    </script>
+</body>
+</html>
