@@ -2024,63 +2024,7 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
 
         async function fetchCourses() {
             try {
-                let semesterToUse = getCurrentSemester();
-                if (!semesterToUse || !semesterToUse._id) {
-                    console.warn('[v0] No current semester found, attempting to resolve from university...');
-                    const storedUserData = JSON.parse(localStorage.getItem('currentUserData') || '{}');
-                    let uniRef = storedUserData?.user?.university || currentUser?.university || currentUser?.customUniversity;
-                    let uniId = uniRef?._id || uniRef?.id || (typeof uniRef === 'string' ? uniRef : null);
-
-                    // If we have a university reference but no id, try to resolve by name
-                    if (!uniId && uniRef) {
-                        try {
-                            const universities = await fetchAllUniversities();
-                            const refName = (uniRef?.name || (typeof uniRef === 'string' ? uniRef : '')).toLowerCase().trim();
-                            const matchedUni = Array.isArray(universities) ? universities.find(u => {
-                                const candidateName = (u.name || u.universityName || u.title || '').toLowerCase().trim();
-                                return candidateName && candidateName === refName;
-                            }) : null;
-                            if (matchedUni) {
-                                uniId = matchedUni._id || matchedUni.id;
-                                console.log('[v0] Resolved university by name:', matchedUni);
-                                // Persist resolved university object
-                                const updatedUserDataPersist = {
-                                    ...storedUserData,
-                                    user: {
-                                        ...(storedUserData.user || currentUser || {}),
-                                        university: matchedUni
-                                    }
-                                };
-                                localStorage.setItem('currentUserData', JSON.stringify(updatedUserDataPersist));
-                            } else {
-                                console.warn('[v0] Could not resolve university by name:', refName);
-                            }
-                        } catch (e) {
-                            console.error('[v0] Error resolving university by name:', e);
-                        }
-                    }
-
-                    if (uniId) {
-                        const semesters = await fetchSemestersByUniversity(uniId);
-                        if (Array.isArray(semesters) && semesters.length > 0) {
-                            // Pick most recent by startDate if available
-                            semesters.sort((a, b) => new Date(b.startDate || 0) - new Date(a.startDate || 0));
-                            semesterToUse = semesters[0];
-                            const updatedUserData = {
-                                ...storedUserData,
-                                currentSemester: semesterToUse
-                            };
-                            localStorage.setItem('currentUserData', JSON.stringify(updatedUserData));
-                            console.log('[v0] Resolved semester from university:', semesterToUse?._id);
-                        } else {
-                            console.error('[v0] No semesters available for university:', uniId);
-                            showAlert('No semester available for your university', 'warning');
-                        }
-                    } else {
-                        console.error('[v0] University ID missing; cannot resolve semester');
-                        showAlert('University information missing', 'warning');
-                    }
-                }
+                let semesterToUse = await resolveCurrentSemester();
 
                 if (!semesterToUse || !semesterToUse._id) {
                     console.warn('[v0] Using default courses fallback due to missing semester');
@@ -2098,7 +2042,16 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
                 if (response.ok) {
                     const apiResponse = await response.json();
                     console.log('[v0] Full API response:', apiResponse);
-                    
+                    // ... existing code ...
+                } else {
+                    console.error('[v0] Failed to fetch courses:', response.status, response.statusText);
+                    loadDefaultCourses();
+                }
+            } catch (error) {
+                console.error('[v0] Error fetching courses:', error);
+                loadDefaultCourses();
+            }
+        }                    
                     // Handle different possible response structures
                     let courses;
                     if (Array.isArray(apiResponse)) {
