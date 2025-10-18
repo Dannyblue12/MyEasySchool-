@@ -2034,12 +2034,32 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
                 }
 
                 const semesterId = semesterToUse._id || semesterToUse.id || semesterToUse;
-                const response = await fetchWithRetry(`${API_BASE}/courses/semester/${semesterId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${userToken}`
+                const endpointsToTry = [
+                    `${API_BASE}/courses/semester/${semesterId}`,
+                    `${API_BASE}/semesters/${semesterId}/courses`,
+                    `${API_BASE}/courses?semesterId=${encodeURIComponent(semesterId)}`
+                ];
+                let response = null;
+                for (const ep of endpointsToTry) {
+                    try {
+                        const r = await fetchWithRetry(ep, {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${userToken}`
+                            }
+                        });
+                        if (r && r.ok) { response = r; break; }
+                        console.warn('[v0] Courses endpoint failed:', ep, r ? `${r.status} ${r.statusText}` : 'no response');
+                    } catch (e) {
+                        console.warn('[v0] Courses endpoint error:', ep, e.message);
                     }
-                });
+                }
+                if (!response) {
+                    console.error('[v0] All course endpoints failed for semester:', semesterId);
+                    showAlert('Failed to load courses', 'error');
+                    loadDefaultCourses();
+                    return;
+                }
 
                 if (!response.ok) {
                     console.error('[v0] Failed to fetch courses:', response.status, response.statusText);
@@ -2700,9 +2720,9 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
                         
                         console.log('[v0] University validated, initializing dashboard');
                         updateLoadingText('Preparing your dashboard...', 'Loading courses and content');
-                        updateUserInfo();
                         await fetchAvatars();
-                        // Load courses after user info is ready
+                        updateUserInfo();
+                        // Load courses after avatar is ready
                         await fetchCourses();
                         
                         return true;
@@ -2760,6 +2780,18 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
             try {
                 console.log('[v0] Fetching avatars from API...');
                 
+                // If currentUser.avatar is already a full URL or root path, display it immediately
+                const rawAvatar = (currentUser?.avatar || '').toString();
+                if (rawAvatar) {
+                    const isAbsolute = /^https?:\/\//i.test(rawAvatar);
+                    const isRootPath = rawAvatar.startsWith('/');
+                    if (isAbsolute || isRootPath) {
+                        userAvatar = isRootPath ? `${API_BASE}${rawAvatar}` : rawAvatar;
+                        updateAvatarDisplay();
+                        console.log('[v0] Avatar displayed directly from user data:', userAvatar);
+                    }
+                }
+                
                 const headers = {};
                 if (userToken) {
                     headers['Authorization'] = `Bearer ${userToken}`;
@@ -2812,31 +2844,12 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
                         }
                     } else {
                         console.log('[v0] User avatar not found in available avatars:', targetAvatar);
-                        // Try direct fetch of specific avatar as a fallback: /avatars/{avatar}
-                        try {
-                            const altResp = await fetchWithRetry(`${API_BASE}/avatars/${encodeURIComponent(targetFilenameLower)}`, {
-                                method: 'GET',
-                                headers
-                            });
-                            if (altResp.ok) {
-                                const one = await altResp.json();
-                                let displayUrl = one.base || one.url || one.path || one.avatarUrl;
-                                if (!displayUrl && (one.filename || one.fileName || one.name)) {
-                                    displayUrl = `${API_BASE}/avatars/${one.filename || one.fileName || one.name}`;
-                                }
-                                if (displayUrl) {
-                                    userAvatar = displayUrl.startsWith('/') ? `${API_BASE}${displayUrl}` : displayUrl;
-                                    updateAvatarDisplay();
-                                    console.log('[v0] Fallback avatar displayed successfully via single fetch');
-                                } else {
-                                    console.log('[v0] Fallback avatar response lacked a usable URL');
-                                }
-                            } else {
-                                console.log('[v0] Fallback single avatar fetch failed:', altResp.status);
-                            }
-                        } catch (e) {
-                            console.log('[v0] Error during fallback single avatar fetch:', e);
-                        }
+                        // Fallback: use direct image URL to /avatars/{avatar} without JSON parsing
+                        const rawName = (currentUser?.avatar || '').toString().split('/').pop();
+                         const directUrl = `${API_BASE}/avatars/${encodeURIComponent(rawName)}`;
+                         userAvatar = directUrl;
+                         updateAvatarDisplay();
+                         console.log('[v0] Fallback avatar displayed via direct URL:', directUrl);
 
                         // If still no avatar, hide elements
                         if (!userAvatar) {
@@ -2867,10 +2880,14 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
             if (userAvatar) {
                 if (userAvatarElement) {
                     userAvatarElement.src = userAvatar;
+                    userAvatarElement.style.display = '';
+                    userAvatarElement.removeAttribute('hidden');
                     console.log('[v0] Updated header avatar display');
                 }
                 if (profileAvatarElement) {
                     profileAvatarElement.src = userAvatar;
+                    profileAvatarElement.style.display = '';
+                    profileAvatarElement.removeAttribute('hidden');
                     console.log('[v0] Updated profile avatar display');
                 }
             }
