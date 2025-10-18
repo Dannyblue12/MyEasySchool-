@@ -2033,7 +2033,7 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
                     return;
                 }
 
-                const response = await fetchWithRetry(`${API_BASE}/courses/semester/${semesterToUse._id}`, {
+                const response = await fetchWithRetry(`${API_BASE}/courses/semester/${semesterId}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${userToken}`
