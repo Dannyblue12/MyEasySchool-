@@ -2024,10 +2024,11 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
 
         async function fetchCourses() {
             try {
-                let semesterToUse = await resolveCurrentSemester();
+                const semesterToUse = await resolveCurrentSemester();
 
                 if (!semesterToUse || !semesterToUse._id) {
                     console.warn('[v0] Using default courses fallback due to missing semester');
+                    showAlert('No semester selected. Showing default courses.', 'warning');
                     loadDefaultCourses();
                     return;
                 }
@@ -2039,69 +2040,59 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
                     }
                 });
 
-                if (response.ok) {
-                    const apiResponse = await response.json();
-                    console.log('[v0] Full API response:', apiResponse);
-                    // ... existing code ...
-                } else {
+                if (!response.ok) {
                     console.error('[v0] Failed to fetch courses:', response.status, response.statusText);
-                    loadDefaultCourses();
-                }
-            } catch (error) {
-                console.error('[v0] Error fetching courses:', error);
-                loadDefaultCourses();
-            }
-        }                    
-                    // Handle different possible response structures
-                    let courses;
-                    if (Array.isArray(apiResponse)) {
-                        courses = apiResponse;
-                    } else if (apiResponse.data && Array.isArray(apiResponse.data)) {
-                        courses = apiResponse.data;
-                    } else if (apiResponse.courses && Array.isArray(apiResponse.courses)) {
-                        courses = apiResponse.courses;
-                    } else if (apiResponse.result && Array.isArray(apiResponse.result)) {
-                        courses = apiResponse.result;
-                    } else {
-                        console.error('[v0] Unexpected API response structure:', apiResponse);
-                        throw new Error('Invalid API response structure');
-                    }
-                    
-                    console.log('[v0] Extracted courses array:', courses);
-                    
-                    if (!Array.isArray(courses) || courses.length === 0) {
-                        console.warn('[v0] No courses found in response');
-                        showAlert('No courses found for this semester', 'warning');
-                        loadDefaultCourses();
-                        return;
-                    }
-                    
-                    populateCoursesGrid(courses);
-                    populateScheduleGrid(courses);
-                } else {
-                    console.error('Failed to fetch courses:', response.status);
                     showAlert('Failed to load courses', 'error');
-                    // Fallback to default courses if API fails
                     loadDefaultCourses();
+                    return;
                 }
+
+                const apiResponse = await response.json();
+                console.log('[v0] Full API response:', apiResponse);
+
+                let courses;
+                if (Array.isArray(apiResponse)) {
+                    courses = apiResponse;
+                } else if (Array.isArray(apiResponse.data)) {
+                    courses = apiResponse.data;
+                } else if (Array.isArray(apiResponse.courses)) {
+                    courses = apiResponse.courses;
+                } else if (Array.isArray(apiResponse.result)) {
+                    courses = apiResponse.result;
+                } else {
+                    console.error('[v0] Unexpected API response structure:', apiResponse);
+                    showAlert('Invalid courses response from server', 'error');
+                    loadDefaultCourses();
+                    return;
+                }
+
+                console.log('[v0] Extracted courses array:', courses);
+
+                if (!Array.isArray(courses) || courses.length === 0) {
+                    console.warn('[v0] No courses found in response');
+                    showAlert('No courses found for this semester', 'warning');
+                    loadDefaultCourses();
+                    return;
+                }
+
+                populateCoursesGrid(courses);
+                populateScheduleGrid(courses);
             } catch (error) {
                 console.error('Error fetching courses:', error);
-                
-                // Provide specific error messages based on error type
+
                 if (error.name === 'AbortError') {
                     console.warn('Courses request timed out. The server may be starting up (common with free hosting).');
                     showAlert('Request timed out. Server may be starting up...', 'warning');
-                } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                } else if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('NetworkError'))) {
                     console.warn('Unable to connect to the server. Please check your internet connection.');
                     showAlert('Unable to connect to server. Check your connection.', 'error');
-                } else if (error.message.includes('ERR_TIMED_OUT')) {
+                } else if (error.message && error.message.includes('ERR_TIMED_OUT')) {
                     console.warn('Connection timed out. The server may be sleeping (free hosting limitation).');
                     showAlert('Connection timed out. Server may be sleeping...', 'warning');
                 } else {
                     showAlert('Error loading courses', 'error');
                 }
-                
-                // Fallback to default courses if API fails
+
                 loadDefaultCourses();
             }
         }
@@ -2729,6 +2720,7 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
                         userName = user.fullName || user.name || 'Student';
                         userAvatar = user.avatar;
                         userToken = token;
+                        currentUser = user; // Ensure currentUser is set for downstream functions (e.g., avatar fetching)
                         updateUserInfo();
                         return true;
                     } else {
@@ -2761,39 +2753,53 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
             try {
                 console.log('[v0] Fetching avatars from API...');
                 
-                const resp = await fetch(FETCH_AVATARS, {
-                    method: 'GET'
+                const headers = {};
+                if (userToken) {
+                    headers['Authorization'] = `Bearer ${userToken}`;
+                }
+                const resp = await fetchWithRetry(FETCH_AVATARS, {
+                    method: 'GET',
+                    headers
                 });
 
                 if (!resp.ok) {
                     throw new Error(`HTTP error! status: ${resp.status}`);
                 }
 
-                const data = await resp.json();
-                console.log('[v0] Avatars fetched successfully:', data);
+                const raw = await resp.json();
+                const avatars = Array.isArray(raw) ? raw
+                    : (Array.isArray(raw.avatars) ? raw.avatars
+                    : (Array.isArray(raw.data) ? raw.data
+                    : (Array.isArray(raw.result) ? raw.result : [])));
+                console.log('[v0] Avatars fetched successfully:', avatars);
                 
-                if (data.avatars && data.avatars.length > 0 && currentUser?.avatar) {
-                    console.log('[v0] Looking for user avatar:', currentUser.avatar);
-                    console.log('[v0] Available avatar names:', data.avatars.map(a => a.name));
+                // If user has an avatar preference, try to find a matching avatar
+                const targetAvatar = (currentUser?.avatar || '').toString();
+                if (avatars.length > 0 && targetAvatar) {
+                    console.log('[v0] Looking for user avatar:', targetAvatar);
+                    console.log('[v0] Available avatar names:', avatars.map(a => a.name || a.filename || a.fileName));
                     
-                    // Handle both full path and filename formats for avatar matching
-                    let userCurrentAvatar = data.avatars.find(avatar => avatar.name === currentUser.avatar);
-                    
-                    // If not found with full match, try matching just the filename
-                    if (!userCurrentAvatar && currentUser.avatar.includes('/')) {
-                        const avatarFilename = currentUser.avatar.split('/').pop();
-                        console.log('[v0] Trying to match with filename only:', avatarFilename);
-                        userCurrentAvatar = data.avatars.find(avatar => avatar.name === avatarFilename);
-                    }
-                    
-                    if (userCurrentAvatar && userCurrentAvatar.base) {
-                        userAvatar = userCurrentAvatar.base;
-                        updateAvatarDisplay();
-                        console.log('[v0] Avatar displayed successfully:', userCurrentAvatar.name);
-                        console.log('[v0] Avatar URL:', userCurrentAvatar.base);
+                    // Normalize and try matching by full name or filename (case-insensitive)
+                    const targetLower = targetAvatar.toLowerCase();
+                    const targetFilenameLower = targetLower.split('/').pop();
+                    let matched = avatars.find(a => {
+                        const nameLower = (a.name || a.filename || a.fileName || '').toLowerCase();
+                        return nameLower === targetLower || nameLower === targetFilenameLower;
+                    });
+
+                    if (matched) {
+                        const baseUrl = matched.base || matched.url;
+                        if (baseUrl) {
+                            userAvatar = baseUrl;
+                            updateAvatarDisplay();
+                            console.log('[v0] Avatar displayed successfully:', matched.name || matched.filename || matched.fileName);
+                            console.log('[v0] Avatar URL:', baseUrl);
+                        } else {
+                            console.log('[v0] Matched avatar lacks display URL (base/url).');
+                        }
                     } else {
-                        console.log('[v0] User avatar not found in available avatars:', currentUser.avatar);
-                        console.log('[v0] Available avatars:', data.avatars.map(a => ({ name: a.name, hasBase: !!a.base })));
+                        console.log('[v0] User avatar not found in available avatars:', targetAvatar);
+                        console.log('[v0] Available avatars:', avatars.map(a => ({ name: a.name || a.filename || a.fileName, hasBase: !!(a.base || a.url) })));
                         userAvatar = null;
                         // Hide avatar elements if no valid avatar found
                         const userAvatarElement = document.getElementById('userAvatar');
@@ -2804,10 +2810,10 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
                 } else {
                     console.log('[v0] No avatars available or user has no avatar set');
                     console.log('[v0] Current user avatar:', currentUser?.avatar);
-                    console.log('[v0] Avatars count:', data.avatars?.length || 0);
+                    console.log('[v0] Avatars count:', avatars.length);
                 }
                 
-                return data.avatars;
+                return avatars;
             }
             catch (err) {
                 console.error('[v0] Error fetching avatars:', err);
