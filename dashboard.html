@@ -1616,11 +1616,20 @@
         let userAvatar = null;
 
         // API Base URLs
-        const API_BASE = 'https://my-easy-school-api.onrender.com/api';
-const AUTH_BASE_URL = `${API_BASE}/auth`;
-const STREAK_BASE_URL = `${API_BASE}/users/streak`;
-const FETCH_AVATARS = `${API_BASE}/avatars`;
-const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
+        const API_BASE_DEFAULT = 'https://my-easy-school-api.onrender.com/api';
+        let API_BASE = API_BASE_DEFAULT;
+        // Use local proxy when running on localhost to avoid CORS in browser
+        try {
+            const origin = window.location.origin || '';
+            if (origin.includes('localhost:5500') || origin.includes('127.0.0.1:5500')) {
+                API_BASE = `${origin}/api`;
+                console.log('[v0] Using local API proxy for development:', API_BASE);
+            }
+        } catch (_) {}
+        const AUTH_BASE_URL = `${API_BASE}/auth`;
+        const STREAK_BASE_URL = `${API_BASE}/users/streak`;
+        const FETCH_AVATARS = `${API_BASE}/avatars`;
+        const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
 
         // API Health Check and Retry Logic
         async function checkAPIHealth() {
@@ -2565,14 +2574,23 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
         // Fetch semester data for a specific university using /semesters/university/{universityId}
         async function fetchSemestersByUniversity(universityId) {
             try {
-                const response = await fetchWithRetry(`${API_BASE}/semesters/university/${universityId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${userToken}`
-                    }
+                // Try without Authorization first to avoid CORS preflight issues
+                let response = await fetchWithRetry(`${API_BASE}/semesters/university/${universityId}`, {
+                    method: 'GET'
                 });
 
-                if (response.ok) {
+                if (!response || !response.ok) {
+                    // If unauthorized, retry WITH Authorization
+                    if (response && response.status === 401 && userToken) {
+                        console.warn('Unauthorized without auth; retrying with Authorization for semesters:', universityId);
+                        response = await fetchWithRetry(`${API_BASE}/semesters/university/${universityId}`, {
+                            method: 'GET',
+                            headers: { 'Authorization': `Bearer ${userToken}` }
+                        });
+                    }
+                }
+
+                if (response && response.ok) {
                     const raw = await response.json();
                     const semesters = Array.isArray(raw) ? raw
                         : (Array.isArray(raw.semesters) ? raw.semesters
@@ -2581,30 +2599,33 @@ const AVATARS_ENDPOINT = `${API_BASE}/users/add-avatar`;
                     console.log('[v0] Semesters fetched successfully for university:', universityId, semesters);
                     return semesters;
                 } else {
-                    console.warn('Failed to fetch semesters with auth:', universityId, response.status, '— retrying without Authorization');
-                    const response2 = await fetchWithRetry(`${API_BASE}/semesters/university/${universityId}`, {
-                        method: 'GET'
-                    });
-                    if (response2.ok) {
-                        const raw2 = await response2.json();
-                        const semesters2 = Array.isArray(raw2) ? raw2
-                            : (Array.isArray(raw2.semesters) ? raw2.semesters
-                            : (Array.isArray(raw2.data) ? raw2.data
-                            : (Array.isArray(raw2.result) ? raw2.result : [])));
-                        console.log('[v0] Semesters fetched successfully for university (no auth):', universityId, semesters2);
-                        return semesters2;
-                    }
-                    console.error('Failed to fetch semesters for university (no auth):', universityId, response2.status);
+                    console.error('Failed to fetch semesters for university:', universityId, response ? response.status : 'no response');
                     return null;
                 }
             } catch (error) {
                 console.error('Error fetching semesters for university:', universityId, error);
-                
+
+                // Fallback: attempt a simple CORS request without retry wrapper
+                try {
+                    const resp2 = await fetch(`${API_BASE}/semesters/university/${universityId}`, { method: 'GET', mode: 'cors', credentials: 'omit' });
+                    if (resp2.ok) {
+                        const raw2 = await resp2.json();
+                        const semesters2 = Array.isArray(raw2) ? raw2
+                            : (Array.isArray(raw2.semesters) ? raw2.semesters
+                            : (Array.isArray(raw2.data) ? raw2.data
+                            : (Array.isArray(raw2.result) ? raw2.result : [])));
+                        console.log('[v0] Semesters fetched successfully via fallback (no auth):', universityId, semesters2);
+                        return semesters2;
+                    }
+                } catch (e2) {
+                    console.warn('[v0] Fallback fetch also failed for semesters:', e2.message);
+                }
+
                 // Provide specific error messages based on error type
                 if (error.name === 'AbortError') {
                     console.warn('Semesters request timed out. The server may be starting up (common with free hosting).');
                 } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-                    console.warn('Unable to connect to the server. Please check your internet connection.');
+                    console.warn('Unable to connect to the server or CORS preflight failed (Authorization header may be blocked).');
                 } else if (error.message.includes('ERR_TIMED_OUT')) {
                     console.warn('Connection timed out. The server may be sleeping (free hosting limitation).');
                 }
