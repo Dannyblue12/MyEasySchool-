@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In - EasySchool</title>
+    <link rel="icon" type="image/jpeg" href="WhatsApp Image 2025-07-06 at 09.14.34_436c71fc.jpg">
     <style>
         * {
             margin: 0;
@@ -344,7 +345,7 @@
             color: #363;
             border: 1px solid #cfc;
         }
-        @keyframes slideDown {
+        @keyframes slideIn {
             from {
                 opacity: 0;
                 transform: translateY(-10px);
@@ -353,6 +354,29 @@
                 opacity: 1;
                 transform: translateY(0);
             }
+        }
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            font-weight: 500;
+            animation: slideIn 0.3s ease;
+        }
+        .alert.error {
+            background-color: #fee;
+            color: #c53030;
+            border: 1px solid #feb2b2;
+        }
+        .alert.success {
+            background-color: #f0fff4;
+            color: #2f855a;
+            border: 1px solid #9ae6b4;
+        }
+        .alert.warning {
+            background-color: #fffbeb;
+            color: #d69e2e;
+            border: 1px solid #fbd38d;
         }
     </style>
 </head>
@@ -366,11 +390,13 @@
                 </svg>
             </div>
             
+            <!-- Updated title and subtitle for sign-in page -->
             <h1 class="title">Welcome Back</h1>
             <p class="subtitle">Sign in to your account</p>
             
             <div id="alertContainer"></div>
             
+            <!-- Removed full name field for sign-in form -->
             <form id="loginForm">
                 <div class="form-group">
                     <input type="email" id="email" class="input-field" placeholder="Enter your email address" required>
@@ -396,10 +422,12 @@
                    
                 </div>
                 
+                <!-- Added forgot password link -->
                 <div class="forgot-password">
                     <a href="Forgotpass.html" class="forgot-password-link">Forgot Password?</a>
                 </div>
                 
+                <!-- Updated toggle text for sign-in page -->
                 <div class="mode-toggle">
                     <span class="mode-toggle-text">Don't have an account? </span>
                     <a href="sign-up.html" class="mode-toggle-link" id="signUpLink">Create one</a>
@@ -408,6 +436,7 @@
         </div>
         
         <div class="button-container">
+            <!-- Updated button text for sign-in -->
             <button type="submit" form="loginForm" class="next-button" id="signInBtn">
                 <span>Sign In</span>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -417,6 +446,7 @@
         </div>
     </div>
     
+    <!-- Updated loading overlay text for sign-in -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-content">
             <div class="spinner"></div>
@@ -427,6 +457,76 @@
 
     <script>
         const API_BASE = 'https://my-easy-school-api.onrender.com/api';
+const CORS_PROXY = 'https://corsproxy.io/?';
+        
+        // API Health Check and Retry Logic
+        async function checkAPIHealth() {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+                
+                // Use OPTIONS on login endpoint for a lightweight health/CORS check
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'OPTIONS',
+                    mode: 'cors',
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                return response.ok;
+            } catch (error) {
+                console.log('API health check failed:', error.message);
+                return false;
+            }
+        }
+        
+        async function fetchWithRetry(url, options, maxRetries = 2) {
+            const doFetch = async (targetUrl) => {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+                try {
+                    const response = await fetch(targetUrl, {
+                        ...options,
+                        mode: 'cors',
+                        signal: controller.signal,
+                    });
+                    return response;
+                } finally {
+                    clearTimeout(timeoutId);
+                }
+            };
+            
+            let lastError = null;
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                try {
+                    console.log(`API request attempt ${attempt}/${maxRetries} to ${url}`);
+                    return await doFetch(url);
+                } catch (error) {
+                    lastError = error;
+                    console.error(`Attempt ${attempt} failed:`, error.message);
+                    
+                    if (attempt < maxRetries) {
+                        const delay = Math.pow(2, attempt) * 1000; // exponential backoff
+                        console.log(`Retrying in ${delay/1000} seconds...`);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    }
+                }
+            }
+            
+            // Fallback via public CORS proxy if we hit CORS/network errors
+            if (lastError && (lastError.name === 'TypeError' || lastError.name === 'AbortError' || (lastError.message && lastError.message.includes('Failed to fetch')))) {
+                try {
+                    console.warn('Falling back to CORS proxy for:', url);
+                    return await doFetch(`${CORS_PROXY}${url}`);
+                } catch (proxyError) {
+                    console.error('CORS proxy fallback also failed:', proxyError.message);
+                    throw proxyError;
+                }
+            }
+            
+            // If we get here, rethrow the original error
+            throw lastError;
+        }
         
         // Show alert function
         function showAlert(message, type = 'error') {
@@ -548,19 +648,29 @@
                         };
                     }
                     
-                    const hasUniversity = user?.university || currentSemester?.university;
-                    const hasActiveSemester = currentSemester && currentSemester._id && 
-                                            (currentSemester.semesterName || currentSemester.academicYear);
+                    // Check for university in multiple places - user object or current semester
+                    const userUniversity = user?.university;
+                    const semesterUniversity = currentSemester?.university;
                     
-                    console.log("[v0] Has university:", !!hasUniversity);
-                    console.log("[v0] Has active semester:", !!hasActiveSemester);
+                    // University can be either an ID string or an object with _id
+                    const hasUniversity = !!(
+                        (userUniversity && (typeof userUniversity === 'string' || userUniversity._id)) ||
+                        (semesterUniversity && (typeof semesterUniversity === 'string' || semesterUniversity._id))
+                    );
+                    
+                    console.log("[v0] User university:", userUniversity);
+                    console.log("[v0] Semester university:", semesterUniversity);
+                    console.log("[v0] Has university:", hasUniversity);
                     console.log("[v0] Current semester object:", currentSemester);
+                    console.log("[v0] User object:", user);
                     
-                    if (hasUniversity && hasActiveSemester) {
-                        console.log("[v0] User has university and semester, redirecting to dashboard");
+                    // If user has a university selected, redirect to dashboard
+                    // They can select/create semesters from the dashboard
+                    if (hasUniversity) {
+                        console.log("[v0] User has university, redirecting to dashboard");
                         return 'dashboard';
                     } else {
-                        console.log("[v0] User missing university or semester, redirecting to selection");
+                        console.log("[v0] User missing university, redirecting to selection");
                         return 'university-selection';
                     }
                 } else {
@@ -587,7 +697,14 @@
 
                 setButtonLoading(submitBtn, true);
 
-                const res = await fetch(`${API_BASE}/auth/login`, {
+                // Check API health first
+                console.log('Checking API server status...');
+                const isHealthy = await checkAPIHealth();
+                if (!isHealthy) {
+                    showAlert("The server appears to be starting up. This may take a moment on free hosting. Please wait...", "warning");
+                }
+
+                const res = await fetchWithRetry(`${API_BASE}/auth/login`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -622,7 +739,17 @@
                 }
             } catch (err) {
                 console.error("Login error:", err);
-                showAlert("Something went wrong during login. Please try again.");
+                
+                // Provide specific error messages based on error type
+                if (err.name === 'AbortError') {
+                    showAlert("Request timed out. The server may be starting up (common with free hosting). Please wait a moment and try again.", "error");
+                } else if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+                    showAlert("Unable to connect to the server. Please check your internet connection and try again. If the problem persists, the server may be temporarily unavailable.", "error");
+                } else if (err.message.includes('ERR_TIMED_OUT')) {
+                    showAlert("Connection timed out. The server may be sleeping (free hosting limitation). Please wait 30 seconds and try again.", "error");
+                } else {
+                    showAlert("Something went wrong during login. Please try again in a moment.", "error");
+                }
             } finally {
                 setButtonLoading(submitBtn, false);
             }

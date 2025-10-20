@@ -1617,8 +1617,9 @@
 
         // API Base URLs
         const API_BASE_DEFAULT = 'https://my-easy-school-api.onrender.com/api';
-        let API_BASE = API_BASE_DEFAULT;
-        // Using production API base in all environments. Local proxy disabled.
+        const CORS_PROXY = 'https://corsproxy.io/?';
+        let API_BASE = CORS_PROXY + API_BASE_DEFAULT;
+        // Using production API base with CORS proxy
         const AUTH_BASE_URL = `${API_BASE}/auth`;
         const STREAK_BASE_URL = `${API_BASE}/users/streak`;
         const FETCH_AVATARS = `${API_BASE}/avatars`;
@@ -2388,98 +2389,49 @@
             }
         }
 
-        // Get current semester from stored user data
+        // Current semester cache sourced from API responses only
+        let dashboardCurrentSemester = null;
+        // Get current semester from in-memory cache set by API responses
         function getCurrentSemester() {
-            const userData = JSON.parse(localStorage.getItem('currentUserData') || '{}');
-            return userData.currentSemester || null;
+            return dashboardCurrentSemester || null;
         }
 
-        // Resolve current semester using stored object, ID, or university fallback
+        // Resolve current semester using API data only (no localStorage fallbacks)
         async function resolveCurrentSemester() {
             try {
-                // Offline short-circuit: use stored semester when API is offline
-                if (typeof window !== 'undefined' && window.API_ONLINE === false) {
-                    const storedUserData = JSON.parse(localStorage.getItem('currentUserData') || '{}');
-                    const offlineSem = storedUserData?.currentSemester;
-                    if (offlineSem && (offlineSem._id || offlineSem.id)) {
-                        const pickedId = offlineSem._id || offlineSem.id;
-                        localStorage.setItem('currentSemesterId', pickedId);
-                        console.log('[v0] Offline: using stored current semester:', pickedId);
-                        return offlineSem;
-                    } else {
-                        console.warn('[v0] Offline: no current semester in storage');
-                        return null;
-                    }
+                // Prefer in-memory cache if available
+                if (dashboardCurrentSemester && (dashboardCurrentSemester._id || dashboardCurrentSemester.id)) {
+                    return dashboardCurrentSemester;
                 }
-                const storedUserData = JSON.parse(localStorage.getItem('currentUserData') || '{}');
-                let semester = storedUserData?.currentSemester;
-                if (semester && semester._id) return semester;
 
-                let semId = localStorage.getItem('currentSemesterId')
-                    || (typeof storedUserData?.currentSemester === 'string' ? storedUserData.currentSemester : null)
-                    || (typeof currentUser?.subscribedSemester === 'string' ? currentUser.subscribedSemester : (currentUser?.subscribedSemester?._id));
-
-                if (semId) {
-                    try {
-                        const fetched = await fetchSemesterById(semId);
-                        if (fetched && fetched._id) {
-                            const updated = { ...storedUserData, currentSemester: fetched };
-                            localStorage.setItem('currentUserData', JSON.stringify(updated));
-                            localStorage.setItem('currentSemesterId', fetched._id);
-                            console.log('[v0] Resolved semester by ID:', fetched._id);
-                            return fetched;
-                        }
-                    } catch (e) {
-                        console.warn('[v0] Failed to resolve semester by ID:', semId, e);
+                // Use subscribed semester from user profile if available
+                const subscribedSem = currentUser?.subscribedSemester;
+                const subscribedId = subscribedSem?._id || subscribedSem?.id || (typeof subscribedSem === 'string' ? subscribedSem : null);
+                if (subscribedId) {
+                    const fetched = await fetchSemesterById(subscribedId);
+                    if (fetched && (fetched._id || fetched.id)) {
+                        dashboardCurrentSemester = fetched;
+                        console.log('[v0] Resolved semester from subscribedSemester:', fetched._id || fetched.id);
+                        return fetched;
                     }
                 }
 
-                let uniRef = storedUserData?.user?.university || currentUser?.university || currentUser?.customUniversity;
-                let uniId = uniRef?._id || uniRef?.id || (typeof uniRef === 'string' ? uniRef : null);
-
-                if (!uniId && uniRef) {
-                    try {
-                        const universities = await fetchAllUniversities();
-                        const refName = (uniRef?.name || (typeof uniRef === 'string' ? uniRef : '')).toLowerCase().trim();
-                        const matchedUni = Array.isArray(universities) ? universities.find(u => {
-                            const candidateName = (u.name || u.universityName || u.title || '').toLowerCase().trim();
-                            return candidateName && candidateName === refName;
-                        }) : null;
-                        if (matchedUni) {
-                            uniId = matchedUni._id || matchedUni.id;
-                            const updatedPersist = {
-                                ...storedUserData,
-                                user: {
-                                    ...(storedUserData.user || currentUser || {}),
-                                    university: matchedUni
-                                }
-                            };
-                            localStorage.setItem('currentUserData', JSON.stringify(updatedPersist));
-                            console.log('[v0] Resolved university by name for semester resolution:', matchedUni);
-                        }
-                    } catch (e) {
-                        console.error('[v0] Error resolving university for semester:', e);
-                    }
-                }
-
+                // Otherwise, derive from user's university and pick latest semester
+                const uniRef = currentUser?.university || currentUser?.customUniversity;
+                const uniId = uniRef?._id || uniRef?.id || (typeof uniRef === 'string' ? uniRef : null);
                 if (uniId) {
-                    try {
-                        const semesters = await fetchSemestersByUniversity(uniId);
-                        if (Array.isArray(semesters) && semesters.length > 0) {
-                            semesters.sort((a, b) => new Date(b.startDate || 0) - new Date(a.startDate || 0));
-                            const picked = semesters[0];
-                            const updated = { ...storedUserData, currentSemester: picked };
-                            localStorage.setItem('currentUserData', JSON.stringify(updated));
-                            const pickedId = picked?._id || picked?.id;
-                            if (pickedId) localStorage.setItem('currentSemesterId', pickedId);
-                            console.log('[v0] Resolved semester from university:', pickedId);
-                            return picked;
-                        } else {
-                            console.warn('[v0] No semesters available for university:', uniId);
-                        }
-                    } catch (e) {
-                        console.error('[v0] Error fetching semesters for university:', e);
+                    const semesters = await fetchSemestersByUniversity(uniId);
+                    if (Array.isArray(semesters) && semesters.length > 0) {
+                        semesters.sort((a, b) => new Date(b.startDate || 0) - new Date(a.startDate || 0));
+                        const picked = semesters[0];
+                        dashboardCurrentSemester = picked;
+                        console.log('[v0] Resolved semester from university:', picked?._id || picked?.id);
+                        return picked;
+                    } else {
+                        console.warn('[v0] No semesters available for university:', uniId);
                     }
+                } else {
+                    console.warn('[v0] User profile has no university set; cannot resolve semester');
                 }
 
                 return null;
@@ -3009,6 +2961,17 @@
             try {
                 console.log('[Schedule API] Creating/updating schedule:', scheduleData);
                 
+                if (typeof window !== 'undefined' && window.API_ONLINE === false) {
+                    console.warn('[Schedule API] Offline: saving schedule locally');
+                    const localSchedules = JSON.parse(localStorage.getItem('offlineSchedules') || '{}');
+                    localSchedules[scheduleData.courseCode] = { 
+                        courseCode: scheduleData.courseCode,
+                        days: scheduleData.days,
+                        timestamp: new Date().toISOString() 
+                    };
+                    localStorage.setItem('offlineSchedules', JSON.stringify(localSchedules));
+                    return { success: true, offline: true };
+                }
                 const response = await fetch(`${API_BASE}/schedules/me`, {
                     method: 'POST',
                     headers: {
@@ -3046,6 +3009,13 @@
             try {
                 console.log('[Schedule API] Adding subject to schedule:', subjectData);
                 
+                if (typeof window !== 'undefined' && window.API_ONLINE === false) {
+                    console.warn('[Schedule API] Offline: saving subject locally');
+                    const localSubjects = JSON.parse(localStorage.getItem('offlineScheduleSubjects') || '[]');
+                    localSubjects.push({ ...subjectData, id: subjectData.id || Date.now(), offline: true });
+                    localStorage.setItem('offlineScheduleSubjects', JSON.stringify(localSubjects));
+                    return { success: true, offline: true };
+                }
                 const response = await fetch(`${API_BASE}/schedules/me/subjects`, {
                     method: 'POST',
                     headers: {
@@ -3072,6 +3042,13 @@
             try {
                 console.log('[Schedule API] Removing subject from schedule:', subjectId);
                 
+                if (typeof window !== 'undefined' && window.API_ONLINE === false) {
+                    console.warn('[Schedule API] Offline: removing subject locally');
+                    const localSubjects = JSON.parse(localStorage.getItem('offlineScheduleSubjects') || '[]');
+                    const filtered = localSubjects.filter(s => s.id !== subjectId);
+                    localStorage.setItem('offlineScheduleSubjects', JSON.stringify(filtered));
+                    return { success: true, offline: true };
+                }
                 const response = await fetch(`${API_BASE}/schedules/me/subjects/${subjectId}`, {
                     method: 'DELETE',
                     headers: {
@@ -3096,6 +3073,15 @@
             try {
                 console.log('[Schedule API] Fetching user schedule');
                 
+                if (typeof window !== 'undefined' && window.API_ONLINE === false) {
+                    console.warn('[Schedule API] Offline: skipping /schedules/me fetch');
+                    const userSchedule = JSON.parse(localStorage.getItem('userSchedule') || '{}');
+                    return { 
+                        schedule: userSchedule, 
+                        offline: true,
+                        message: 'Loaded from local storage (offline mode)'
+                    };
+                }
                 const response = await fetch(`${API_BASE}/schedules/me`, {
                     method: 'GET',
                     headers: {
@@ -3139,6 +3125,15 @@
                 currentStreak = 0;
                 maxStreak = 0;
                 streakData = [];
+                updateStreakDisplay();
+                return;
+            }
+
+            if (typeof window !== 'undefined' && window.API_ONLINE === false) {
+                console.warn('[v0] Offline: skipping streak fetch, using defaults');
+                currentStreak = Number(localStorage.getItem('currentStreak') || 0);
+                maxStreak = Number(localStorage.getItem('maxStreak') || 0);
+                streakData = JSON.parse(localStorage.getItem('streakData') || '[]');
                 updateStreakDisplay();
                 return;
             }
