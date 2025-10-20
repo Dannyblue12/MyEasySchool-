@@ -581,7 +581,6 @@
     async function loadUniversities() {
       try {
         showLoading('Loading universities...');
-        
         const token = localStorage.getItem('token');
         const response = await fetchWithRetry(`${API_BASE}/universities/all`, {
           method: 'GET',
@@ -590,23 +589,15 @@
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
         universities = await response.json();
-        
         if (Array.isArray(universities) && universities.length > 0) {
           displayUniversities(universities);
         } else {
-          throw new Error('No universities found');
+          showAlert('No universities found.');
         }
-        
       } catch (error) {
-        console.error('Error loading universities:', error);
-        showAlert('Failed to load universities. Please check your connection and try again.');
-        universitiesContainer.innerHTML = `
-          <div class="error-message">
-            Failed to load universities. Please refresh the page to try again.
-          </div>
-        `;
+        console.error('Failed to load universities:', error);
+        showAlert('Failed to load universities. Please try again later.');
       } finally {
         hideLoading();
       }
@@ -722,6 +713,59 @@
       }
     });
 
+    // Loading overlay function
+    function showLoadingOverlay(show) {
+      let overlay = document.getElementById('loadingOverlay');
+      
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'loadingOverlay';
+        overlay.innerHTML = `
+          <div class="spinner-container">
+            <div class="spinner"></div>
+          </div>
+        `;
+        overlay.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(255, 255, 255, 0.7);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 9999;
+          transition: opacity 0.3s ease;
+        `;
+        
+        const spinnerStyle = document.createElement('style');
+        spinnerStyle.textContent = `
+          .spinner-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          }
+          .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: #000;
+            animation: spin 1s ease-in-out infinite;
+          }
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        `;
+        
+        document.head.appendChild(spinnerStyle);
+        document.body.appendChild(overlay);
+      }
+      
+      overlay.style.display = show ? 'flex' : 'none';
+    }
+
     // Handle form submission
     nextButton.addEventListener('click', async () => {
       if (!selectedUniversityId) {
@@ -732,6 +776,7 @@
       try {
         nextButton.disabled = true;
         nextButton.innerHTML = '<div class="loading-spinner"></div><span>Processing...</span>';
+        showLoadingOverlay(true);
         
         const token = localStorage.getItem('token');
         if (!token) {
@@ -760,7 +805,10 @@
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({ universityId: universityId })
+          body: JSON.stringify({ 
+            university: universityId,
+            universityId: universityId // Including both formats to ensure compatibility
+          })
         });
 
         const data = await response.json();
@@ -775,16 +823,53 @@
           };
           localStorage.setItem('user', JSON.stringify(updatedUser));
           
+          // Persist the selected university id for downstream pages
+          localStorage.setItem('selectedUniversityId', universityId);
+          
+          // Try to prefetch semesters for the selected university and cache the current semester
+          try {
+            const semRes = await fetchWithRetry(`${API_BASE}/semesters/university/${universityId}`, { method: 'GET' });
+            if (semRes && semRes.ok) {
+              const raw = await semRes.json();
+              const semesters = Array.isArray(raw) ? raw
+                : (Array.isArray(raw.semesters) ? raw.semesters
+                : (Array.isArray(raw.data) ? raw.data
+                : (Array.isArray(raw.result) ? raw.result : [])));
+              if (Array.isArray(semesters) && semesters.length > 0) {
+                semesters.sort((a, b) => new Date(b.startDate || 0) - new Date(a.startDate || 0));
+                const picked = semesters[0];
+                const pickedId = picked?._id || picked?.id;
+                if (pickedId) {
+                  // Store current semester id for quick resolution on dashboard
+                  localStorage.setItem('currentSemesterId', pickedId);
+                }
+                // Update cached currentUserData with the picked semester
+                const storedUserData = JSON.parse(localStorage.getItem('currentUserData') || '{}');
+                const updatedUserData = { ...storedUserData, currentSemester: picked };
+                localStorage.setItem('currentUserData', JSON.stringify(updatedUserData));
+                console.log('[v0] Prefetched and cached current semester for university:', universityId, pickedId);
+              } else {
+                console.warn('[v0] No semesters returned for selected university during prefetch:', universityId);
+              }
+            } else {
+              console.warn('[v0] Failed to prefetch semesters for selected university:', universityId, semRes ? `${semRes.status} ${semRes.statusText}` : 'no response');
+            }
+          } catch (prefetchErr) {
+            console.warn('[v0] Error prefetching semesters for selected university:', universityId, prefetchErr);
+          }
+          
           showAlert('University selected successfully! Redirecting to avatar profile...', 'success');
           setTimeout(() => {
             window.location.href = 'profile-avatar.html';
           }, 2000);
         } else {
+          showLoadingOverlay(false);
           throw new Error(data.message || 'Failed to update university');
         }
 
       } catch (error) {
         console.error('University selection error:', error);
+        showLoadingOverlay(false);
         
         // Provide specific error messages based on error type
         if (error.name === 'AbortError') {
