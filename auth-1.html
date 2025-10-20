@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="University Dashboard Authentication - Secure admin login and registration">
+  <meta name="author" content="University Dashboard System">
+  <title>Admin Authentication - University Dashboard</title>
+  <link rel="stylesheet" href="style-1.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"></noscript>
+</head>
+<body class="auth-body">
+  <div class="auth-container">
+    <header class="auth-header">
+      <div class="auth-logo">
+        <i class="fas fa-graduation-cap auth-logo__icon" aria-hidden="true"></i>
+        <h1 class="auth-logo__title">University Dashboard</h1>
+      </div>
+    </header>
+
+    <!-- Login Form -->
+    <main id="login-section" class="auth-card" role="main">
+      <header class="auth-card-header">
+        <h2 class="auth-card-header__title">
+          <i class="fas fa-sign-in-alt auth-card-header__icon" aria-hidden="true"></i> 
+          Admin Login
+        </h2>
+        <p class="auth-card-header__subtitle">Sign in to access the university dashboard</p>
+      </header>
+      <form id="login-form" class="auth-form" aria-label="Admin login form">
+        <div class="input-group">
+          <label for="login-email" class="input-group__label">Email Address</label>
+          <div class="input-with-icon">
+            <i class="fas fa-envelope input-with-icon__icon" aria-hidden="true"></i>
+            <input type="email" id="login-email" class="input-group__input" placeholder="Enter your email" required aria-describedby="login-email-help">
+          </div>
+          <small id="login-email-help" class="input-group__help">Enter your registered email address</small>
+        </div>
+        <div class="input-group">
+          <label for="login-password" class="input-group__label">Password</label>
+          <div class="input-with-icon password-field">
+            <i class="fas fa-lock input-with-icon__icon" aria-hidden="true"></i>
+            <input type="password" id="login-password" class="input-group__input" placeholder="Enter your password" required aria-describedby="login-password-help">
+            <button type="button" class="password-toggle" onclick="togglePassword('login-password')" aria-label="Toggle password visibility">
+              <i class="fas fa-eye" aria-hidden="true"></i>
+            </button>
+          </div>
+          <small id="login-password-help" class="input-group__help">Enter your account password</small>
+        </div>
+        <button type="submit" class="btn btn--primary btn--full">
+          <i class="fas fa-sign-in-alt" aria-hidden="true"></i> 
+          <span>Sign In</span>
+        </button>
+      </form>
+      <footer class="auth-footer">
+        <p class="auth-footer__text">Don't have an account? <a href="#" onclick="showRegister()" class="auth-footer__link">Register here</a></p>
+      </footer>
+    </main>
+
+    <!-- Register Form -->
+    <main id="register-section" class="auth-card hidden" role="main">
+      <header class="auth-card-header">
+        <h2 class="auth-card-header__title">
+          <i class="fas fa-user-plus auth-card-header__icon" aria-hidden="true"></i> 
+          Admin Registration
+        </h2>
+        <p class="auth-card-header__subtitle">Create a new admin account</p>
+      </header>
+      <form id="register-form" class="auth-form" aria-label="Admin registration form">
+        <div class="form-row">
+          <div class="input-group">
+            <label for="register-firstname" class="input-group__label">First Name</label>
+            <div class="input-with-icon">
+              <i class="fas fa-user input-with-icon__icon" aria-hidden="true"></i>
+              <input type="text" id="register-firstname" class="input-group__input" placeholder="Enter first name" required aria-describedby="register-firstname-help">
+            </div>
+            <small id="register-firstname-help" class="input-group__help">Enter your first name</small>
+          </div>
+          <div class="input-group">
+            <label for="register-lastname" class="input-group__label">Last Name</label>
+            <div class="input-with-icon">
+              <i class="fas fa-user input-with-icon__icon" aria-hidden="true"></i>
+              <input type="text" id="register-lastname" class="input-group__input" placeholder="Enter last name" required aria-describedby="register-lastname-help">
+            </div>
+            <small id="register-lastname-help" class="input-group__help">Enter your last name</small>
+          </div>
+        </div>
+        <div class="input-group">
+          <label for="register-email" class="input-group__label">Email Address</label>
+          <div class="input-with-icon">
+            <i class="fas fa-envelope input-with-icon__icon" aria-hidden="true"></i>
+            <input type="email" id="register-email" class="input-group__input" placeholder="Enter your email" required aria-describedby="register-email-help">
+          </div>
+          <small id="register-email-help" class="input-group__help">Enter a valid email address</small>
+        </div>
+        <div class="input-group">
+          <label for="register-password" class="input-group__label">Password</label>
+          <div class="input-with-icon password-field">
+            <i class="fas fa-lock input-with-icon__icon" aria-hidden="true"></i>
+            <input type="password" id="register-password" class="input-group__input" placeholder="Create a password" required aria-describedby="register-password-help">
+            <button type="button" class="password-toggle" onclick="togglePassword('register-password')" aria-label="Toggle password visibility">
+              <i class="fas fa-eye" aria-hidden="true"></i>
+            </button>
+          </div>
+          <small id="register-password-help" class="input-group__help">Password must be at least 6 characters long</small>
+        </div>
+        <div class="input-group">
+          <label for="register-confirm-password" class="input-group__label">Confirm Password</label>
+          <div class="input-with-icon password-field">
+            <i class="fas fa-lock input-with-icon__icon" aria-hidden="true"></i>
+            <input type="password" id="register-confirm-password" class="input-group__input" placeholder="Confirm your password" required aria-describedby="register-confirm-password-help">
+            <button type="button" class="password-toggle" onclick="togglePassword('register-confirm-password')" aria-label="Toggle password visibility">
+              <i class="fas fa-eye" aria-hidden="true"></i>
+            </button>
+          </div>
+          <small id="register-confirm-password-help" class="input-group__help">Re-enter your password to confirm</small>
+        </div>
+        <button type="submit" class="btn btn--success btn--full">
+          <i class="fas fa-user-plus" aria-hidden="true"></i> 
+          <span>Create Account</span>
+        </button>
+      </form>
+      <footer class="auth-footer">
+        <p class="auth-footer__text">Already have an account? <a href="#" onclick="showLogin()" class="auth-footer__link">Sign in here</a></p>
+      </footer>
+    </main>
+
+    <!-- OTP Verification Form -->
+    <main id="otp-section" class="auth-card hidden" role="main">
+      <header class="auth-card-header">
+        <h2 class="auth-card-header__title">
+          <i class="fas fa-shield-alt auth-card-header__icon" aria-hidden="true"></i> 
+          Verify Your Account
+        </h2>
+        <p id="otp-message" class="auth-card-header__subtitle">Enter the 6-digit code sent to your email</p>
+      </header>
+      <form id="otp-form" class="auth-form" aria-label="OTP verification form">
+        <div class="input-group">
+          <label for="otp-code" class="input-group__label">Verification Code</label>
+          <div class="otp-input-container">
+            <input type="text" id="otp-code" class="input-group__input" placeholder="Enter 6-digit code" maxlength="6" required aria-describedby="otp-code-help">
+          </div>
+          <small id="otp-code-help" class="input-group__help">Enter the 6-digit verification code sent to your email</small>
+        </div>
+        <button type="submit" class="btn btn--primary btn--full">
+          <i class="fas fa-check" aria-hidden="true"></i> 
+          <span>Verify Account</span>
+        </button>
+        <button type="button" id="resend-otp-btn" class="btn btn--outline btn--full" aria-label="Resend verification code">
+          <i class="fas fa-redo" aria-hidden="true"></i> 
+          <span>Resend Code</span>
+        </button>
+      </form>
+      <footer class="auth-footer">
+        <p class="auth-footer__text">Didn't receive the code? Check your spam folder or <a href="#" onclick="showRegister()" class="auth-footer__link">try again</a></p>
+      </footer>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="auth-loading" class="loading-overlay hidden" role="dialog" aria-label="Loading" aria-modal="true">
+      <div class="loading-content">
+        <div class="spinner" aria-hidden="true"></div>
+        <p class="loading-content__text">Please wait...</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+</body>
+</html>
