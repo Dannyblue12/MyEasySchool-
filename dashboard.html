@@ -3423,7 +3423,7 @@
             }
         }
 
-        // Handle course click - now uses the quiz endpoint
+        // Handle course click - now uses the quiz endpoint with CORS proxy
         function handleCourseClick(courseId, courseCode) {
             
             // Show feedback
@@ -3431,11 +3431,12 @@
             courseCard.style.transform = 'scale(0.95)';
             setTimeout(() => {
                 courseCard.style.transform = 'scale(1)';
-                // Navigate to quiz using the provided endpoint
+                // Navigate to quiz using the provided endpoint with CORS proxy
+                // API_BASE already includes CORS_PROXY so we don't need to add it again
                 const quizUrl = `${API_BASE}/quiz/course/${courseId}`;
                 console.log(`[v0] Navigating to quiz for course ${courseCode} with ID ${courseId}`);
                 console.log(`[v0] Quiz endpoint: ${quizUrl}`);
-                // For now, just log the endpoint - you can implement actual navigation
+                // Navigate to quiz page with course parameters
                 window.location.href = `quiz.html?courseId=${courseId}&courseCode=${courseCode}`;
             }, 150);
         }
