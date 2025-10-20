@@ -412,6 +412,17 @@
  [data-theme="dark"] .quiz-title-meta { color: #e5e7eb; }
  [data-theme="dark"] .loading-spinner { border-top-color: #e5e7eb; }
  [data-theme="dark"] .error-message { background: #3f1f1f; color: #fecaca; }
+ /* Dark mode overrides for subscription modal */
+ [data-theme="dark"] .subscription-modal { background: rgba(0, 0, 0, 0.8); }
+ [data-theme="dark"] .modal-content { background: #0b132b; color: #ffffff; border: 1px solid #1f2937; }
+ [data-theme="dark"] .modal-title { color: #ffffff; }
+ [data-theme="dark"] .modal-description { color: #ffffff; }
+ [data-theme="dark"] .features-list li { color: #ffffff; }
+ [data-theme="dark"] .features-list li::before { color: #10b981; }
+ [data-theme="dark"] .close-modal { color: #e5e7eb; }
+ [data-theme="dark"] .close-modal:hover { background: #1f2937; color: #ffffff; }
+ [data-theme="dark"] .payment-button { background: #101a3a; color: #ffffff; border: 1px solid #1f2937; }
+ [data-theme="dark"] .payment-button:hover { background: #15224d; }
  </style>
 </head>
 <body>
@@ -459,7 +470,7 @@
             <button class="close-modal" onclick="closeSubscriptionModal()">×</button>
             <div class="modal-title">Subscribe to Access Full CBT</div>
             <div class="modal-description">
-                You need to Subscribe 300 naira to get access to the full CBT for both MTH and GST
+                You need to Subscribe 900 naira to get access to the full CBT for both MTH and GST
             </div>
             <div class="modal-description">Get access to:</div>
             <ul class="features-list">
@@ -467,14 +478,16 @@
                 <li>Exams Mode</li>
                 <li>Well Detailed Explanations for Maths problems</li>
             </ul>
-            <button class="payment-button" onclick="initiatePayment()">Payment 300 naira</button>
+            <button class="payment-button" onclick="initiatePayment()">Payment 900 naira</button>
         </div>
     </div>
 
     <script>
         const hostname = window.location.hostname;
         const isLocalDev = hostname === 'localhost' || hostname === '127.0.0.1' || /^\d{1,3}(?:\.\d{1,3}){3}$/.test(hostname);
-        const API_BASE = isLocalDev ? '/api' : 'https://my-easy-school-api.onrender.com/api';
+        // Add CORS proxy to handle CORS issues
+        const CORS_PROXY = 'https://corsproxy.io/?';
+        const API_BASE = isLocalDev ? '/api' : `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
         let courseId = null;
         let courseCode = null;
         let quizTitles = [];
