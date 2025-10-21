@@ -832,7 +832,7 @@
         <button id="backBtn" class=" opacity-50 cursor-pointer" onclick="goBack()">
 
         </button>
-        <!-- Skip button removed to ensure users select an avatar -->
+        <button class="text-gray-600 font-medium  cursor-pointer" onclick="skip()"></button>
       </div>
       <div class='flex flex-col items-center gap-4 mx-auto mb-4 overflow-hidden relative'>
         <div id="backgroundPreview" class='w-40 h-40 rounded-full bg-[#91FF5166] border border-neutral-300 flex items-center justify-center relative'>
@@ -919,14 +919,6 @@
             await new Promise(resolve => setTimeout(resolve, 1500));
             hideLoadingOverlay();
             window.location.href = 'sign-up.html';
-            return false;
-          }
-
-          // If user already has an avatar selected, skip setup and go to dashboard
-          if (user.avatar) {
-            clearInterval(messageInterval);
-            hideLoadingOverlay();
-            window.location.href = 'dashboard.html';
             return false;
           }
           
@@ -1127,7 +1119,7 @@
             console.log('[v0] Redirecting to Dashboard.html');
             console.log('[v0] Avatar selection process completed successfully');
             hideLoadingOverlay();
-            window.location.href = 'dashboard.html';
+            window.location.href = 'Dashboard.html';
           }, 1500);
 
         } catch (error) {
@@ -1147,7 +1139,9 @@
         window.history.back();
       }
 
-      // Removed skip function to ensure users select an avatar
+      function skip() {
+        window.location.href = 'dashboard.html';
+      }
 
       function showSuccess(message) {
         // Remove existing messages
@@ -1316,7 +1310,10 @@
           showLoadingOverlay('Loading avatars from API...');
           
           const resp = await fetch(FETCH_AVATARS, {
-            method: 'GET'
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            }
           });
 
           console.log('[v0] Fetch avatars response status:', resp.status);
@@ -1435,7 +1432,7 @@
             console.log('[v0] Redirecting to Dashboard.html');
             console.log('[v0] Avatar selection process completed successfully');
             hideLoadingOverlay();
-            window.location.href = 'dashboard.html';
+            window.location.href = 'Dashboard.html';
           }, 1500);
 
         } catch (error) {
