@@ -570,11 +570,12 @@
     <script>
         // API Configuration
         const API_BASE = 'https://my-easy-school-api.onrender.com/api';
+        // *** MODIFICATION: Added CORS_PROXY from sign-in.html ***
+        const CORS_PROXY = 'https://corsproxy.io/?';
         
         // Global variables
         let currentUser = null;
-        // *** MODIFICATION: Price changed to 800 ***
-        let paymentAmount = 800;
+        let paymentAmount = 800; // Kept your price update
 
         const loadingMessages = [
             "Please wait, while fetching your details",
@@ -640,18 +641,113 @@
             const parsedData = JSON.parse(userData);
             currentUser = parsedData.user || parsedData;
             
+            // *** MODIFICATION: Added API Health Check ***
+            console.log('Checking API server status...');
+            const isHealthy = await checkAPIHealth();
+            if (!isHealthy) {
+                showAlert("The server appears to be starting up. This may take a moment. Please wait...", "warning");
+            }
+            // *** END OF MODIFICATION ***
+
             // Fetch current user data
             await fetchCurrentUserData(token);
             await loadPaymentInfo();
             
             hideInitialLoading();
         });
+        
+        // *** MODIFICATION: Added checkAPIHealth and fetchWithRetry from sign-in.html ***
+        
+        /**
+         * Checks if the API server is responsive.
+         */
+        async function checkAPIHealth() {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+                
+                // Use OPTIONS on login endpoint for a lightweight health/CORS check
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'OPTIONS',
+                    mode: 'cors',
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                return response.ok;
+            } catch (error) {
+                console.log('API health check failed:', error.message);
+                return false;
+            }
+        }
 
-        // *** MODIFICATION: Replaced with the function from Dashboard.html ***
+        /**
+         * Fetches a resource with automatic retries and CORS proxy fallback.
+         * @param {string} url - The API endpoint URL.
+         * @param {object} options - The options for the fetch request (method, headers, body, etc.).
+         * @param {number} maxRetries - The maximum number of retry attempts.
+         * @returns {Promise<Response>} The fetch response.
+         */
+        async function fetchWithRetry(url, options = {}, maxRetries = 2) {
+            const doFetch = async (targetUrl) => {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+                try {
+                    // Ensure 'mode: cors' is set for all requests
+                    const fetchOptions = {
+                        ...options,
+                        mode: 'cors', 
+                        signal: controller.signal,
+                    };
+                    const response = await fetch(targetUrl, fetchOptions);
+                    return response;
+                } finally {
+                    clearTimeout(timeoutId);
+                }
+            };
+            
+            let lastError = null;
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                try {
+                    console.log(`API request attempt ${attempt}/${maxRetries} to ${url}`);
+                    return await doFetch(url);
+                } catch (error) {
+                    lastError = error;
+                    console.error(`Attempt ${attempt} failed:`, error.message);
+                    
+                    if (attempt < maxRetries) {
+                        const delay = Math.pow(2, attempt) * 1000; // exponential backoff
+                        console.log(`Retrying in ${delay/1000} seconds...`);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    }
+                }
+            }
+            
+            // Fallback via public CORS proxy if we hit CORS/network errors
+            if (lastError && (lastError.name === 'TypeError' || lastError.name === 'AbortError' || (lastError.message && lastError.message.includes('Failed to fetch')))) {
+                try {
+                    console.warn('Falling back to CORS proxy for:', url);
+                    return await doFetch(`${CORS_PROXY}${url}`);
+                } catch (proxyError) {
+                    console.error('CORS proxy fallback also failed:', proxyError.message);
+                    throw proxyError;
+                }
+            }
+            
+            // If we get here, rethrow the original error
+            throw lastError;
+        }
+
+        // *** END OF NEW FUNCTIONS ***
+
+
         // Fetch current user data with semester information
         async function fetchCurrentUserData(token) {
             try {
-                const res = await fetch(`${API_BASE}/users/me`, {
+                console.log('Fetching user data from:', `${API_BASE}/users/me`);
+                
+                // *** MODIFICATION: Using fetchWithRetry ***
+                const res = await fetchWithRetry(`${API_BASE}/users/me`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -659,8 +755,11 @@
                     }
                 });
 
+                console.log('API Response status:', res.status);
+                
                 if (res.ok) {
                     const responseData = await res.json();
+                    console.log('Current user data response:', responseData);
                     
                     let currentSemester = null;
                     if (responseData.currentSemester && typeof responseData.currentSemester === 'object') {
@@ -678,6 +777,10 @@
                         };
                     }
                     
+                    if (responseData.currentSemester) {
+                        currentSemester = responseData.currentSemester;
+                    }
+                    
                     let user = null;
                     if (responseData.user && typeof responseData.user === 'object') {
                         user = responseData.user;
@@ -685,8 +788,7 @@
                         user = {
                             _id: responseData.user?._id || responseData._id,
                             email: responseData.user?.email || responseData.email,
-                            avatar: responseData.user?.avatar || responseData.avatar,
-                            fullName: responseData.user?.fullName || responseData.fullName, // Added fullName just in case
+                            fullName: responseData.user?.fullName || responseData.fullName,
                             isActive: responseData.user?.isActive ?? responseData.isActive,
                             lastLoginAt: responseData.user?.lastLoginAt || responseData.lastLoginAt,
                             role: responseData.user?.role || responseData.role,
@@ -710,22 +812,34 @@
                         currentSemester: currentSemester
                     };
                     
-                    localStorage.setItem('currentUserData', JSON.stringify(userData));
-                    localStorage.setItem('user', JSON.stringify(userData.user));
-                    localStorage.setItem('userId', userData.user._id || userData.user.id || 'user123');
+                    console.log('Extracted user data:', userData.user);
+                    console.log('Extracted current semester:', userData.currentSemester);
                     
-                    // Update global currentUser
-                    currentUser = userData.user;
-
+                    localStorage.setItem('currentUserData', JSON.stringify(userData));
+                    
+                    if (userData.user) {
+                        localStorage.setItem('user', JSON.stringify(userData.user));
+                        currentUser = userData.user;
+                    }
+                    
                     return userData;
                 } else {
-                    console.error('Failed to fetch current user data');
-                    showAlert('Failed to fetch user data. Please try again.', 'error');
+                    const errorText = await res.text();
+                    console.error('Failed to fetch current user data. Status:', res.status, 'Response:', errorText);
+                    showAlert(`Failed to fetch user data: ${res.status} ${res.statusText}`, 'error');
                     return null;
                 }
             } catch (error) {
                 console.error('Error fetching current user data:', error);
-                showAlert(`Error fetching user data: ${error.message}`, 'error');
+                // *** MODIFICATION: Added detailed error handling ***
+                if (error.name === 'AbortError') {
+                    showAlert("User data request timed out. The server may be starting up. Please wait a moment and try again.", "error");
+                } else if (error.message.includes('Failed to fetch')) {
+                    showAlert("Unable to connect to server for user data. Please check your internet connection.", "error");
+                } else {
+                    showAlert(`Error fetching current user data: ${error.message}`, 'error');
+                }
+                // *** END OF MODIFICATION ***
                 return null;
             }
         }
@@ -741,14 +855,16 @@
             try {
                 console.log('Loading payment info for user:', currentUser);
                 
-                // Display user info
                 document.getElementById('userEmail').textContent = currentUser?.email || 'Not available';
                 
-                // Load university name
                 if (currentUser?.university) {
                     try {
                         console.log('Fetching universities from:', `${API_BASE}/universities/all`);
-                        const uniRes = await fetch(`${API_BASE}/universities/all`);
+                        
+                        // *** MODIFICATION: Using fetchWithRetry ***
+                        const uniRes = await fetchWithRetry(`${API_BASE}/universities/all`, {
+                            method: 'GET'
+                        });
                         
                         if (!uniRes.ok) {
                             throw new Error(`Universities API failed: ${uniRes.status}`);
@@ -763,12 +879,19 @@
                         document.getElementById('userUniversity').textContent = universityName;
                         console.log('University name set to:', universityName);
                         
-                        // Load semesters
                         await loadPaymentSemesters();
                     } catch (err) {
                         console.error('Error loading university:', err);
                         document.getElementById('userUniversity').textContent = 'Failed to load university';
-                        showAlert('Failed to load university information', 'warning');
+                        // *** MODIFICATION: Added detailed error handling ***
+                        if (err.name === 'AbortError') {
+                            showAlert("University data request timed out. Please refresh.", "warning");
+                        } else if (err.message.includes('Failed to fetch')) {
+                            showAlert("Unable to connect for university data. Please check your internet.", "warning");
+                        } else {
+                            showAlert('Failed to load university information', 'warning');
+                        }
+                        // *** END OF MODIFICATION ***
                     }
                 } else {
                     console.log('No university ID found for user');
@@ -776,10 +899,8 @@
                     showAlert('Please select your university first', 'warning');
                 }
                 
-                // Set payment amount
                 document.getElementById('planAmount').textContent = paymentAmount.toLocaleString();
                 
-                // Mark user info as verified if we have data
                 if (currentUser?.email && currentUser?.university) {
                     document.getElementById('userInfoCard').classList.add('verified');
                 }
@@ -813,7 +934,9 @@
                     return;
                 }
                 
-                const res = await fetch(`${API_BASE}/semesters/university/${universityId}`, {
+                // *** MODIFICATION: Using fetchWithRetry ***
+                const res = await fetchWithRetry(`${API_BASE}/semesters/university/${universityId}`, {
+                    method: 'GET',
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 
@@ -829,7 +952,6 @@
                     
                     let currentSemesterFound = false;
                     
-                    // Clear existing options
                     semesterSelect.innerHTML = '<option value="">Loading semesters...</option>';
                     
                     response.data.forEach((semester) => {
@@ -853,7 +975,9 @@
                     
                     if (!currentSemesterFound && response.data.length > 0) {
                         const firstSemester = response.data[0];
-                        semesterSelect.children[1].selected = true;
+                        if (semesterSelect.children[1]) {
+                             semesterSelect.children[1].selected = true;
+                        }
                         
                         currentSemesterLabel.textContent = firstSemester.semesterName || firstSemester.name || 'Available Semester';
                         currentSemesterLabel.style.color = 'var(--warning-color)';
@@ -869,7 +993,15 @@
                 console.error("Error loading semesters:", err);
                 currentSemesterLabel.textContent = 'Failed to load semester';
                 currentSemesterLabel.style.color = 'var(--error-color)';
-                showAlert("Failed to load semester information. Please refresh the page.", 'error');
+                // *** MODIFICATION: Added detailed error handling ***
+                if (err.name === 'AbortError') {
+                    showAlert("Semester data request timed out. Please refresh.", "error");
+                } else if (err.message.includes('Failed to fetch')) {
+                    showAlert("Unable to connect for semester data. Please check your internet.", "error");
+                } else {
+                    showAlert("Failed to load semester information. Please refresh the page.", 'error');
+                }
+                // *** END OF MODIFICATION ***
             }
         }
 
@@ -906,7 +1038,8 @@
                     return;
                 }
 
-                const response = await fetch(`${API_BASE}/payments/initialize/`, {
+                // *** MODIFICATION: Using fetchWithRetry ***
+                const response = await fetchWithRetry(`${API_BASE}/payments/initialize/`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -922,16 +1055,13 @@
                 if (response.ok && data.authorization_url) {
                     statusDiv.innerHTML = '<div class="status-success">Redirecting to payment gateway...</div>';
                     
-                    // Store payment reference
                     localStorage.setItem('paymentReference', data.reference);
                     
-                    // Show loading overlay
                     loadingOverlay.classList.add('show');
                     setTimeout(() => {
                         document.getElementById('overlaySubtext').classList.add('show');
                     }, 1000);
                     
-                    // Redirect to Paystack
                     setTimeout(() => {
                         window.location.href = data.authorization_url;
                     }, 2000);
@@ -942,8 +1072,18 @@
 
             } catch (error) {
                 console.error('Payment initialization error:', error);
-                statusDiv.innerHTML = `<div class="status-error">${error.message}</div>`;
-                showAlert(error.message || 'Failed to initialize payment. Please try again.', 'error');
+                // *** MODIFICATION: Added detailed error handling ***
+                let errorMsg = 'Failed to initialize payment. Please try again.';
+                if (error.name === 'AbortError') {
+                    errorMsg = "Payment request timed out. The server may be busy. Please try again in a moment.";
+                } else if (error.message.includes('Failed to fetch')) {
+                    errorMsg = "Unable to connect to payment server. Please check your internet connection and try again.";
+                } else if (error.message) {
+                    errorMsg = error.message;
+                }
+                statusDiv.innerHTML = `<div class="status-error">${errorMsg}</div>`;
+                showAlert(errorMsg, 'error');
+                // *** END OF MODIFICATION ***
                 loadingOverlay.classList.remove('show');
             } finally {
                 setButtonLoading(payBtn, false);
@@ -968,20 +1108,16 @@
 
         // Show alert function
         function showAlert(message, type = 'error') {
-            // Remove existing alerts
             const existingAlerts = document.querySelectorAll('.alert');
             existingAlerts.forEach(alert => alert.remove());
             
-            // Create new alert
             const alert = document.createElement('div');
             alert.className = `alert ${type}`;
             alert.textContent = message;
             
-            // Insert after user info card
             const userInfoCard = document.getElementById('userInfoCard');
             userInfoCard.parentNode.insertBefore(alert, userInfoCard.nextSibling);
             
-            // Auto remove after 5 seconds
             setTimeout(() => {
                 if (alert.parentNode) {
                     alert.remove();
