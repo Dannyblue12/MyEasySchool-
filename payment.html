@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment - EasySchool</title>
-    <link rel="icon" type="image/jpeg" href="WhatsApp Image 2025-07-06 at 09.14.34_436c71fc.jpg">
     <style>
         * {
             margin: 0;
@@ -470,31 +469,26 @@
 
     <div class="container">
         <div class="content">
-            <!-- Payment Icon -->
             <div class="payment-icon">
                 <svg viewBox="0 0 24 24" fill="currentColor">
                     <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>
                 </svg>
             </div>
 
-            <!-- Title and Subtitle -->
             <h1 class="title">Subscription Page</h1>
             <p class="subtitle">Subscribe to unlock all features and get unlimited access to your learning content.</p>
 
-            <!-- User Info Card -->
             <div class="user-info-card" id="userInfoCard">
                 <div class="user-email" id="userEmail">Loading...</div>
                 <div class="university-name" id="userUniversity">Loading university...</div>
                 <div class="current-semester" id="currentSemesterLabel">Loading current semester...</div>
             </div>
 
-            <!-- Price Section -->
             <div class="price-section">
-                <div class="price-title">₦<span id="planAmount">1,000</span></div>
+                <div class="price-title">₦<span id="planAmount">800</span></div>
                 <div class="price-description">One-time payment for full semester access</div>
             </div>
 
-            <!-- Features Section -->
             <div class="features-section">
                 <h3 class="features-title">What's included:</h3>
                 <div class="feature-item">
@@ -535,10 +529,8 @@
                 </div>
             </div>
 
-            <!-- Payment Status -->
             <div id="paymentStatus" class="payment-status"></div>
 
-            <!-- Subscribe Button -->
             <div class="button-container">
                 <button id="payNowBtn" class="subscribe-button" onclick="initializePayment()">
                     <span id="buttonText">Subscribe Now</span>
@@ -550,7 +542,6 @@
         </div>
     </div>
 
-    <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loading-content">
             <div class="overlay-spinner"></div>
@@ -559,7 +550,6 @@
         </div>
     </div>
 
-    <!-- Success Modal -->
     <div id="successModal" class="modal-overlay">
         <div class="success-modal">
             <div class="success-icon">
@@ -573,7 +563,6 @@
         </div>
     </div>
 
-    <!-- Hidden semester select for functionality -->
     <select id="semesterPaymentSelect" style="display: none;">
         <option value="">Loading semesters...</option>
     </select>
@@ -584,7 +573,8 @@
         
         // Global variables
         let currentUser = null;
-        let paymentAmount = 1000;
+        // *** MODIFICATION: Price changed to 800 ***
+        let paymentAmount = 800;
 
         const loadingMessages = [
             "Please wait, while fetching your details",
@@ -657,10 +647,10 @@
             hideInitialLoading();
         });
 
+        // *** MODIFICATION: Replaced with the function from Dashboard.html ***
         // Fetch current user data with semester information
         async function fetchCurrentUserData(token) {
             try {
-                console.log('Fetching user data from:', `${API_BASE}/users/me`);
                 const res = await fetch(`${API_BASE}/users/me`, {
                     method: 'GET',
                     headers: {
@@ -669,13 +659,9 @@
                     }
                 });
 
-                console.log('API Response status:', res.status);
-                
                 if (res.ok) {
                     const responseData = await res.json();
-                    console.log('Current user data response:', responseData);
                     
-                    // Extract current semester data
                     let currentSemester = null;
                     if (responseData.currentSemester && typeof responseData.currentSemester === 'object') {
                         currentSemester = responseData.currentSemester;
@@ -692,11 +678,6 @@
                         };
                     }
                     
-                    if (responseData.currentSemester) {
-                        currentSemester = responseData.currentSemester;
-                    }
-                    
-                    // Extract user data
                     let user = null;
                     if (responseData.user && typeof responseData.user === 'object') {
                         user = responseData.user;
@@ -704,7 +685,8 @@
                         user = {
                             _id: responseData.user?._id || responseData._id,
                             email: responseData.user?.email || responseData.email,
-                            fullName: responseData.user?.fullName || responseData.fullName,
+                            avatar: responseData.user?.avatar || responseData.avatar,
+                            fullName: responseData.user?.fullName || responseData.fullName, // Added fullName just in case
                             isActive: responseData.user?.isActive ?? responseData.isActive,
                             lastLoginAt: responseData.user?.lastLoginAt || responseData.lastLoginAt,
                             role: responseData.user?.role || responseData.role,
@@ -728,27 +710,22 @@
                         currentSemester: currentSemester
                     };
                     
-                    console.log('Extracted user data:', userData.user);
-                    console.log('Extracted current semester:', userData.currentSemester);
-                    
-                    // Store the complete user data
                     localStorage.setItem('currentUserData', JSON.stringify(userData));
+                    localStorage.setItem('user', JSON.stringify(userData.user));
+                    localStorage.setItem('userId', userData.user._id || userData.user.id || 'user123');
                     
-                    if (userData.user) {
-                        localStorage.setItem('user', JSON.stringify(userData.user));
-                        currentUser = userData.user;
-                    }
-                    
+                    // Update global currentUser
+                    currentUser = userData.user;
+
                     return userData;
                 } else {
-                    const errorText = await res.text();
-                    console.error('Failed to fetch current user data. Status:', res.status, 'Response:', errorText);
-                    showAlert(`Failed to fetch user data: ${res.status} ${res.statusText}`, 'error');
+                    console.error('Failed to fetch current user data');
+                    showAlert('Failed to fetch user data. Please try again.', 'error');
                     return null;
                 }
             } catch (error) {
                 console.error('Error fetching current user data:', error);
-                showAlert(`Error fetching current user data: ${error.message}`, 'error');
+                showAlert(`Error fetching user data: ${error.message}`, 'error');
                 return null;
             }
         }
