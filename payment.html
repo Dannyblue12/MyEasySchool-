@@ -570,12 +570,12 @@
     <script>
         // API Configuration
         const API_BASE = 'https://my-easy-school-api.onrender.com/api';
-        // *** MODIFICATION: Added CORS_PROXY from sign-in.html ***
         const CORS_PROXY = 'https://corsproxy.io/?';
         
         // Global variables
         let currentUser = null;
-        let paymentAmount = 800; // Kept your price update
+        // *** MODIFICATION: Price changed back to 800 ***
+        let paymentAmount = 800;
 
         const loadingMessages = [
             "Please wait, while fetching your details",
@@ -637,42 +637,55 @@
                 return;
             }
 
-            // Parse user data
+            // Parse *stale* user data first to populate global 'currentUser'
             const parsedData = JSON.parse(userData);
             currentUser = parsedData.user || parsedData;
             
-            // *** MODIFICATION: Added API Health Check ***
             console.log('Checking API server status...');
             const isHealthy = await checkAPIHealth();
             if (!isHealthy) {
                 showAlert("The server appears to be starting up. This may take a moment. Please wait...", "warning");
             }
-            // *** END OF MODIFICATION ***
 
-            // Fetch current user data
-            await fetchCurrentUserData(token);
-            await loadPaymentInfo();
+            // Fetch *fresh* user data
+            const freshUserData = await fetchCurrentUserData(token);
+
+            // *** THIS IS THE FIX ***
+            // Check if fresh data was fetched and update the global 'currentUser' variable.
+            // This is what Dashboard.html does, and what payment.html was missing.
+            if (freshUserData && freshUserData.user) {
+                currentUser = freshUserData.user;
+                console.log('Global currentUser variable updated with fresh data.', currentUser);
+            } else {
+                console.warn('fetchCurrentUserData did not return valid data, proceeding with stale data.');
+                if (!currentUser) {
+                     hideInitialLoading();
+                    showAlert('Failed to load your user profile. Please try logging in again.', 'error');
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                    return;
+                }
+            }
+            // *** END OF FIX ***
+
+            // Now this function will use the *updated* global 'currentUser'
+            await loadPaymentInfo(); 
             
             hideInitialLoading();
         });
         
-        // *** MODIFICATION: Added checkAPIHealth and fetchWithRetry from sign-in.html ***
+        // --- CORS/Retry Logic from sign-in.html ---
         
-        /**
-         * Checks if the API server is responsive.
-         */
         async function checkAPIHealth() {
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-                
-                // Use OPTIONS on login endpoint for a lightweight health/CORS check
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
                 const response = await fetch(`${API_BASE}/auth/login`, {
                     method: 'OPTIONS',
                     mode: 'cors',
                     signal: controller.signal
                 });
-                
                 clearTimeout(timeoutId);
                 return response.ok;
             } catch (error) {
@@ -681,19 +694,11 @@
             }
         }
 
-        /**
-         * Fetches a resource with automatic retries and CORS proxy fallback.
-         * @param {string} url - The API endpoint URL.
-         * @param {object} options - The options for the fetch request (method, headers, body, etc.).
-         * @param {number} maxRetries - The maximum number of retry attempts.
-         * @returns {Promise<Response>} The fetch response.
-         */
         async function fetchWithRetry(url, options = {}, maxRetries = 2) {
             const doFetch = async (targetUrl) => {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+                const timeoutId = setTimeout(() => controller.abort(), 30000);
                 try {
-                    // Ensure 'mode: cors' is set for all requests
                     const fetchOptions = {
                         ...options,
                         mode: 'cors', 
@@ -714,16 +719,14 @@
                 } catch (error) {
                     lastError = error;
                     console.error(`Attempt ${attempt} failed:`, error.message);
-                    
                     if (attempt < maxRetries) {
-                        const delay = Math.pow(2, attempt) * 1000; // exponential backoff
+                        const delay = Math.pow(2, attempt) * 1000;
                         console.log(`Retrying in ${delay/1000} seconds...`);
                         await new Promise(resolve => setTimeout(resolve, delay));
                     }
                 }
             }
             
-            // Fallback via public CORS proxy if we hit CORS/network errors
             if (lastError && (lastError.name === 'TypeError' || lastError.name === 'AbortError' || (lastError.message && lastError.message.includes('Failed to fetch')))) {
                 try {
                     console.warn('Falling back to CORS proxy for:', url);
@@ -733,20 +736,17 @@
                     throw proxyError;
                 }
             }
-            
-            // If we get here, rethrow the original error
             throw lastError;
         }
 
-        // *** END OF NEW FUNCTIONS ***
+        // --- End of CORS/Retry Logic ---
 
 
-        // Fetch current user data with semester information
+        // This is the correct function from Dashboard.html
         async function fetchCurrentUserData(token) {
             try {
                 console.log('Fetching user data from:', `${API_BASE}/users/me`);
                 
-                // *** MODIFICATION: Using fetchWithRetry ***
                 const res = await fetchWithRetry(`${API_BASE}/users/me`, {
                     method: 'GET',
                     headers: {
@@ -775,10 +775,6 @@
                             createdAt: responseData.createdAt,
                             updatedAt: responseData.updatedAt
                         };
-                    }
-                    
-                    if (responseData.currentSemester) {
-                        currentSemester = responseData.currentSemester;
                     }
                     
                     let user = null;
@@ -819,10 +815,9 @@
                     
                     if (userData.user) {
                         localStorage.setItem('user', JSON.stringify(userData.user));
-                        currentUser = userData.user;
                     }
                     
-                    return userData;
+                    return userData; // Return the fresh data
                 } else {
                     const errorText = await res.text();
                     console.error('Failed to fetch current user data. Status:', res.status, 'Response:', errorText);
@@ -831,7 +826,6 @@
                 }
             } catch (error) {
                 console.error('Error fetching current user data:', error);
-                // *** MODIFICATION: Added detailed error handling ***
                 if (error.name === 'AbortError') {
                     showAlert("User data request timed out. The server may be starting up. Please wait a moment and try again.", "error");
                 } else if (error.message.includes('Failed to fetch')) {
@@ -839,29 +833,29 @@
                 } else {
                     showAlert(`Error fetching current user data: ${error.message}`, 'error');
                 }
-                // *** END OF MODIFICATION ***
                 return null;
             }
         }
 
-        // Get current semester from stored user data
+        // This function now reads from 'currentUserData' saved in localStorage,
+        // which was populated by fetchCurrentUserData
         function getCurrentSemester() {
             const userData = JSON.parse(localStorage.getItem('currentUserData') || '{}');
             return userData.currentSemester || null;
         }
 
-        // Load payment information
+        // This function will now use the *updated* global 'currentUser'
         async function loadPaymentInfo() {
             try {
-                console.log('Loading payment info for user:', currentUser);
+                console.log('Loading payment info for user (now using fresh data):', currentUser);
                 
                 document.getElementById('userEmail').textContent = currentUser?.email || 'Not available';
                 
+                // This 'if' check will now pass because 'currentUser' is the fresh object
                 if (currentUser?.university) {
                     try {
                         console.log('Fetching universities from:', `${API_BASE}/universities/all`);
                         
-                        // *** MODIFICATION: Using fetchWithRetry ***
                         const uniRes = await fetchWithRetry(`${API_BASE}/universities/all`, {
                             method: 'GET'
                         });
@@ -879,11 +873,11 @@
                         document.getElementById('userUniversity').textContent = universityName;
                         console.log('University name set to:', universityName);
                         
+                        // This call will now succeed
                         await loadPaymentSemesters();
                     } catch (err) {
                         console.error('Error loading university:', err);
                         document.getElementById('userUniversity').textContent = 'Failed to load university';
-                        // *** MODIFICATION: Added detailed error handling ***
                         if (err.name === 'AbortError') {
                             showAlert("University data request timed out. Please refresh.", "warning");
                         } else if (err.message.includes('Failed to fetch')) {
@@ -891,10 +885,9 @@
                         } else {
                             showAlert('Failed to load university information', 'warning');
                         }
-                        // *** END OF MODIFICATION ***
                     }
                 } else {
-                    console.log('No university ID found for user');
+                    console.log('No university ID found for user in fresh data.', currentUser);
                     document.getElementById('userUniversity').textContent = 'Please select your university';
                     showAlert('Please select your university first', 'warning');
                 }
@@ -911,7 +904,7 @@
             }
         }
 
-        // Load payment semesters
+        // This function will now be called correctly
         async function loadPaymentSemesters() {
             const semesterSelect = document.getElementById('semesterPaymentSelect');
             const currentSemesterLabel = document.getElementById('currentSemesterLabel');
@@ -922,19 +915,14 @@
                 currentSemesterLabel.textContent = 'Loading current semester...';
                 
                 const token = localStorage.getItem('token');
+                // We can safely use the global 'currentUser' now
                 let universityId = currentUser.university;
-                
-                if (!universityId) {
-                    const currentUserData = JSON.parse(localStorage.getItem('currentUserData') || '{}');
-                    universityId = currentUserData.user?.university;
-                }
                 
                 if (!universityId) {
                     currentSemesterLabel.textContent = 'Please select your university first';
                     return;
                 }
                 
-                // *** MODIFICATION: Using fetchWithRetry ***
                 const res = await fetchWithRetry(`${API_BASE}/semesters/university/${universityId}`, {
                     method: 'GET',
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -947,7 +935,8 @@
                 const response = await res.json();
                 
                 if (response.success && Array.isArray(response.data) && response.data.length > 0) {
-                    const currentSemester = getCurrentSemester();
+                    // Get the semester data that was saved by fetchCurrentUserData
+                    const currentSemester = getCurrentSemester(); 
                     const currentSemesterId = currentSemester?.id || currentSemester?._id;
                     
                     let currentSemesterFound = false;
@@ -990,18 +979,18 @@
                     currentSemesterLabel.style.color = 'var(--error-color)';
                 }
             } catch (err) {
+                // This is the error you were seeing.
                 console.error("Error loading semesters:", err);
                 currentSemesterLabel.textContent = 'Failed to load semester';
                 currentSemesterLabel.style.color = 'var(--error-color)';
-                // *** MODIFICATION: Added detailed error handling ***
                 if (err.name === 'AbortError') {
                     showAlert("Semester data request timed out. Please refresh.", "error");
                 } else if (err.message.includes('Failed to fetch')) {
                     showAlert("Unable to connect for semester data. Please check your internet.", "error");
                 } else {
+                    // This is the specific alert you mentioned.
                     showAlert("Failed to load semester information. Please refresh the page.", 'error');
                 }
-                // *** END OF MODIFICATION ***
             }
         }
 
@@ -1013,7 +1002,8 @@
             const loadingOverlay = document.getElementById('loadingOverlay');
             
             try {
-                if (!currentUser) {
+                // Use the fresh global currentUser
+                if (!currentUser) { 
                     showAlert('User information not found. Please login again.', 'error');
                     return;
                 }
@@ -1031,14 +1021,14 @@
                 const token = localStorage.getItem('token');
                 const callbackUrl = `${window.location.origin}/payment-success.html`;
 
-                if (!currentUser.university) {
+                // Use the fresh global currentUser
+                if (!currentUser.university) { 
                     statusDiv.innerHTML = '<div class="status-error">Please select your university first</div>';
                     showAlert('Please select your university before making payment.', 'error');
                     setButtonLoading(payBtn, false);
                     return;
                 }
 
-                // *** MODIFICATION: Using fetchWithRetry ***
                 const response = await fetchWithRetry(`${API_BASE}/payments/initialize/`, {
                     method: 'POST',
                     headers: {
@@ -1072,7 +1062,6 @@
 
             } catch (error) {
                 console.error('Payment initialization error:', error);
-                // *** MODIFICATION: Added detailed error handling ***
                 let errorMsg = 'Failed to initialize payment. Please try again.';
                 if (error.name === 'AbortError') {
                     errorMsg = "Payment request timed out. The server may be busy. Please try again in a moment.";
@@ -1083,7 +1072,6 @@
                 }
                 statusDiv.innerHTML = `<div class="status-error">${errorMsg}</div>`;
                 showAlert(errorMsg, 'error');
-                // *** END OF MODIFICATION ***
                 loadingOverlay.classList.remove('show');
             } finally {
                 setButtonLoading(payBtn, false);
