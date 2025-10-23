@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment Status - EasySchool</title>
+
+    <!-- Script to apply dark mode theme from localStorage -->
+    <script>
+        (function() {
+            // Applies theme based on localStorage before page renders
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+
     <style>
         * {
             margin: 0;
@@ -22,26 +34,108 @@
             --border-color: #e9ecef;
             --border-radius: 12px;
             --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --body-bg: #ffffff; /* Base background */
         }
-                [data-theme="dark"] {
-            --bg-color: #0f172a;
+        
+        /* Dark Mode variables - matching payment-2.html */
+        [data-theme="dark"] {
             --text-primary: #f1f5f9;
             --text-secondary: #cbd5e1;
-            --text-muted: #64748b;
-            --card-bg: #1e293b;
+            --background-light: #1e293b; 
             --border-color: #334155;
-            --shadow-light: rgba(0, 0, 0, 0.3);
-            --shadow-medium: rgba(0, 0, 0, 0.5);
-            --surface-light: #334155;
-                }
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --body-bg: #0f172a; 
+            --primary-color: #ffffff; /* Button bg in dark mode */
+            --secondary-color: #cbd5e1; /* Button hover in dark mode */
+        }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: #ffffff;
+            background-color: var(--body-bg); /* Use variable */
+            color: var(--text-primary); /* Use variable */
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition */
         }
+
+        /* Dark Mode Overrides */
+        [data-theme="dark"] .initial-loading-overlay,
+        [data-theme="dark"] .verification-loading-overlay {
+            background: rgba(15, 23, 42, 0.9); /* --body-bg with alpha */
+        }
+        [data-theme="dark"] .initial-spinner,
+        [data-theme="dark"] .verification-spinner {
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--text-primary);
+        }
+        [data-theme="dark"] .user-info-card {
+            background-color: var(--background-light);
+            border-color: var(--border-color);
+        }
+        [data-theme="dark"] .user-info-card.verified {
+            background-color: #163a23; /* Darker green */
+            border-color: var(--success-color);
+        }
+        [data-theme="dark"] .payment-details-card {
+            background-color: var(--background-light);
+        }
+        [data-theme="dark"] .payment-details-card.pending {
+            background-color: #3a301b; /* Darker yellow */
+        }
+        [data-theme="dark"] .payment-details-card.failed {
+            background-color: #3b1f1f; /* Darker red */
+        }
+        [data-theme="dark"] .payment-item {
+            background-color: var(--background-light);
+            border-color: var(--border-color);
+        }
+        [data-theme="dark"] .status-success {
+            background-color: #164e32;
+            color: #bbf7d0;
+        }
+        [data-theme="dark"] .status-pending {
+            background-color: #453411;
+            color: #fef08a;
+        }
+        [data-theme="dark"] .status-failed {
+            background-color: #5b2121;
+            color: #fecaca;
+        }
+        [data-theme="dark"] .verify-btn {
+            background-color: var(--primary-color);
+            color: var(--body-bg); /* Dark text on light button */
+        }
+        [data-theme="dark"] .verify-btn:hover:not(:disabled) {
+            background-color: var(--secondary-color);
+        }
+        [data-theme="dark"] .action-button {
+            background-color: var(--primary-color);
+            color: var(--body-bg); /* Dark text on light button */
+        }
+        [data-theme="dark"] .action-button:hover {
+            background-color: var(--secondary-color);
+        }
+        [data-theme="dark"] .action-button.secondary {
+            background-color: transparent;
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+        [data-theme="dark"] .action-button.secondary:hover {
+            background-color: var(--background-light);
+            border-color: var(--text-secondary);
+        }
+        /* Dark mode modal solid background */
+        [data-theme="dark"] .modal-content {
+            background: var(--background-light); /* Solid background */
+            border: 1px solid var(--border-color);
+        }
+        [data-theme="dark"] .modal-close {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+
         .container {
             flex: 1;
             display: flex;
@@ -73,11 +167,11 @@
             justify-content: center;
             z-index: 2000;
             backdrop-filter: blur(2px);
+            transition: opacity 0.5s ease, visibility 0.5s ease;
         }
         .initial-loading-overlay.hide {
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
         }
         .initial-loading-content {
             text-align: center;
@@ -99,6 +193,38 @@
             margin-bottom: 8px;
             transition: opacity 0.5s ease;
         }
+
+        /* *** NEW: Verification Loading Overlay *** */
+        .verification-loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+            z-index: 2500; /* Below modal, above content */
+            backdrop-filter: blur(1px);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .verification-loading-overlay.show {
+            display: flex;
+            opacity: 1;
+            visibility: visible;
+        }
+        .verification-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -391,15 +517,27 @@
             color: #dc2626;
             border-color: var(--error-color);
         }
+        [data-theme="dark"] .alert.error {
+            background-color: #3b1f1f;
+            color: #fecaca;
+        }
         .alert.success {
             background-color: #f0fdf4;
             color: #16a34a;
             border-color: var(--success-color);
         }
+        [data-theme="dark"] .alert.success {
+            background-color: #163a23;
+            color: #bbf7d0;
+        }
         .alert.warning {
             background-color: #fffbeb;
             color: #d97706;
             border-color: var(--warning-color);
+        }
+        [data-theme="dark"] .alert.warning {
+            background-color: #3a301b;
+            color: #fef08a;
         }
         @keyframes slideDown {
             from {
@@ -412,15 +550,14 @@
             }
         }
 
-        /* Added modal styles for payment failure notification */
-        /* Modal Overlay */
+        /* Modal styles for payment failure notification */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6); /* Slightly darker overlay */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -433,13 +570,12 @@
             opacity: 1;
             visibility: visible;
         }
-
-        /* Modal Content */
         .modal-content {
-            background: white;
+            background-color: #ffffff; /* Solid background */
             border-radius: var(--border-radius);
             padding: 32px 24px 24px;
-            max-width: 320px;
+            /* *** UPDATED: Increased modal size *** */
+            max-width: 360px; 
             width: 90%;
             position: relative;
             text-align: center;
@@ -450,14 +586,12 @@
         .modal-overlay.show .modal-content {
             transform: scale(1) translateY(0);
         }
-
-        /* Modal Close Button */
         .modal-close {
             position: absolute;
             top: 12px;
             right: 12px;
-            background: var(--primary-color);
-            color: white;
+            background: #eee;
+            color: #555;
             border: none;
             border-radius: 50%;
             width: 32px;
@@ -471,11 +605,9 @@
             transition: all 0.2s ease;
         }
         .modal-close:hover {
-            background: var(--secondary-color);
+            background: #ddd;
             transform: scale(1.1);
         }
-
-        /* Modal Icon */
         .modal-icon {
             width: 64px;
             height: 64px;
@@ -492,8 +624,6 @@
             height: 32px;
             color: white;
         }
-
-        /* Modal Text */
         .modal-title {
             font-size: 18px;
             font-weight: 600;
@@ -538,9 +668,9 @@
             .payment-details span {
                 font-size: 11px;
             }
-            /* Added responsive modal styles */
             .modal-content {
-                max-width: 280px;
+                 /* *** UPDATED: Increased modal size *** */
+                max-width: 320px;
                 padding: 28px 20px 20px;
             }
             .modal-icon {
@@ -570,7 +700,11 @@
         </div>
     </div>
 
-    <!-- Added payment failure modal -->
+    <!-- *** NEW: Verification Loading Overlay *** -->
+    <div id="verificationLoadingOverlay" class="verification-loading-overlay">
+        <div class="verification-spinner"></div>
+    </div>
+
     <!-- Payment Failure Modal -->
     <div id="paymentFailureModal" class="modal-overlay">
         <div class="modal-content">
@@ -682,12 +816,14 @@
         let currentUser = null;
         let currentSemester = null;
         let recentPayments = [];
+        let messageRotationInterval;
 
         function rotateLoadingMessages() {
             const textElement = document.getElementById('initialLoadingText');
             if (!textElement) return;
             
-            setInterval(() => {
+            // Start the interval
+            messageRotationInterval = setInterval(() => {
                 textElement.style.opacity = '0';
                 setTimeout(() => {
                     currentMessageIndex = (currentMessageIndex + 1) % loadingMessages.length;
@@ -696,31 +832,13 @@
                 }, 250);
             }, 2000);
         }
-function setupDarkMode() {
-            const darkModeToggle = document.getElementById('darkModeToggle');
-            const body = document.body;
-            
-            // Check for saved theme preference
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                body.setAttribute('data-theme', 'dark');
-                darkModeToggle.classList.add('active');
+
+        function stopLoadingMessages() {
+            if (messageRotationInterval) {
+                clearInterval(messageRotationInterval);
             }
-            
-            darkModeToggle.addEventListener('click', () => {
-                const isDark = body.getAttribute('data-theme') === 'dark';
-                
-                if (isDark) {
-                    body.removeAttribute('data-theme');
-                    darkModeToggle.classList.remove('active');
-                    localStorage.setItem('theme', 'light');
-                } else {
-                    body.setAttribute('data-theme', 'dark');
-                    darkModeToggle.classList.add('active');
-                    localStorage.setItem('theme', 'dark');
-                }
-            });
         }
+
         async function fetchCurrentUserData(token) {
             try {
                 console.log('[v0] Fetching user data from:', `${API_BASE}/users/me`);
@@ -818,6 +936,12 @@ function setupDarkMode() {
             try {
                 if (user && user.university) {
                     console.log('[v0] Loading university info for ID:', user.university);
+                    // Extract universityId properly - handle both object and string cases
+                    let universityId = user.university;
+                    if (typeof universityId === 'object' && universityId) {
+                        universityId = universityId._id || universityId.id;
+                    }
+
                     const response = await fetch(`${API_BASE}/universities/all`, {
                         method: 'GET',
                         headers: {
@@ -827,11 +951,12 @@ function setupDarkMode() {
                     });
 
                     if (response.ok) {
-                        const universities = await response.json();
-                        console.log('[v0] Universities response:', universities);
+                        const uniJson = await response.json();
+                        // Handle different API response shapes
+                        const universities = Array.isArray(uniJson) ? uniJson : (uniJson.data || uniJson.universities || []);
                         
-                        const university = universities.find(uni => uni._id === user.university);
-                        const universityName = university ? university.name : 'University not found';
+                        const university = universities.find(uni => (uni._id || uni.id) === universityId);
+                        const universityName = university ? (university.name || university.universityName || university.title) : 'University not found';
                         
                         document.getElementById('universityName').textContent = universityName;
                         console.log('[v0] University name set to:', universityName);
@@ -871,7 +996,7 @@ function setupDarkMode() {
                         
                         if (payment.status === 'success') {
                             showPaymentSuccess(payment);
-                            await updateUserSubscriptionStatus();
+                            await updateUserSubscriptionStatus(); 
                             return true;
                         } else if (payment.status === 'pending') {
                             showPaymentPending(payment);
@@ -939,15 +1064,15 @@ function setupDarkMode() {
             document.getElementById('resultTitle').textContent = 'Payment Successful!';
             document.getElementById('resultSubtitle').textContent = 'Your subscription has been activated successfully.';
             
-            // Show payment details
             if (payment) {
-                const amount = payment.amount ? Number(payment.amount) : 1000;
+                // *** UPDATED: Removed / 100 ***
+                const amount = payment.amount || 0; 
                 document.getElementById('paymentAmount').textContent = `₦${amount.toLocaleString()}`;
                 document.getElementById('paymentAmount').className = 'payment-amount';
                 document.getElementById('paymentReference').textContent = `Reference: ${payment.reference || 'N/A'}`;
                 
-                const date = payment.timestamp || payment.createdAt;
-                const displayDate = date ? new Date(date).toLocaleDateString() : new Date().toLocaleDateString();
+                const date = payment.paid_at || payment.timestamp || payment.createdAt;
+                const displayDate = date ? new Date(date).toLocaleString() : new Date().toLocaleString();
                 document.getElementById('paymentDate').textContent = `Date: ${displayDate}`;
                 
                 document.getElementById('paymentDetailsCard').style.display = 'block';
@@ -967,15 +1092,15 @@ function setupDarkMode() {
             document.getElementById('resultTitle').textContent = 'Payment Pending';
             document.getElementById('resultSubtitle').textContent = 'Your payment is being processed. Please wait or try verifying again.';
             
-            // Show payment details with pending styling
             if (payment) {
-                const amount = payment.amount ? Number(payment.amount) : 1000;
+                // *** UPDATED: Removed / 100 ***
+                const amount = payment.amount || 0;
                 document.getElementById('paymentAmount').textContent = `₦${amount.toLocaleString()}`;
                 document.getElementById('paymentAmount').className = 'payment-amount pending';
                 document.getElementById('paymentReference').textContent = `Reference: ${payment.reference || 'N/A'}`;
                 
-                const date = payment.timestamp || payment.createdAt;
-                const displayDate = date ? new Date(date).toLocaleDateString() : new Date().toLocaleDateString();
+                const date = payment.paid_at || payment.timestamp || payment.createdAt;
+                const displayDate = date ? new Date(date).toLocaleString() : 'N/A';
                 document.getElementById('paymentDate').textContent = `Date: ${displayDate}`;
                 
                 document.getElementById('paymentDetailsCard').style.display = 'block';
@@ -995,15 +1120,15 @@ function setupDarkMode() {
             document.getElementById('resultTitle').textContent = 'Payment Failed';
             document.getElementById('resultSubtitle').textContent = message || 'We could not verify your payment. Please try again or contact support.';
             
-            // Show payment details with failed styling if available
             if (payment) {
-                const amount = payment.amount ? Number(payment.amount) : 0;
+                // *** UPDATED: Removed / 100 ***
+                const amount = payment.amount || 0;
                 document.getElementById('paymentAmount').textContent = `₦${amount.toLocaleString()}`;
                 document.getElementById('paymentAmount').className = 'payment-amount failed';
                 document.getElementById('paymentReference').textContent = `Reference: ${payment.reference || 'N/A'}`;
                 
-                const date = payment.timestamp || payment.createdAt;
-                const displayDate = date ? new Date(date).toLocaleDateString() : 'N/A';
+                const date = payment.paid_at || payment.timestamp || payment.createdAt;
+                const displayDate = date ? new Date(date).toLocaleString() : 'N/A';
                 document.getElementById('paymentDate').textContent = `Date: ${displayDate}`;
                 
                 document.getElementById('paymentDetailsCard').style.display = 'block';
@@ -1094,21 +1219,17 @@ function setupDarkMode() {
                 const statusIcon = getStatusIcon(payment.status || 'pending');
                 const showVerifyButton = (payment.status || '').toLowerCase() === 'pending';
                 
-                const amount = payment.amount ? Number(payment.amount) : 1000;
-                const displayAmount = amount > 0 ? amount.toLocaleString() : '1,000';
+                // *** UPDATED: Removed / 100 ***
+                const amount = payment.amount || 0;
+                const displayAmount = amount > 0 ? amount.toLocaleString() : 'N/A';
                 
                 let displayDate = 'N/A';
-                if (payment.timestamp) {
+                const date = payment.paid_at || payment.timestamp || payment.createdAt;
+                if (date) {
                     try {
-                        displayDate = new Date(payment.timestamp).toLocaleDateString();
+                        displayDate = new Date(date).toLocaleString();
                     } catch (dateError) {
-                        console.warn('[v0] Invalid timestamp format:', payment.timestamp);
-                    }
-                } else if (payment.createdAt) {
-                    try {
-                        displayDate = new Date(payment.createdAt).toLocaleDateString();
-                    } catch (dateError) {
-                        console.warn('[v0] Invalid createdAt format:', payment.createdAt);
+                        console.warn('[v0] Invalid date format:', date);
                     }
                 }
                 
@@ -1119,7 +1240,6 @@ function setupDarkMode() {
                             <div class="payment-details">
                                 <span class="payment-amount-small">₦${displayAmount}</span>
                                 <span class="payment-date">${displayDate}</span>
-                                ${payment.semesterId ? `<span class="payment-semester">Semester: ${payment.semesterId}</span>` : ''}
                             </div>
                             <div class="payment-status ${statusClass}">
                                 <span class="status-icon">${statusIcon}</span>
@@ -1131,7 +1251,7 @@ function setupDarkMode() {
                                     onclick="verifyPayment('${payment.reference}')"
                                     data-reference="${payment.reference}"
                                 >
-                                    <span class="btn-text">Verify</span>
+                                    <span class="btn-text">Verify your payment</span>
                                 </button>
                             ` : ''}
                         </div>
@@ -1173,16 +1293,15 @@ function setupDarkMode() {
             const button = document.querySelector(`[data-reference="${reference}"]`);
             if (!button) return;
             
-            const originalText = button.innerHTML;
+            // *** NEW: Show verification overlay ***
+            const overlay = document.getElementById('verificationLoadingOverlay');
+            overlay.classList.add('show');
+            
+            button.disabled = true;
+            button.classList.add('loading');
+            button.querySelector('.btn-text').textContent = 'Verifying...';
             
             try {
-                button.disabled = true;
-                button.classList.add('loading');
-                button.innerHTML = `
-                    <span class="btn-icon">🔄</span>
-                    <span class="btn-text">Verifying...</span>
-                `;
-                
                 const token = localStorage.getItem('token');
                 if (!token) {
                     throw new Error('Authentication token not found');
@@ -1203,39 +1322,39 @@ function setupDarkMode() {
                     const payment = data.data || data.payment;
                     
                     if (payment.status === 'success') {
-                        showAlert('Payment verified successfully!', 'success');
-                        updatePaymentItemStatus(reference, payment);
+                        showAlert('Payment verified successfully! Account activated.', 'success');
+                        await updateUserSubscriptionStatus(); 
+                        await loadRecentPayments();
                         
-                        setTimeout(() => {
-                            loadRecentPayments();
-                        }, 1000);
-                        
-                        await updateUserSubscriptionStatus();
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const mainReference = urlParams.get('reference') || urlParams.get('trxref');
+                        if (mainReference === reference) {
+                            showPaymentSuccess(payment);
+                        }
+
                     } else {
-                        // Show modal for failed or still pending payments
+                        showAlert('Payment is still pending or failed.', 'warning');
                         showPaymentFailureModal();
-                        
-                        // Reset button state
-                        button.disabled = false;
-                        button.classList.remove('loading');
-                        button.innerHTML = originalText;
                     }
                 } else {
+                    showAlert(data.message || 'Verification failed.', 'error');
                     showPaymentFailureModal();
-                    
-                    // Reset button state
-                    button.disabled = false;
-                    button.classList.remove('loading');
-                    button.innerHTML = originalText;
                 }
             } catch (error) {
                 console.error('Error verifying payment:', error);
-                
+                showAlert(`Error: ${error.message}`, 'error');
                 showPaymentFailureModal();
+            } finally {
+                // *** NEW: Hide verification overlay ***
+                overlay.classList.remove('show');
                 
-                button.disabled = false;
-                button.classList.remove('loading');
-                button.innerHTML = originalText;
+                // Reset button state (if it still exists)
+                const currentButton = document.querySelector(`[data-reference="${reference}"]`);
+                if (currentButton) {
+                    currentButton.disabled = false;
+                    currentButton.classList.remove('loading');
+                    currentButton.querySelector('.btn-text').textContent = 'Verify';
+                }
             }
         }
 
@@ -1260,7 +1379,9 @@ function setupDarkMode() {
             try {
                 const token = localStorage.getItem('token');
                 if (token) {
+                    console.log('[v0] Updating user subscription status by re-fetching user data...');
                     await fetchCurrentUserData(token);
+                    console.log('[v0] User data updated in localStorage.');
                 }
             } catch (error) {
                 console.error('[v0] Error updating user subscription status:', error);
@@ -1268,6 +1389,9 @@ function setupDarkMode() {
         }
 
         function showAlert(message, type) {
+            const existingAlerts = document.querySelectorAll('.alert');
+            existingAlerts.forEach(alert => alert.remove());
+
             const alertDiv = document.createElement('div');
             alertDiv.className = `alert ${type}`;
             alertDiv.textContent = message;
@@ -1281,7 +1405,7 @@ function setupDarkMode() {
         }
 
         function goToDashboard() {
-            window.location.href = '/dashboard.html';
+            window.location.href = 'dashboard.html';
         }
 
         function retryPayment() {
@@ -1289,16 +1413,26 @@ function setupDarkMode() {
             const reference = urlParams.get('reference') || urlParams.get('trxref');
             
             if (reference) {
-                // Retry verification for the same payment
-                verifyPaymentWithRetry(reference);
+                const overlay = document.getElementById('initialLoadingOverlay');
+                overlay.classList.remove('hide');
+                overlay.style.display = 'flex'; // Ensure it's visible
+                document.getElementById('initialLoadingText').textContent = 'Re-verifying your payment...';
+                document.getElementById('paymentResult').style.display = 'none';
+                
+                verifyPaymentWithRetry(reference).finally(() => {
+                    overlay.classList.add('hide');
+                     setTimeout(() => {
+                         overlay.style.display = 'none';
+                    }, 500)
+                    document.getElementById('paymentResult').style.display = 'block';
+                });
             } else {
-                // Go back to payment page
-                window.location.href = '/payment.html';
+                window.location.href = 'payment-success.html';
             }
         }
 
         function makePayment() {
-            window.location.href = '/payment.html';
+            window.location.href = 'payment.html';
         }
 
         async function initializePage() {
@@ -1307,17 +1441,17 @@ function setupDarkMode() {
             try {
                 const token = localStorage.getItem('token');
                 if (!token) {
-                    throw new Error('No authentication token found');
+                    throw new Error('No authentication token found. Please log in.');
                 }
 
-                // Fetch user data first
                 const userData = await fetchCurrentUserData(token);
                 
-                // Display user info
                 if (userData.user) {
                     document.getElementById('userEmail').textContent = userData.user.email || 'N/A';
                     document.getElementById('userInfoCard').style.display = 'block';
-                    document.getElementById('userInfoCard').classList.add('verified');
+                    if(userData.user.subscribed) {
+                         document.getElementById('userInfoCard').classList.add('verified');
+                    }
                 }
                 
                 if (userData.currentSemester) {
@@ -1326,17 +1460,14 @@ function setupDarkMode() {
                     document.getElementById('currentSemester').textContent = semesterText;
                 }
 
-                // Load recent payments first
                 await loadRecentPayments();
                 
-                // Get payment reference from URL
                 const urlParams = new URLSearchParams(window.location.search);
                 const reference = urlParams.get('reference') || urlParams.get('trxref');
                 
                 console.log('[v0] URL payment reference:', reference);
                 
                 if (reference) {
-                    // Verify the specific payment from URL
                     console.log('[v0] Verifying payment from URL reference');
                     await verifyPaymentWithRetry(reference);
                 } else {
@@ -1352,18 +1483,26 @@ function setupDarkMode() {
             } catch (error) {
                 console.error('[v0] Error initializing page:', error);
                 showPaymentFailure(error.message || 'Failed to load payment information');
+                if (error.message.includes('No authentication')) {
+                    setTimeout(() => {
+                        window.location.href = 'sign-in.html';
+                    }, 2000);
+                }
             } finally {
-                // Hide loading overlay
+                stopLoadingMessages();
                 setTimeout(() => {
                     const overlay = document.getElementById('initialLoadingOverlay');
                     overlay.classList.add('hide');
+                    setTimeout(() => {
+                         overlay.style.display = 'none';
+                    }, 500)
                     document.getElementById('paymentResult').style.display = 'block';
-                }, 1000);
+                }, 500);
             }
         }
 
-        // Start initialization when page loads
         document.addEventListener('DOMContentLoaded', initializePage);
     </script>
 </body>
 </html>
+
