@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UNIUYO EXAMS SIMULATION - CBT</title>
+    <title>AKSU EXAMS SIMULATION - CBT</title>
     <style>
         body {
             background-color: #4CAF50;
@@ -83,10 +83,40 @@
             display: flex;
             align-items: center;
             cursor: pointer;
+            font-size: 16px;
         }
 
         input[type="radio"] {
             margin-right: 10px;
+            /* Modern, larger radio buttons */
+            -webkit-appearance: none;
+            appearance: none;
+            background-color: #fff;
+            margin: 0;
+            font: inherit;
+            color: currentColor;
+            width: 1.15em;
+            height: 1.15em;
+            border: 0.15em solid currentColor;
+            border-radius: 50%;
+            transform: translateY(-0.075em);
+            display: grid;
+            place-content: center;
+            margin-right: 10px;
+        }
+
+        input[type="radio"]::before {
+            content: "";
+            width: 0.65em;
+            height: 0.65em;
+            border-radius: 50%;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em #1E1E4D;
+        }
+
+        input[type="radio"]:checked::before {
+            transform: scale(1);
         }
 
         .btn {
@@ -288,7 +318,7 @@
     </div>
 
     <header>
-        <h1 id="universityHeader">UNIVERSITY EXAMS SIMULATION</h1>
+        <h1 id="universityHeader">AKSU EXAMS SIMULATION</h1>
         <h3 id="courseHeader">CBT</h3>
     </header>
 
@@ -463,8 +493,11 @@
                     }
                     const universities = await response.json();
                     const userUniversity = universities.find(u => u._id === currentUser.university);
+                    
+                    // *** FIX: Corrected element ID to universityHeader and formatted text ***
                     if (userUniversity) {
-                        document.getElementById('universityName').textContent = userUniversity.name || userUniversity.universityName || 'University';
+                        const uniName = userUniversity.name || userUniversity.universityName || 'University';
+                        elements.universityHeader.textContent = `${uniName.toUpperCase()} EXAMS SIMULATION`;
                     }
                 } catch (error) {
                     console.error('[v0] Error fetching university name:', error);
@@ -567,106 +600,121 @@
                 elements.restartButton.addEventListener('click', restartQuiz);
             }
 
+            // *** FIX: Rewritten displayQuestion function for robust choice handling ***
             // Display current question
             function displayQuestion() {
-                const question = state.quizData[state.currentQuestionIndex];
-                if (!question) return;
-
-                console.log('[v0] Current question data:', question);
-
-                elements.questionElement.textContent = `${state.currentQuestionIndex + 1}. ${question.question || question.Q}`;
-                
-                elements.choicesElement.innerHTML = '';
-                
-                // Handle different question formats
-                let choices = question.choices || question.options;
-                console.log('[v0] Initial choices:', choices);
-                
-                // If choices is not an array or doesn't exist, create from A, B, C, D properties
-                if (!Array.isArray(choices)) {
-                    console.log('[v0] Creating choices from A, B, C, D properties');
-                    const potentialChoices = [
-                        { text: question.A, value: 'A' },
-                        { text: question.B, value: 'B' },
-                        { text: question.C, value: 'C' },
-                        { text: question.D, value: 'D' }
-                    ];
-                    
-                    // Filter out empty or undefined choices - improved logic
-                    choices = potentialChoices.filter(choice => {
-                        const text = choice.text;
-                        return text !== null && 
-                               text !== undefined && 
-                               text !== '' && 
-                               String(text).trim() !== '' &&
-                               String(text).trim() !== 'undefined' &&
-                               String(text).trim() !== 'null';
-                    });
-                    console.log('[v0] Created choices:', choices);
-                }
-
-                // Handle case where choices might be an array of strings
-                if (Array.isArray(choices) && choices.length > 0 && typeof choices[0] === 'string') {
-                    console.log('[v0] Converting string array to choice objects');
-                    choices = choices.map((choice, index) => ({
-                        text: choice,
-                        value: String.fromCharCode(65 + index) // A, B, C, D
-                    }));
-                }
-
-                // Ensure choices is an array before forEach
-                if (!Array.isArray(choices)) {
-                    console.error('[v0] Choices is not an array:', choices);
-                    choices = [];
-                }
-
-                console.log('[v0] Final choices to display:', choices);
-                
-                // If still no choices, show an error
-                if (choices.length === 0) {
-                    console.error('[v0] No valid choices found for question:', question);
-                    elements.choicesElement.innerHTML = '<li style="color: red;">Error: No choices available for this question</li>';
+                const questionData = state.quizData[state.currentQuestionIndex];
+                if (!questionData) {
+                    console.error('[v0] No question data at index:', state.currentQuestionIndex);
                     return;
                 }
 
-                choices.forEach((choice, index) => {
-                    const li = document.createElement('li');
-                    const label = document.createElement('label');
-                    const input = document.createElement('input');
-                    
-                    input.type = 'radio';
-                    input.name = 'answer';
-                    
-                    // Handle different choice formats
-                    let choiceValue = choice.value || choice.text || choice;
-                    let choiceText = choice.text || choice.value || choice;
-                    
-                    // If choice is a string, use it as both value and text
-                    if (typeof choice === 'string') {
-                        choiceValue = choice;
-                        choiceText = choice;
-                    }
-                    
-                    input.value = choiceValue;
-                    input.id = `choice-${index}`;
-                    
-                    // Check if this choice was previously selected
-                    const questionId = question._id || question.id || state.currentQuestionIndex;
-                    if (state.selectedAnswers[questionId] === input.value) {
-                        input.checked = true;
-                    }
-                    
-                    input.addEventListener('change', () => {
-                        state.selectedAnswers[questionId] = input.value;
+                console.log('[v0] Current question data:', questionData);
+
+                elements.questionElement.textContent = `${state.currentQuestionIndex + 1}. ${questionData.question || questionData.Q}`;
+                
+                elements.choicesElement.innerHTML = '';
+                
+                let formattedChoices = [];
+                const choices = questionData.choices || questionData.options;
+
+                console.log('[v0] Initial choices/options:', choices);
+
+                if (Array.isArray(choices)) {
+                    // Case 1: It's an array
+                    console.log('[v0] Choices is an array.');
+                    formattedChoices = choices.map((choice, index) => {
+                        const defaultLetter = String.fromCharCode(65 + index); // A, B, C...
+                        if (typeof choice === 'string') {
+                            // Array of strings
+                            return { text: choice, value: defaultLetter };
+                        }
+                        if (typeof choice === 'object' && choice !== null) {
+                            // Array of objects
+                            const text = choice.text || choice.option || choice.choice || choice.value; // Common property names
+                            const value = choice.value || choice.key || defaultLetter; // Common property names, fallback to letter
+                            return { text: text, value: value };
+                        }
+                        // Fallback for other data types
+                        return { text: String(choice), value: defaultLetter };
                     });
+
+                } else if (typeof choices === 'object' && choices !== null) {
+                    // Case 2: It's an object { "A": "Text", "B": "Text" }
+                    console.log('[v0] Choices is an object.');
+                    formattedChoices = Object.keys(choices).map(key => {
+                        return { text: choices[key], value: key };
+                    });
+
+                } else {
+                    // Case 3: No 'choices' or 'options', try A, B, C, D properties
+                    console.log('[v0] No choices/options. Trying A, B, C, D properties.');
+                    const potentialChoices = [
+                        { text: questionData.A, value: 'A' },
+                        { text: questionData.B, value: 'B' },
+                        { text: questionData.C, value: 'C' },
+                        { text: questionData.D, value: 'D' },
+                        { text: questionData.E, value: 'E' } // Added 'E'
+                    ];
                     
-                    label.appendChild(input);
-                    label.appendChild(document.createTextNode(choiceText));
-                    li.appendChild(label);
-                    elements.choicesElement.appendChild(li);
-                    
-                    console.log('[v0] Added choice:', { value: choiceValue, text: choiceText });
-                });
+                    formattedChoices = potentialChoices.filter(choice => {
+                        const text = choice.text;
+                        // Robust filter
+                        return text !== null && 
+                               text !== undefined && 
+                               String(text).trim() !== '' &&
+                               String(text).trim().toLowerCase() !== 'undefined' &&
+                               String(text).trim().toLowerCase() !== 'null';
+                    });
+                }
+
+                console.log('[v0] Final formatted choices:', formattedChoices);
+
+                // If still no choices, show the error
+                if (formattedChoices.length === 0) {
+                    console.error('[v0] No valid choices found for question:', questionData);
+                    elements.choicesElement.innerHTML = '<li style="color: red;">Error: No choices available for this question.</li>';
+                } else {
+                    // Render the choices
+                    formattedChoices.forEach((choice, index) => {
+                        const li = document.createElement('li');
+                        const label = document.createElement('label');
+                        const input = document.createElement('input');
+                        
+                        input.type = 'radio';
+                        input.name = 'answer';
+                        input.value = String(choice.value); // Ensure value is a string
+                        input.id = `choice-${index}`;
+                        
+                        // Check if this choice was previously selected
+                        const questionId = questionData._id || questionData.id || state.currentQuestionIndex;
+                        if (state.selectedAnswers[questionId] === input.value) {
+                            input.checked = true;
+                        }
+                        
+                        input.addEventListener('change', () => {
+                            state.selectedAnswers[questionId] = input.value;
+                        });
+                        
+                        label.appendChild(input);
+                        
+                        let choiceTextContent = String(choice.text); // Ensure text is a string
+                        const choiceValue = String(choice.value);
+
+                        // Prepend letter if text doesn't already start with it
+                        if (!choiceTextContent.trim().startsWith(choiceValue + '.') && 
+                            !choiceTextContent.trim().startsWith(choiceValue + ')') &&
+                            /^[A-Z]$/.test(choiceValue)) { // Only prepend if value is a single capital letter
+                             choiceTextContent = `${choiceValue}. ${choiceTextContent}`;
+                        }
+
+                        label.appendChild(document.createTextNode(" " + choiceTextContent)); // Add a space for alignment
+                        li.appendChild(label);
+                        elements.choicesElement.appendChild(li);
+                        
+                        console.log('[v0] Added choice:', { value: choice.value, text: choiceTextContent });
+                    });
+                }
 
                 // Update navigation buttons
                 elements.prevButton.disabled = state.currentQuestionIndex === 0;
