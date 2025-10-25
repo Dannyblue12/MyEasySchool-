@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNIUYO EXAMS SIMULATION - CBT</title>
+    <style>
+        body {
+            background-color: #4CAF50;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            line-height: 1.6;
+            color: #000;
+            transition: opacity 0.5s ease;
+        }
+
+        body.loaded {
+            opacity: 1;
+        }
+
+        .timer {
+            text-align: right;
+            font-size: 1.4em;
+            color: #FF4444;
+            font-weight: 600;
+            font-family: 'Arial', sans-serif;
+            margin-right: 20px;
+            margin-top: 10px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        header {
+            background-color: #1E1E4D;
+            color: #fff;
+            text-align: center;
+            padding: 20px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 28px;
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+
+        h3 {
+            margin: 10px 0 0;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        main {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #quiz-container {
+            margin-bottom: 20px;
+        }
+
+        #question {
+            font-size: 20px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        #choices {
+            list-style: none;
+            padding: 0;
+        }
+
+        #choices li {
+            margin-bottom: 12px;
+        }
+
+        #choices label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .btn {
+            background-color: #1E1E4D;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            background-color: #2a2a6a;
+        }
+
+        .btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        #result-container {
+            text-align: center;
+        }
+
+        #score {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        #answers-list {
+            text-align: left;
+            margin-top: 20px;
+        }
+
+        #answers-list li {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        #answers-list .correct {
+            color: #4CAF50;
+        }
+
+        #answers-list .incorrect {
+            color: #FF4444;
+        }
+
+        .loader-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #4CAF50;
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #fff;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            animation: rotation 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .loader-text {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .unauthorized-message {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .unauthorized-message h2 {
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        .unauthorized-message p {
+            color: #eee;
+            margin-bottom: 30px;
+        }
+
+        .activate-btn {
+            background-color: #00C853;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+
+        .activate-btn:hover {
+            background-color: #00B34A;
+        }
+
+        .confirmation-dialog {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            max-width: 90%;
+            width: 400px;
+        }
+
+        .confirmation-dialog p {
+            margin-bottom: 25px;
+            font-size: 20px;
+            color: #333;
+        }
+
+        .confirmation-dialog button {
+            margin: 0 10px;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .confirmation-dialog button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        #confirm-submit {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #cancel-submit {
+            background-color: #f44336;
+            color: white;
+        }
+
+        #topic-analysis {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .topic-performance {
+            margin-bottom: 15px;
+        }
+
+        .topic-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .performance-bar {
+            background-color: #e0e0e0;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .performance-fill {
+            height: 100%;
+            background-color: #4CAF50;
+            transition: width 0.5s ease-in-out;
+        }
+
+        #strengths-improvements {
+            margin-top: 20px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div id="loader" class="loader-container">
+        <div class="loader"></div>
+        <p class="loader-text">Checking authorization...</p>
+    </div>
+
+    <header>
+        <h1 id="universityHeader">UNIVERSITY EXAMS SIMULATION</h1>
+        <h3 id="courseHeader">CBT</h3>
+    </header>
+
+    <div class="timer hidden">
+        <span id="countdownHours">00</span>:
+        <span id="countdownMinutes">00</span>:
+        <span id="countdownSeconds">00</span>
+    </div>
+
+    <main class="hidden">
+        <div id="unauthorized-message" class="unauthorized-message hidden">
+            <h2>Access Required</h2>
+            <p>Please sign in to access the exam mode.</p>
+            <a href="sign-in.html" class="activate-btn">Sign In</a>
+        </div>
+
+        <section id="quiz-container" class="hidden">
+            <p id="question"></p>
+            <ul id="choices"></ul>
+            <div class="navigation-buttons">
+                <button id="prev-btn" class="btn">Previous</button>
+                <button id="next-btn" class="btn">Next</button>
+            </div>
+        </section>
+
+        <div id="result-container" class="hidden">
+            <p id="score"></p>
+            <button id="show-answers-btn" class="btn">Show Answers</button>
+            <button id="restart-btn" class="btn">Restart</button>
+            <div id="topic-analysis"></div>
+            <div id="strengths-improvements"></div>
+            <ul id="answers-list"></ul>
+        </div>
+    </main>
+
+    <div id="confirmation-dialog" class="confirmation-dialog hidden">
+        <p>Are you sure you want to submit?</p>
+        <button id="confirm-submit" class="btn">Yes</button>
+        <button id="cancel-submit" class="btn">No</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Constants
+            const API_BASE = "https://my-easy-school-api.onrender.com/api";
+            const EXAM_DURATION = 900; // 15 minutes in seconds
+            const AUTHORIZATION_TIMEOUT = 5000; // 5 seconds
+
+            // DOM Elements
+            const elements = {
+                loader: document.getElementById('loader'),
+                mainContent: document.querySelector('main'),
+                unauthorizedMessage: document.getElementById('unauthorized-message'),
+                quizContainer: document.getElementById('quiz-container'),
+                resultContainer: document.getElementById('result-container'),
+                questionElement: document.getElementById('question'),
+                choicesElement: document.getElementById('choices'),
+                prevButton: document.getElementById('prev-btn'),
+                nextButton: document.getElementById('next-btn'),
+                scoreElement: document.getElementById('score'),
+                showAnswersButton: document.getElementById('show-answers-btn'),
+                restartButton: document.getElementById('restart-btn'),
+                timerElement: document.querySelector('.timer'),
+                answersListElement: document.getElementById('answers-list'),
+                confirmationDialog: document.getElementById('confirmation-dialog'),
+                confirmSubmitButton: document.getElementById('confirm-submit'),
+                cancelSubmitButton: document.getElementById('cancel-submit'),
+                topicAnalysisElement: document.getElementById('topic-analysis'),
+                strengthsImprovementsElement: document.getElementById('strengths-improvements'),
+                countdownHours: document.getElementById('countdownHours'),
+                countdownMinutes: document.getElementById('countdownMinutes'),
+                countdownSeconds: document.getElementById('countdownSeconds'),
+                courseHeader: document.getElementById('courseHeader'),
+                universityHeader: document.getElementById('universityHeader')
+            };
+
+            // Quiz State
+            const state = {
+                quizData: [],
+                currentQuestionIndex: 0,
+                selectedAnswers: {},
+                timeLeft: EXAM_DURATION,
+                timerInterval: null,
+                isQuizActive: false,
+                courseId: null,
+                courseCode: null,
+                cbtId: null
+            };
+
+            // Get URL parameters
+            function getUrlParams() {
+                const urlParams = new URLSearchParams(window.location.search);
+                state.courseId = urlParams.get('courseId');
+                state.courseCode = urlParams.get('courseCode');
+                
+                console.log('[v0] Course ID:', state.courseId);
+                console.log('[v0] Course Code:', state.courseCode);
+                
+                if (state.courseCode) {
+                    elements.courseHeader.textContent = `${state.courseCode} CBT`;
+                }
+            }
+
+            // Get user token from localStorage (same as quiz-questions.html)
+            function getUserToken() {
+                return localStorage.getItem('token');
+            }
+
+            // Shuffle array utility function
+            function shuffleArray(array) {
+                const shuffled = [...array];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                return shuffled;
+            }
+
+            // Check user authentication
+            function checkAuthentication() {
+                const userToken = getUserToken();
+                console.log('[v0] Token status:', userToken ? `Present (${userToken.substring(0, 10)}...)` : 'MISSING');
+                
+                if (!userToken) {
+                    console.error('[v0] ❌ No user token found - user needs to sign in');
+                    return false;
+                }
+                
+                return true;
+            }
+
+            // Show loader
+            function showLoader(message = 'Loading...') {
+                elements.loader.querySelector('.loader-text').textContent = message;
+                elements.loader.classList.remove('hidden');
+                elements.mainContent.classList.add('hidden');
+            }
+
+            // Hide loader
+            function hideLoader() {
+                elements.loader.classList.add('hidden');
+                elements.mainContent.classList.remove('hidden');
+            }
+
+            // Show unauthorized message
+            function showUnauthorized() {
+                elements.unauthorizedMessage.classList.remove('hidden');
+                elements.quizContainer.classList.add('hidden');
+                elements.resultContainer.classList.add('hidden');
+            }
+
+            // Hide unauthorized message
+            function hideUnauthorized() {
+                elements.unauthorizedMessage.classList.add('hidden');
+            }
+
+            // Fetch university name
+            async function fetchUniversityName() {
+                try {
+                    console.log('[v0] Fetching universities from:', `${API_BASE}/universities/all`);
+                    // Get current user data to find their university
+                    const currentUserData = JSON.parse(localStorage.getItem('currentUserData') || '{}');
+                    const currentUser = currentUserData.user;
+                    if (!currentUser || !currentUser.university) {
+                        console.log('[v0] No user university found, using default name');
+                        return;
+                    }
+                    const response = await fetch(`${API_BASE}/universities/all`);
+                    if (!response.ok) {
+                        console.log('[v0] Universities endpoint failed, using default name');
+                        return;
+                    }
+                    const universities = await response.json();
+                    const userUniversity = universities.find(u => u._id === currentUser.university);
+                    if (userUniversity) {
+                        document.getElementById('universityName').textContent = userUniversity.name || userUniversity.universityName || 'University';
+                    }
+                } catch (error) {
+                    console.error('[v0] Error fetching university name:', error);
+                }
+            }
+
+            // Start CBT exam
+            async function startCBTExam() {
+                try {
+                    showLoader('Starting exam...');
+                    
+                    const userToken = getUserToken();
+                    if (!userToken) {
+                        throw new Error('No authentication token found');
+                    }
+
+                    console.log('[v0] Starting CBT exam with POST request to:', `${API_BASE}/cbt/start`);
+                    
+                    const requestBody = {
+                        courseId: state.courseId
+                    };
+                    
+                    // Add numberOfQuestions if needed (optional field)
+                    // requestBody.numberOfQuestions = 20; // Uncomment if you want to specify
+
+                    const response = await fetch(`${API_BASE}/cbt/start`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${userToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+
+                    console.log('[v0] Response status:', response.status);
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.log('[v0] Error response body:', errorText);
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    console.log('[v0] CBT start response:', data);
+
+                    // Extract CBT ID and questions from response
+                    if (data.success && data.data) {
+                        state.cbtId = data.data.cbtId || data.data._id;
+                        let allQuestions = data.data.questions || [];
+                        
+                        // Limit to 35 questions maximum
+                        const MAX_QUESTIONS = 35;
+                        if (allQuestions.length > MAX_QUESTIONS) {
+                            console.log(`[v0] Limiting questions from ${allQuestions.length} to ${MAX_QUESTIONS}`);
+                            // Shuffle questions and take first 35 for variety
+                            allQuestions = shuffleArray(allQuestions).slice(0, MAX_QUESTIONS);
+                        }
+                        
+                        state.quizData = allQuestions;
+                        
+                        if (state.quizData.length === 0) {
+                            throw new Error('No questions received from server');
+                        }
+                        
+                        console.log('[v0] CBT ID:', state.cbtId);
+                        console.log('[v0] Questions loaded:', state.quizData.length);
+                        
+                        hideLoader();
+                        startQuiz();
+                    } else {
+                        throw new Error('Invalid response format from server');
+                    }
+
+                } catch (error) {
+                    console.error('[v0] Error starting CBT exam:', error);
+                    hideLoader();
+                    showError(`Error starting exam: ${error.message}`);
+                }
+            }
+
+            // Start the quiz
+            function startQuiz() {
+                state.isQuizActive = true;
+                state.currentQuestionIndex = 0;
+                state.selectedAnswers = {};
+                
+                hideUnauthorized();
+                elements.quizContainer.classList.remove('hidden');
+                elements.resultContainer.classList.add('hidden');
+                
+                displayQuestion();
+                startTimer();
+                
+                // Add event listeners
+                elements.prevButton.addEventListener('click', previousQuestion);
+                elements.nextButton.addEventListener('click', nextQuestion);
+                elements.confirmSubmitButton.addEventListener('click', submitQuiz);
+                elements.cancelSubmitButton.addEventListener('click', hideConfirmationDialog);
+                elements.showAnswersButton.addEventListener('click', showAnswers);
+                elements.restartButton.addEventListener('click', restartQuiz);
+            }
+
+            // Display current question
+            function displayQuestion() {
+                const question = state.quizData[state.currentQuestionIndex];
+                if (!question) return;
+
+                console.log('[v0] Current question data:', question);
+
+                elements.questionElement.textContent = `${state.currentQuestionIndex + 1}. ${question.question || question.Q}`;
+                
+                elements.choicesElement.innerHTML = '';
+                
+                // Handle different question formats
+                let choices = question.choices || question.options;
+                console.log('[v0] Initial choices:', choices);
+                
+                // If choices is not an array or doesn't exist, create from A, B, C, D properties
+                if (!Array.isArray(choices)) {
+                    console.log('[v0] Creating choices from A, B, C, D properties');
+                    const potentialChoices = [
+                        { text: question.A, value: 'A' },
+                        { text: question.B, value: 'B' },
+                        { text: question.C, value: 'C' },
+                        { text: question.D, value: 'D' }
+                    ];
+                    
+                    // Filter out empty or undefined choices - improved logic
+                    choices = potentialChoices.filter(choice => {
+                        const text = choice.text;
+                        return text !== null && 
+                               text !== undefined && 
+                               text !== '' && 
+                               String(text).trim() !== '' &&
+                               String(text).trim() !== 'undefined' &&
+                               String(text).trim() !== 'null';
+                    });
+                    console.log('[v0] Created choices:', choices);
+                }
+
+                // Handle case where choices might be an array of strings
+                if (Array.isArray(choices) && choices.length > 0 && typeof choices[0] === 'string') {
+                    console.log('[v0] Converting string array to choice objects');
+                    choices = choices.map((choice, index) => ({
+                        text: choice,
+                        value: String.fromCharCode(65 + index) // A, B, C, D
+                    }));
+                }
+
+                // Ensure choices is an array before forEach
+                if (!Array.isArray(choices)) {
+                    console.error('[v0] Choices is not an array:', choices);
+                    choices = [];
+                }
+
+                console.log('[v0] Final choices to display:', choices);
+                
+                // If still no choices, show an error
+                if (choices.length === 0) {
+                    console.error('[v0] No valid choices found for question:', question);
+                    elements.choicesElement.innerHTML = '<li style="color: red;">Error: No choices available for this question</li>';
+                    return;
+                }
+
+                choices.forEach((choice, index) => {
+                    const li = document.createElement('li');
+                    const label = document.createElement('label');
+                    const input = document.createElement('input');
+                    
+                    input.type = 'radio';
+                    input.name = 'answer';
+                    
+                    // Handle different choice formats
+                    let choiceValue = choice.value || choice.text || choice;
+                    let choiceText = choice.text || choice.value || choice;
+                    
+                    // If choice is a string, use it as both value and text
+                    if (typeof choice === 'string') {
+                        choiceValue = choice;
+                        choiceText = choice;
+                    }
+                    
+                    input.value = choiceValue;
+                    input.id = `choice-${index}`;
+                    
+                    // Check if this choice was previously selected
+                    const questionId = question._id || question.id || state.currentQuestionIndex;
+                    if (state.selectedAnswers[questionId] === input.value) {
+                        input.checked = true;
+                    }
+                    
+                    input.addEventListener('change', () => {
+                        state.selectedAnswers[questionId] = input.value;
+                    });
+                    
+                    label.appendChild(input);
+                    label.appendChild(document.createTextNode(choiceText));
+                    li.appendChild(label);
+                    elements.choicesElement.appendChild(li);
+                    
+                    console.log('[v0] Added choice:', { value: choiceValue, text: choiceText });
+                });
+
+                // Update navigation buttons
+                elements.prevButton.disabled = state.currentQuestionIndex === 0;
+                elements.nextButton.textContent = state.currentQuestionIndex === state.quizData.length - 1 ? 'Submit' : 'Next';
+            }
+
+            // Previous question
+            function previousQuestion() {
+                if (state.currentQuestionIndex > 0) {
+                    state.currentQuestionIndex--;
+                    displayQuestion();
+                }
+            }
+
+            // Next question or submit
+            function nextQuestion() {
+                if (state.currentQuestionIndex < state.quizData.length - 1) {
+                    state.currentQuestionIndex++;
+                    displayQuestion();
+                } else {
+                    showConfirmationDialog();
+                }
+            }
+
+            // Show confirmation dialog
+            function showConfirmationDialog() {
+                elements.confirmationDialog.classList.remove('hidden');
+            }
+
+            // Hide confirmation dialog
+            function hideConfirmationDialog() {
+                elements.confirmationDialog.classList.add('hidden');
+            }
+
+            // Validate token by checking user data
+            async function validateToken(token) {
+                try {
+                    console.log('[v0] Validating token...');
+                    const response = await fetch(`${API_BASE}/users/me`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        const userData = await response.json();
+                        console.log('[v0] Token validation successful:', userData);
+                        return { valid: true, userData };
+                    } else {
+                        console.log('[v0] Token validation failed:', response.status);
+                        return { valid: false, status: response.status };
+                    }
+                } catch (error) {
+                    console.error('[v0] Token validation error:', error);
+                    return { valid: false, error: error.message };
+                }
+            }
+
+            // Submit quiz
+            async function submitQuiz() {
+                try {
+                    hideConfirmationDialog();
+                    showLoader('Submitting exam...');
+                    
+                    const userToken = getUserToken();
+                    console.log('[v0] Token check - Present:', !!userToken);
+                    console.log('[v0] Token length:', userToken ? userToken.length : 0);
+                    console.log('[v0] Token preview:', userToken ? userToken.substring(0, 20) + '...' : 'NONE');
+                    
+                    if (!userToken) {
+                        throw new Error('No authentication token found. Please sign in again.');
+                    }
+
+                    // Validate token before submission
+                    showLoader('Validating authentication...');
+                    const tokenValidation = await validateToken(userToken);
+                    
+                    if (!tokenValidation.valid) {
+                        console.error('[v0] Token validation failed:', tokenValidation);
+                        
+                        if (tokenValidation.status === 401) {
+                            // Token expired or invalid
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('user');
+                            localStorage.removeItem('currentUserData');
+                            throw new Error('Your session has expired. Please sign in again.');
+                        } else {
+                            throw new Error(`Authentication failed (${tokenValidation.status || 'Unknown error'}). Please try again.`);
+                        }
+                    }
+
+                    console.log('[v0] Token validation successful, proceeding with submission');
+                    showLoader('Submitting exam...');
+
+                    // Prepare answers array
+                    const answers = [];
+                    state.quizData.forEach((question, index) => {
+                        const questionId = question._id || question.id || index;
+                        const answer = state.selectedAnswers[questionId];
+                        if (answer) {
+                            answers.push({
+                                questionId: questionId,
+                                answer: answer
+                            });
+                        }
+                    });
+
+                    console.log('[v0] Submitting CBT with:', {
+                        cbtId: state.cbtId,
+                        answers: answers,
+                        answersCount: answers.length
+                    });
+
+                    const response = await fetch(`${API_BASE}/cbt/submit`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${userToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            cbtId: state.cbtId,
+                            answers: answers
+                        })
+                    });
+
+                    console.log('[v0] Submit response status:', response.status);
+                    console.log('[v0] Submit response headers:', Object.fromEntries(response.headers.entries()));
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.log('[v0] Submit error response:', errorText);
+                        
+                        if (response.status === 401) {
+                            // Handle authentication error specifically
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('user');
+                            localStorage.removeItem('currentUserData');
+                            throw new Error('Authentication failed during submission. Please sign in again.');
+                        } else {
+                            throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+                        }
+                    }
+
+                    const data = await response.json();
+                    console.log('[v0] Submit response data:', data);
+
+                    hideLoader();
+                    stopTimer();
+                    showResults(data);
+
+                } catch (error) {
+                    console.error('[v0] Error submitting CBT:', error);
+                    hideLoader();
+                    
+                    // Enhanced error handling
+                    if (error.message.includes('sign in again')) {
+                        showError(`${error.message}<br><br><a href="sign-in.html" class="btn" style="margin-top: 15px;">Sign In</a>`);
+                    } else {
+                        showError(`Error submitting exam: ${error.message}`);
+                    }
+                }
+            }
+
+            // Show results
+            function showResults(data) {
+                state.isQuizActive = false;
+                elements.quizContainer.classList.add('hidden');
+                elements.resultContainer.classList.remove('hidden');
+                elements.timerElement.classList.add('hidden');
+
+                // Display score
+                const score = data.data?.score || data.score || 0;
+                const totalQuestions = state.quizData.length;
+                const percentage = Math.round((score / totalQuestions) * 100);
+                
+                elements.scoreElement.textContent = `Your Score: ${score}/${totalQuestions} (${percentage}%)`;
+            }
+
+            // Start timer
+            function startTimer() {
+                elements.timerElement.classList.remove('hidden');
+                
+                state.timerInterval = setInterval(() => {
+                    state.timeLeft--;
+                    
+                    const hours = Math.floor(state.timeLeft / 3600);
+                    const minutes = Math.floor((state.timeLeft % 3600) / 60);
+                    const seconds = state.timeLeft % 60;
+                    
+                    elements.countdownHours.textContent = hours.toString().padStart(2, '0');
+                    elements.countdownMinutes.textContent = minutes.toString().padStart(2, '0');
+                    elements.countdownSeconds.textContent = seconds.toString().padStart(2, '0');
+                    
+                    if (state.timeLeft <= 0) {
+                        stopTimer();
+                        submitQuiz();
+                    }
+                }, 1000);
+            }
+
+            // Stop timer
+            function stopTimer() {
+                if (state.timerInterval) {
+                    clearInterval(state.timerInterval);
+                    state.timerInterval = null;
+                }
+            }
+
+            // Show answers
+            function showAnswers() {
+                // Implementation for showing detailed answers
+                console.log('[v0] Show answers clicked');
+            }
+
+            // Restart quiz
+            function restartQuiz() {
+                if (confirm('Are you sure you want to restart the exam?')) {
+                    location.reload();
+                }
+            }
+
+            // Load test data for exams mode
+            function loadTestExamData() {
+                console.log('[v0] Loading test exam data...');
+                
+                // Generate 35 test questions for exam mode
+                const testQuestions = [];
+                const sampleQuestions = [
+                    {
+                        Q: "What is the chemical symbol for water?",
+                        A: "H2O",
+                        B: "CO2", 
+                        C: "NaCl",
+                        D: "O2",
+                        Ans: "H2O"
+                    },
+                    {
+                        Q: "Which element has the atomic number 1?",
+                        A: "Helium",
+                        B: "Hydrogen",
+                        C: "Lithium", 
+                        D: "Carbon",
+                        Ans: "Hydrogen"
+                    },
+                    {
+                        Q: "What is the pH of pure water at 25°C?",
+                        A: "6",
+                        B: "7",
+                        C: "8",
+                        D: "9",
+                        Ans: "7"
+                    },
+                    {
+                        Q: "Which gas makes up about 78% of Earth's atmosphere?",
+                        A: "Oxygen",
+                        B: "Carbon dioxide",
+                        C: "Nitrogen",
+                        D: "Argon",
+                        Ans: "Nitrogen"
+                    },
+                    {
+                        Q: "What is the molecular formula for methane?",
+                        A: "CH4",
+                        B: "C2H6",
+                        C: "C3H8",
+                        D: "C4H10",
+                        Ans: "CH4"
+                    }
+                ];
+                
+                // Duplicate and modify questions to reach 35
+                for (let i = 0; i < 35; i++) {
+                    const baseQuestion = sampleQuestions[i % sampleQuestions.length];
+                    testQuestions.push({
+                        ...baseQuestion,
+                        Q: `${i + 1}. ${baseQuestion.Q}`
+                    });
+                }
+                
+                state.quizData = testQuestions;
+                state.cbtId = 'test-exam-' + Date.now();
+                
+                hideLoader();
+                startQuiz();
+            }
+
+            // Show error
+            function showError(message) {
+                hideLoader();
+                elements.mainContent.innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <h3 style="color: #fff; margin-bottom: 20px;">Error</h3>
+                        <p style="color: #eee; margin-bottom: 30px;">${message}</p>
+                        <button onclick="location.reload()" class="btn">Try Again</button>
+                        <button onclick="window.location.href='quiz.html?courseId=${state.courseId}&courseCode=${state.courseCode}'" class="btn" style="margin-left: 10px;">Back to Quiz</button>
+                        
+                        <div style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                            <h4 style="color: #fff; margin-bottom: 15px;">Test Mode Available</h4>
+                            <p style="color: #eee; margin-bottom: 15px;">Since the API is unavailable, you can test the exam functionality with sample data (35 questions):</p>
+                            <button onclick="loadTestExamData()" class="btn" style="background-color: #28a745;">Load Test Exam</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Initialize the application
+            async function initApp() {
+                try {
+                    getUrlParams();
+                    
+                    if (!state.courseId || !state.courseCode) {
+                        throw new Error('Missing course information. Please select a course from the quiz page.');
+                    }
+
+                    showLoader('Checking authorization...');
+                    
+                    // Fetch university name (don't wait for it to complete)
+                    fetchUniversityName();
+                    
+                    if (!checkAuthentication()) {
+                        hideLoader();
+                        showUnauthorized();
+                        return;
+                    }
+
+                    await startCBTExam();
+
+                } catch (error) {
+                    console.error('[v0] Initialization error:', error);
+                    showError(error.message);
+                }
+            }
+
+            // Start the application
+            initApp();
+        });
+    </script>
+</body>
+</html>
