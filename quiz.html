@@ -310,6 +310,27 @@
             background: #333;
             transform: translateY(-1px);
         }
+        
+        /* *** ADDED STYLE FOR NEW BUTTON *** */
+        .already-paid-button {
+            background: none;
+            color: #555;
+            border: 1px solid #ccc;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .already-paid-button:hover {
+            background: #f0f0f0;
+            border-color: #999;
+        }
+
 
         .close-modal {
             position: absolute;
@@ -423,6 +444,16 @@
  [data-theme="dark"] .close-modal:hover { background: #1f2937; color: #ffffff; }
  [data-theme="dark"] .payment-button { background: #101a3a; color: #ffffff; border: 1px solid #1f2937; }
  [data-theme="dark"] .payment-button:hover { background: #15224d; }
+ 
+  /* *** ADDED STYLE FOR NEW BUTTON (DARK) *** */
+ [data-theme="dark"] .already-paid-button {
+    color: #e5e7eb;
+    border-color: #374151;
+ }
+ [data-theme="dark"] .already-paid-button:hover {
+    background: #1f2937;
+    border-color: #e5e7eb;
+ }
  </style>
 </head>
 <body>
@@ -469,8 +500,9 @@
         <div class="modal-content">
             <button class="close-modal" onclick="closeSubscriptionModal()">×</button>
             <div class="modal-title">Subscribe to Access Full CBT</div>
+            <!-- *** MODIFIED PRICE *** -->
             <div class="modal-description">
-                You need to Subscribe 900 naira to get access to the full CBT for both MTH and GST
+                You need to Subscribe 800 naira to get access to the full CBT for both MTH and GST
             </div>
             <div class="modal-description">Get access to:</div>
             <ul class="features-list">
@@ -478,7 +510,10 @@
                 <li>Exams Mode</li>
                 <li>Well Detailed Explanations for Maths problems</li>
             </ul>
-            <button class="payment-button" onclick="initiatePayment()">Payment 900 naira</button>
+            <!-- *** MODIFIED BUTTON TEXT *** -->
+            <button class="payment-button" onclick="initiatePayment()">Pay ₦800 naira</button>
+            <!-- *** ADDED NEW BUTTON *** -->
+            <button class="already-paid-button" onclick="checkPaymentStatus()">Already paid? Verify</button>
         </div>
     </div>
 
@@ -675,6 +710,12 @@
         function initiatePayment() {
             // Redirect to payment page or initiate payment flow
             window.location.href = 'payment.html';
+        }
+
+        // *** ADDED NEW FUNCTION ***
+        function checkPaymentStatus() {
+            // Redirect to payment success page for verification
+            window.location.href = 'payment-success.html';
         }
 
         function selectQuizTitle(title, index) {
