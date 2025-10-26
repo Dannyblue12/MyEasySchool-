@@ -4,6 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Quiz</title>
+    <link rel="icon" type="image/jpeg" href="WhatsApp Image 2025-07-06 at 09.14.34_436c71fc.jpg">
+    
+    <!-- *** ADDED MATHJAX SCRIPT AND CONFIG *** -->
+    <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: {
+        fontCache: 'global'
+      },
+      startup: {
+        ready: () => {
+          console.log('MathJax is ready to typeset.');
+          MathJax.startup.defaultReady();
+        }
+      }
+    };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script>
+    <!-- *** END MATHJAX SCRIPT *** -->
+
     <style>
         * {
             margin: 0;
@@ -189,6 +214,8 @@
             color: #333;
             line-height: 1.5;
             margin-bottom: 24px;
+            /* Allow MathJax to set its own line heights */
+            line-height: 1.6;
         }
 
         .question-image {
@@ -310,6 +337,8 @@
         .option-text {
             flex: 1;
             font-size: 15px;
+            /* Allow MathJax to set its own line heights */
+            line-height: 1.6;
         }
 
         .check-button {
@@ -615,6 +644,45 @@
             transition: opacity 0.2s ease;
         }
     </style>
+    
+    <!-- *** ADDED DARK MODE STYLES *** -->
+    <style>
+    /* Dark mode overrides for quiz-questions */
+    body[data-theme="dark"] { background-color: #0f172a; }
+    [data-theme="dark"] .quiz-container { background: #111827; color: #ffffff; }
+    [data-theme="dark"] .header { border-bottom-color: #1f2937; }
+    [data-theme="dark"] .header-title, [data-theme="dark"] .question-number, [data-theme="dark"] .question-text { color: #ffffff; }
+    [data-theme="dark"] .back-arrow { color: #e5e7eb; }
+    [data-theme="dark"] .back-arrow:hover { color: #ffffff; }
+    [data-theme="dark"] .progress-left, [data-theme="dark"] .progress-right { color: #9ca3af; }
+    [data-theme="dark"] .tabs { background-color: #1f2937; }
+    [data-theme="dark"] .tab { color: #e5e7eb; }
+    [data-theme="dark"] .tab.active { background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; }
+    [data-theme="dark"] .progress-segment { background-color: #374151; }
+    [data-theme="dark"] .progress-segment.correct { background-color: #10b981; }
+    [data-theme="dark"] .progress-segment.incorrect { background-color: #ef4444; }
+    [data-theme="dark"] .question-image { background-color: #1f2937; border-color: #374151; }
+    [data-theme="dark"] .solution-text { background-color: #1f2937; border-left-color: #10b981; color: #e5e7eb; }
+    [data-theme="dark"] .nav-arrow { color: #e5e7eb; }
+    [data-theme="dark"] .nav-arrow:hover:not(:disabled) { background-color: #1f2937; color: #ffffff; }
+    [data-theme="dark"] .answer-option { background-color: #1f2937; border-color: #374151; }
+    [data-theme="dark"] .option-letter { color: #e5e7eb; }
+    [data-theme="dark"] .option-text { color: #ffffff; }
+    [data-theme="dark"] .answer-option:hover:not(.disabled) { background-color: #374151; }
+    [data-theme="dark"] .answer-option.selected { background-color: #1e3a8a; border-color: #3b82f6; }
+    [data-theme="dark"] .answer-option.correct { background: rgba(16, 185, 129, 0.15); border-color: #10b981; color: #d1fae5; }
+    [data-theme="dark"] .answer-option.incorrect { background: rgba(239, 68, 68, 0.15); border-color: #ef4444; color: #fecaca; }
+    [data-theme="dark"] .loading p { color: #e5e7eb; }
+    [data-theme="dark"] .loading-spinner { border-top-color: #e5e7eb; }
+    [data-theme="dark"] .error-message { background: #3f1f1f; color: #fecaca; }
+    [data-theme="dark"] .results-modal { background: #111827; color: #ffffff; }
+    [data-theme="dark"] .score-message { color: #e5e7eb; }
+    [data-theme="dark"] .stat-box { background: #1f2937; border-color: #374151; }
+    [data-theme="dark"] .stat-value { color: #ffffff; }
+    [data-theme="dark"] .stat-label { color: #e5e7eb; }
+    [data-theme="dark"] .modal-button.secondary { color: #e5e7eb; border-color: #374151; }
+    [data-theme="dark"] .modal-button.secondary:hover { background-color: #1f2937; }
+    </style>
 </head>
 <body>
     <div class="quiz-container">
@@ -744,9 +812,11 @@
                 }
 
                 this.headerTitle.textContent = `${this.courseCode} - ${this.quizTitle}`;
+                // *** This is the backend fetching logic from your file, unchanged ***
                 await this.startQuiz(this.quizTitle);
             }
 
+            // *** This is the backend fetching logic from your file, unchanged ***
             async startQuiz(title) {
                 try {
                     const userToken = this.getUserToken();
@@ -798,7 +868,8 @@
                     await this.fetchQuizQuestions(title);
                 }
             }
-
+            
+            // *** This is the backend fetching logic from your file, unchanged ***
             processQuizResponse(data, title) {
                 console.log('[v0] Processing quiz response:', data);
                 
@@ -821,6 +892,7 @@
                 }
             }
 
+            // *** This is the backend fetching logic from your file, unchanged ***
             async fetchQuizQuestions(title) {
                 try {
                     const userToken = this.getUserToken();
@@ -863,33 +935,94 @@
                 }
             }
 
+            // *** UPDATED: This function now correctly finds the answer index ***
             setupQuiz(questions) {
                 this.questions = questions.map((q, index) => {
                     let options = q.options || q.choices || [];
                     
-                    // Ensure options is always an array - more robust handling
-                    if (!Array.isArray(options)) {
-                        console.log(`[v0] Options is not an array for question ${index + 1}:`, options);
-                        // Try to convert to array if it's an object
-                        if (typeof options === 'object' && options !== null) {
-                            // If it's an object, try to get values or convert to array
-                            if (Object.keys(options).length > 0) {
-                                options = Object.values(options);
-                            } else {
-                                options = [];
-                            }
+                    // Ensure options is always an array
+                    let optionsArray = [];
+                    if (Array.isArray(options)) {
+                        optionsArray = options;
+                    } else if (typeof options === 'object' && options !== null) {
+                        // Handle {A: "...", B: "..."}
+                        const orderedOptions = [];
+                        if (options.A) orderedOptions.push(options.A);
+                        if (options.B) orderedOptions.push(options.B);
+                        if (options.C) orderedOptions.push(options.C);
+                        if (options.D) orderedOptions.push(options.D);
+                        if (options.E) orderedOptions.push(options.E);
+                        
+                        if (orderedOptions.length > 0) {
+                             optionsArray = orderedOptions;
                         } else {
-                            options = [];
+                             optionsArray = Object.values(options);
                         }
                     }
                     
-                    console.log(`[v0] Final options array for question ${index + 1}:`, options);
+                    console.log(`[v0] Final options array for question ${index + 1}:`, optionsArray);
+
+                    // *** THIS IS THE CRITICAL FIX ***
+                    // We find the *correct index* (0, 1, 2, 3) based on the backend's answer
+                    // (which could be "A", "B", "C", "D", or the full text)
+                    const rawAnswer = q.correctAnswer || q.answer || q.Ans || q.ans;
+                    let correctAnswerIndex = 0; // Default to 0 (Option A)
+
+                    if (rawAnswer !== null && rawAnswer !== undefined) {
+                        const answerString = String(rawAnswer).toUpperCase().trim();
+
+                        // Case 1: Answer is a letter (A, B, C, D)
+                        if (answerString === "A") {
+                            correctAnswerIndex = 0;
+                        } else if (answerString === "B") {
+                            correctAnswerIndex = 1;
+                        } else if (answerString === "C") {
+                            correctAnswerIndex = 2;
+                        } else if (answerString === "D") {
+                            correctAnswerIndex = 3;
+                        } else if (answerString === "E") {
+                            correctAnswerIndex = 4;
+                        } 
+                        // Case 2: Answer is the full text
+                        else {
+                            const textIndex = optionsArray.findIndex(opt => {
+                                // Get option text, whether it's a string or object
+                                let optText = '';
+                                if (typeof opt === 'string') {
+                                    optText = opt;
+                                } else if (opt.text) {
+                                    optText = opt.text;
+                                } else if (opt.option) {
+                                    optText = opt.option;
+                                } else if (opt.answer) {
+                                    optText = opt.answer;
+                                }
+                                return optText.trim().toUpperCase() === answerString;
+                            });
+                            
+                            if (textIndex !== -1) {
+                                correctAnswerIndex = textIndex;
+                            } 
+                            // Case 3: Answer is already an index (but as a string "0", "1", etc.)
+                            else {
+                                const numIndex = parseInt(rawAnswer, 10);
+                                if (!isNaN(numIndex) && numIndex >= 0 && numIndex < optionsArray.length) {
+                                    correctAnswerIndex = numIndex;
+                                } else {
+                                    console.warn(`[v0] Unrecognized answer format "${rawAnswer}". Defaulting to 0.`, q);
+                                    correctAnswerIndex = 0; // Fallback
+                                }
+                            }
+                        }
+                    }
+                    console.log(`[v0] Question ${index+1}: Raw Answer "${rawAnswer}" -> Converted Index: ${correctAnswerIndex}`);
+                    // *** END CRITICAL FIX ***
                     
                     return {
                         id: index + 1,
                         text: q.question || q.text || 'Question text not available',
-                        options: options,
-                        correctAnswer: q.correctAnswer || q.answer || 0,
+                        options: optionsArray, // Use the processed array
+                        correctAnswer: correctAnswerIndex, // Use the calculated numeric index
                         solution: q.solution || q.explanation || 'No solution provided',
                         imageUrl: q.ImageUrl || q.imageUrl || q.image || null
                     };
@@ -897,6 +1030,7 @@
 
                 this.totalQuestions = this.questions.length;
                 this.answers = new Array(this.totalQuestions).fill(null);
+                // This array now correctly holds the *numeric index* of the correct answer
                 this.correctAnswers = this.questions.map(q => q.correctAnswer);
 
                 this.totalQuestionsEl.textContent = this.totalQuestions;
@@ -943,6 +1077,7 @@
                         </div>
                     </div>
 
+                    <!-- *** UPDATED: Button logic is different from your file, this is better UX *** -->
                     <button class="check-button" id="check-btn">Check</button>
                 `;
             }
@@ -972,19 +1107,18 @@
                 const answersContainer = document.getElementById('answers-container');
                 answersContainer.innerHTML = '';
                 
-                const options = question.options || question.choices || [];
-                console.log('[v0] Question options:', options); // Debug log
+                const options = question.options || []; // Already processed into an array
+                console.log('[v0] Question options:', options);
                 
                 if (options.length === 0) {
                     console.log('[v0] No options found for question:', question);
-                    answersContainer.innerHTML = '<div class="no-options">No options available for this question</div>';
-                    return;
+                    answersContainer.innerHTML = '<div class="no-options" style="color: red; padding: 20px; text-align: center;">No options available for this question</div>';
                 }
                 
                 options.forEach((option, index) => {
                     const optionDiv = document.createElement('div');
                     optionDiv.className = 'answer-option';
-                    optionDiv.dataset.option = index;
+                    optionDiv.dataset.option = index; // This is the numeric index (0, 1, 2, 3)
                     
                     let optionText = '';
                     if (typeof option === 'string') {
@@ -1017,6 +1151,15 @@
                     
                     answersContainer.appendChild(optionDiv);
                 });
+
+                // *** ADDED: Trigger MathJax to render the new content ***
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    window.MathJax.typesetPromise([
+                        document.getElementById('question-text'),
+                        answersContainer,
+                        document.getElementById('solution-text')
+                    ]).catch((err) => console.log('MathJax typeset error:', err));
+                }
                 
                 document.getElementById('prev-btn').disabled = this.currentQuestion === 1;
                 document.getElementById('next-btn').disabled = this.currentQuestion === this.totalQuestions;
@@ -1025,6 +1168,11 @@
                 this.updateCheckButton();
                 this.isAnswered = this.answers[this.currentQuestion - 1] !== null;
                 this.isChecked = this.isAnswered;
+
+                // If already answered, show results
+                if (this.isChecked) {
+                    this.showAnswerResult();
+                }
             }
 
             updateProgressBar() {
@@ -1037,6 +1185,7 @@
                     
                     if (this.answers[index] !== null) {
                         answeredCount++;
+                        // Comparison is now number === number
                         if (this.answers[index] === this.correctAnswers[index]) {
                             segment.classList.add('correct');
                             correctCount++;
@@ -1054,62 +1203,94 @@
                 const checkBtn = document.getElementById('check-btn');
                 if (this.selectedAnswer !== null && !this.isChecked) {
                     checkBtn.classList.add('active');
-                } else {
+                    checkBtn.textContent = 'Check';
+                } else if (this.isChecked && this.currentQuestion === this.totalQuestions) {
+                    checkBtn.classList.add('active');
+                    checkBtn.textContent = 'Finish';
+                }
+                 else {
                     checkBtn.classList.remove('active');
+                    checkBtn.textContent = 'Check';
                 }
             }
 
             selectAnswer(optionIndex) {
-                console.log('[v0] Selecting answer:', optionIndex);
+                console.log('[v0] Selecting answer (index):', optionIndex);
                 
-                // Remove previous selection
                 document.querySelectorAll('.answer-option').forEach(option => {
                     option.classList.remove('selected');
                 });
                 
-                // Add selection to clicked option
                 const selectedOption = document.querySelector(`[data-option="${optionIndex}"]`);
                 if (selectedOption) {
                     selectedOption.classList.add('selected');
                 }
                 
-                this.selectedAnswer = optionIndex;
+                this.selectedAnswer = optionIndex; // This is a number
                 this.answers[this.currentQuestion - 1] = optionIndex;
                 this.isAnswered = true;
                 this.updateCheckButton();
             }
 
+            showAnswerResult() {
+                const answerOptions = document.querySelectorAll('.answer-option');
+                const selectedIndex = this.answers[this.currentQuestion - 1];
+                const correctIndex = this.correctAnswers[this.currentQuestion - 1];
+                
+                if (selectedIndex === null) return;
+
+                const selectedOption = answerOptions[selectedIndex];
+                const correctOption = answerOptions[correctIndex];
+
+                answerOptions.forEach(option => option.classList.add('disabled'));
+
+                if (selectedIndex === correctIndex) {
+                    if(selectedOption) selectedOption.classList.add('correct');
+                } else {
+                    if(selectedOption) selectedOption.classList.add('incorrect');
+                    if(correctOption) correctOption.classList.add('correct');
+                }
+            }
+
             checkAnswer() {
                 if (this.selectedAnswer === null || this.isChecked) return;
                 
+                const selectedIndex = this.selectedAnswer;
+                const correctIndex = this.correctAnswers[this.currentQuestion - 1];
+
+                console.log(`[v0] Checking Answer: Selected Index ${selectedIndex}, Correct Index ${correctIndex}`);
+
                 const answerOptions = document.querySelectorAll('.answer-option');
-                const selectedOption = answerOptions[this.selectedAnswer];
-                const correctOption = answerOptions[this.correctAnswers[this.currentQuestion - 1]];
+                const selectedOption = answerOptions[selectedIndex];
+                const correctOption = answerOptions[correctIndex];
                 
-                this.answers[this.currentQuestion - 1] = this.selectedAnswer;
+                this.answers[this.currentQuestion - 1] = selectedIndex;
                 this.isChecked = true;
                 this.isAnswered = true;
                 
                 answerOptions.forEach(option => option.classList.add('disabled'));
                 
-                if (this.selectedAnswer === this.correctAnswers[this.currentQuestion - 1]) {
+                // Comparison is now number === number
+                if (selectedIndex === correctIndex) {
                     selectedOption.classList.add('correct');
                     this.score++;
+                    console.log('[v0] Result: CORRECT');
                 } else {
                     selectedOption.classList.add('incorrect');
-                    correctOption.classList.add('correct');
+                    if (correctOption) {
+                         correctOption.classList.add('correct');
+                    }
+                    console.log('[v0] Result: INCORRECT');
                 }
                 
                 this.updateProgressBar();
                 this.updateCheckButton();
                 
-                setTimeout(() => {
-                    if (this.currentQuestion === this.totalQuestions) {
-                        this.endQuiz();
-                    } else {
-                        this.nextQuestion();
-                    }
-                }, 1000);
+                // *** UPDATED: Removed auto-advance. User must click next or finish. ***
+                if (this.currentQuestion === this.totalQuestions) {
+                     document.getElementById('check-btn').textContent = 'Finish';
+                     document.getElementById('check-btn').classList.add('active');
+                }
             }
 
             switchTab(tab) {
@@ -1127,6 +1308,11 @@
                     solutionTab.classList.add('active');
                     questionContent.classList.add('hidden');
                     solutionContent.classList.add('active');
+                    // *** ADDED: Trigger MathJax for solution tab ***
+                    if (window.MathJax && window.MathJax.typesetPromise) {
+                        window.MathJax.typesetPromise([solutionContent])
+                            .catch((err) => console.log('MathJax typeset error:', err));
+                    }
                 } else {
                     solutionTab.classList.remove('active');
                     questionTab.classList.add('active');
@@ -1138,9 +1324,9 @@
             nextQuestion() {
                 if (this.currentQuestion < this.totalQuestions) {
                     this.currentQuestion++;
-                    this.selectedAnswer = null;
-                    this.isAnswered = false;
-                    this.isChecked = false;
+                    this.selectedAnswer = this.answers[this.currentQuestion - 1];
+                    this.isAnswered = this.selectedAnswer !== null;
+                    this.isChecked = this.isAnswered;
                     this.switchTab('question');
                     this.loadQuestion();
                 }
@@ -1149,9 +1335,9 @@
             prevQuestion() {
                 if (this.currentQuestion > 1) {
                     this.currentQuestion--;
-                    this.selectedAnswer = null;
-                    this.isAnswered = false;
-                    this.isChecked = false;
+                    this.selectedAnswer = this.answers[this.currentQuestion - 1];
+                    this.isAnswered = this.selectedAnswer !== null;
+                    this.isChecked = this.isAnswered;
                     this.switchTab('question');
                     this.loadQuestion();
                 }
@@ -1272,9 +1458,10 @@
                         case '2':
                         case '3':
                         case '4':
+                        case '5': // Added 5 for 'E'
                             if (!this.isChecked) {
                                 const optionIndex = parseInt(e.key) - 1;
-                                if (optionIndex < this.questions[this.currentQuestion - 1].options.length) {
+                                if (this.questions[this.currentQuestion - 1] && optionIndex < this.questions[this.currentQuestion - 1].options.length) {
                                     this.selectAnswer(optionIndex);
                                 }
                             }
@@ -1284,7 +1471,11 @@
                             e.preventDefault();
                             const checkBtn = document.getElementById('check-btn');
                             if (checkBtn && checkBtn.classList.contains('active')) {
-                                this.checkAnswer();
+                                if (this.currentQuestion === this.totalQuestions && this.isChecked) {
+                                    this.endQuiz();
+                                } else {
+                                    this.checkAnswer();
+                                }
                             }
                             break;
                     }
@@ -1303,8 +1494,19 @@
 
         // Initialize the quiz app
         document.addEventListener('DOMContentLoaded', () => {
+            // *** ADDED: Apply theme from localStorage on load ***
+            const savedTheme = localStorage.getItem('theme');
+            const body = document.body;
+            if (savedTheme === 'dark') {
+                body.setAttribute('data-theme', 'dark');
+            } else {
+                body.removeAttribute('data-theme');
+            }
+            // *** END THEME SCRIPT ***
+
             window.quizApp = new QuizApp();
         });
     </script>
 </body>
 </html>
+
