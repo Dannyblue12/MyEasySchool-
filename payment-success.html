@@ -194,7 +194,7 @@
             transition: opacity 0.5s ease;
         }
 
-        /* *** NEW: Verification Loading Overlay *** */
+        /* Verification Loading Overlay */
         .verification-loading-overlay {
             position: fixed;
             top: 0;
@@ -574,7 +574,6 @@
             background-color: #ffffff; /* Solid background */
             border-radius: var(--border-radius);
             padding: 32px 24px 24px;
-            /* *** UPDATED: Increased modal size *** */
             max-width: 360px; 
             width: 90%;
             position: relative;
@@ -669,7 +668,6 @@
                 font-size: 11px;
             }
             .modal-content {
-                 /* *** UPDATED: Increased modal size *** */
                 max-width: 320px;
                 padding: 28px 20px 20px;
             }
@@ -700,7 +698,7 @@
         </div>
     </div>
 
-    <!-- *** NEW: Verification Loading Overlay *** -->
+    <!-- Verification Loading Overlay -->
     <div id="verificationLoadingOverlay" class="verification-loading-overlay">
         <div class="verification-spinner"></div>
     </div>
@@ -784,7 +782,7 @@
                     </svg>
                 </button>
                 <button id="retryBtn" class="action-button secondary" onclick="retryPayment()" style="display: none;">
-                    <span>Try Again</span>
+                    <span>Verify Payment</span>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="23,4 23,10 17,10"></polyline>
                         <path d="M20.49,15a9,9,0,1,1-2.12-9.36L23,10"></path>
@@ -992,13 +990,16 @@
                     console.log(`[v0] Payment verification response:`, data);
                     
                     if (response.ok && data.success) {
-                        const payment = data.data;
+                        // *** FIX 1: Check data.data OR data.payment ***
+                        const payment = data.data || data.payment;
                         
-                        if (payment.status === 'success') {
+                        // *** FIX 2: Use case-insensitive check ***
+                        if (payment.status && payment.status.toLowerCase() === 'success') {
                             showPaymentSuccess(payment);
                             await updateUserSubscriptionStatus(); 
                             return true;
-                        } else if (payment.status === 'pending') {
+                        // *** FIX 2: Use case-insensitive check ***
+                        } else if (payment.status && payment.status.toLowerCase() === 'pending') {
                             showPaymentPending(payment);
                             return false;
                         } else {
@@ -1065,7 +1066,6 @@
             document.getElementById('resultSubtitle').textContent = 'Your subscription has been activated successfully.';
             
             if (payment) {
-                // *** UPDATED: Removed / 100 ***
                 const amount = payment.amount || 0; 
                 document.getElementById('paymentAmount').textContent = `₦${amount.toLocaleString()}`;
                 document.getElementById('paymentAmount').className = 'payment-amount';
@@ -1093,7 +1093,6 @@
             document.getElementById('resultSubtitle').textContent = 'Your payment is being processed. Please wait or try verifying again.';
             
             if (payment) {
-                // *** UPDATED: Removed / 100 ***
                 const amount = payment.amount || 0;
                 document.getElementById('paymentAmount').textContent = `₦${amount.toLocaleString()}`;
                 document.getElementById('paymentAmount').className = 'payment-amount pending';
@@ -1121,7 +1120,6 @@
             document.getElementById('resultSubtitle').textContent = message || 'We could not verify your payment. Please try again or contact support.';
             
             if (payment) {
-                // *** UPDATED: Removed / 100 ***
                 const amount = payment.amount || 0;
                 document.getElementById('paymentAmount').textContent = `₦${amount.toLocaleString()}`;
                 document.getElementById('paymentAmount').className = 'payment-amount failed';
@@ -1219,7 +1217,6 @@
                 const statusIcon = getStatusIcon(payment.status || 'pending');
                 const showVerifyButton = (payment.status || '').toLowerCase() === 'pending';
                 
-                // *** UPDATED: Removed / 100 ***
                 const amount = payment.amount || 0;
                 const displayAmount = amount > 0 ? amount.toLocaleString() : 'N/A';
                 
@@ -1251,7 +1248,7 @@
                                     onclick="verifyPayment('${payment.reference}')"
                                     data-reference="${payment.reference}"
                                 >
-                                    <span class="btn-text">Verify your payment</span>
+                                    <span class="btn-text">Verify</span>
                                 </button>
                             ` : ''}
                         </div>
@@ -1293,7 +1290,6 @@
             const button = document.querySelector(`[data-reference="${reference}"]`);
             if (!button) return;
             
-            // *** NEW: Show verification overlay ***
             const overlay = document.getElementById('verificationLoadingOverlay');
             overlay.classList.add('show');
             
@@ -1321,7 +1317,8 @@
                 if (response.ok && data.success) {
                     const payment = data.data || data.payment;
                     
-                    if (payment.status === 'success') {
+                    // *** FIX 2: Use case-insensitive check ***
+                    if (payment.status && payment.status.toLowerCase() === 'success') {
                         showAlert('Payment verified successfully! Account activated.', 'success');
                         await updateUserSubscriptionStatus(); 
                         await loadRecentPayments();
@@ -1345,10 +1342,8 @@
                 showAlert(`Error: ${error.message}`, 'error');
                 showPaymentFailureModal();
             } finally {
-                // *** NEW: Hide verification overlay ***
                 overlay.classList.remove('show');
                 
-                // Reset button state (if it still exists)
                 const currentButton = document.querySelector(`[data-reference="${reference}"]`);
                 if (currentButton) {
                     currentButton.disabled = false;
@@ -1427,7 +1422,7 @@
                     document.getElementById('paymentResult').style.display = 'block';
                 });
             } else {
-                window.location.href = 'payment-success.html';
+                window.location.href = 'payment.html';
             }
         }
 
