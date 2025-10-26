@@ -1111,8 +1111,8 @@ body[data-theme="dark"] { background-color: #0f172a; }
                     
                     console.log(`[v0] Final options array for question ${index + 1}:`, optionsArray);
                     
-                    // *** BUG FIX: Convert answer to numeric index ***
-                    const rawAnswer = q.correctAnswer || q.answer || q.Ans; // Get the raw answer
+                    // *** FIX: Added q.ans (lowercase) ***
+                    const rawAnswer = q.correctAnswer || q.answer || q.Ans || q.ans; // Get the raw answer
                     let correctAnswerIndex = 0; // Default to 0 (Option A)
 
                     if (rawAnswer !== null && rawAnswer !== undefined) {
@@ -1133,8 +1133,20 @@ body[data-theme="dark"] { background-color: #0f172a; }
                         // Case 2: Answer is the full text
                         else {
                             const textIndex = optionsArray.findIndex(opt => {
-                                const optText = (typeof opt === 'string' ? opt : opt.text || '').trim();
-                                return optText.toUpperCase() === answerString;
+                                // *** FIX: Use the same logic as loadQuestion to get option text ***
+                                let optText = '';
+                                if (typeof opt === 'string') {
+                                    optText = opt;
+                                } else if (opt.text) {
+                                    optText = opt.text;
+                                } else if (opt.option) {
+                                    optText = opt.option;
+                                } else if (opt.answer) {
+                                    optText = opt.answer;
+                                }
+                                // *** END FIX ***
+                                
+                                return optText.trim().toUpperCase() === answerString;
                             });
                             
                             if (textIndex !== -1) {
@@ -1153,7 +1165,6 @@ body[data-theme="dark"] { background-color: #0f172a; }
                         }
                     }
                     console.log(`[v0] Question ${index+1}: Raw Answer "${rawAnswer}" -> Converted Index: ${correctAnswerIndex}`);
-                    // *** END BUG FIX ***
                     
                     return {
                         id: index + 1,
@@ -1815,4 +1826,3 @@ body[data-theme="dark"] { background-color: #0f172a; }
     </script>
 </body>
 </html>
-
