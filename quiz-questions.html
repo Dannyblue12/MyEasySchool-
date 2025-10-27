@@ -816,9 +816,9 @@
                 this.courseCode = urlParams.get('courseCode');
                 this.quizTitle = urlParams.get('quizTitle');
                 
-                console.log('[v5] Course ID:', this.courseId);
-                console.log('[v5] Course Code:', this.courseCode);
-                console.log('[v5] Quiz Title:', this.quizTitle);
+                console.log('[v6] Course ID:', this.courseId);
+                console.log('[v6] Course Code:', this.courseCode);
+                console.log('[v6] Quiz Title:', this.quizTitle);
             }
 
             getUserToken() {
@@ -842,7 +842,7 @@
                         throw new Error('No authentication token found');
                     }
 
-                    console.log('[v5] Starting quiz with POST request');
+                    console.log('[v6] Starting quiz with POST request');
                     const response = await fetch(`${API_BASE}/quiz/start`, {
                         method: 'POST',
                         headers: {
@@ -881,13 +881,13 @@
                     this.processQuizResponse(data, title);
                     
                 } catch (error) {
-                    console.error('[v5] Error starting quiz:', error);
+                    console.error('[v6] Error starting quiz:', error);
                     await this.fetchQuizQuestions(title);
                 }
             }
             
             processQuizResponse(data, title) {
-                console.log('[v5] Processing quiz response:', data);
+                console.log('[v6] Processing quiz response:', data);
                 
                 let questions = null;
                 
@@ -928,7 +928,7 @@
                     }
 
                     const data = await response.json();
-                    console.log('[v5] Quiz questions data received:', data);
+                    console.log('[v6] Quiz questions data received:', data);
                     
                     let selectedQuiz = null;
                     
@@ -945,91 +945,74 @@
                     }
 
                 } catch (error) {
-                    console.error('[v5] Error fetching quiz questions:', error);
+                    console.error('[v6] Error fetching quiz questions:', error);
                     this.displayError(`Error fetching quiz questions: ${error.message}`);
                 }
             }
 
             /**
-             * *** THIS IS THE NEW, ROBUST setupQuiz FUNCTION (v5) ***
-             * This function robustly converts any backend option format (array, object)
-             * into a simple array of strings AND forces A, B, C, D order for objects.
+             * *** THIS IS THE NEW, ROBUST setupQuiz FUNCTION (v6) ***
+             * This function assumes NOTHING.
+             * It sorts the keys (A, B, C) to guarantee order.
+             * It finds the answer index based on that sorted list.
              */
             setupQuiz(questions) {
                 this.questions = questions.map((q, index) => {
-                    const rawOptions = q.options || q.choices || [];
+                    const rawOptions = q.options || q.choices || {};
                     const rawAnswer = q.correctAnswer || q.answer || q.Ans || q.ans;
                     
-                    let finalOptionsArray = []; // This will be our simple string array
-                    let finalCorrectIndex = 0; // Default to 0 (Option A)
+                    let finalOptionsArray = [];
+                    let finalCorrectIndex = -1; // Start at -1 to show errors
+                    
+                    console.log(`[v6] Q ${index+1}: Processing...`, q);
 
-                    if (Array.isArray(rawOptions)) {
+                    if (typeof rawOptions === 'object' && rawOptions !== null && !Array.isArray(rawOptions)) {
+                        // --- HANDLE OBJECT FORMAT (User's JSON) ---
+                        // e.g., { "A": "...", "C": "...", "B": "..." }
+                        
+                        // 1. Get keys and SORT them alphabetically to guarantee A, B, C order
+                        // This fixes the "always A" bug.
+                        const sortedKeys = Object.keys(rawOptions).sort((a, b) => a.localeCompare(b));
+                        // e.g., ["A", "B", "C", "D"]
+                        
+                        // 2. Build the final options array based on the sorted keys
+                        finalOptionsArray = sortedKeys.map(key => rawOptions[key]);
+                        // e.g., ["Values.", "Norms.", "Beliefs.", "Traditions."]
+                        
+                        // 3. Find the correct answer index
+                        const answerLetter = String(rawAnswer).trim().toUpperCase();
+                        
+                        // Find the index of the answer letter in our SORTED key list
+                        finalCorrectIndex = sortedKeys.findIndex(key => key.toUpperCase() === answerLetter);
+                        // e.g., if answerLetter="B", sortedKeys.findIndex... is 1
+                        
+                        console.log(`[v6] Q ${index+1}: Object format. Sorted Keys: [${sortedKeys.join(', ')}]. Answer: "${rawAnswer}" -> Index: ${finalCorrectIndex}`);
+
+                    } else if (Array.isArray(rawOptions)) {
                         // --- HANDLE ARRAY FORMAT ---
-                        // Assumes rawAnswer is FULL TEXT, e.g., "Norms."
-                        console.log(`[v5] Q ${index+1}: Array format detected.`);
+                        // e.g., ["Values.", "Norms."]
+                        console.log(`[v6] Q ${index+1}: Array format detected.`);
                         finalOptionsArray = rawOptions.map(opt => (typeof opt === 'string') ? opt : (opt.text || "Invalid"));
                         
+                        // In array format, answer MUST be the full text
                         finalCorrectIndex = finalOptionsArray.findIndex(opt => 
                             String(opt).trim().toUpperCase() === String(rawAnswer).trim().toUpperCase()
                         );
                         
-                        if (finalCorrectIndex === -1) {
-                            console.warn(`[v5] Q ${index+1}: Array format, but answer "${rawAnswer}" not found in options. Defaulting to 0.`);
-                            finalCorrectIndex = 0;
-                        }
+                        console.log(`[v6] Q ${index+1}: Array format. Answer: "${rawAnswer}" -> Index: ${finalCorrectIndex}`);
 
-                    } else if (typeof rawOptions === 'object' && rawOptions !== null) {
-                        // --- HANDLE OBJECT FORMAT (User's JSON) ---
-                        // Assumes rawAnswer is a LETTER, e.g., "B"
-                        console.log(`[v5] Q ${index+1}: Object format detected.`);
-                        
-                        // Build array in A, B, C, D, E order
-                        const tempOptions = [];
-                        if (rawOptions.A !== undefined) tempOptions.push({ key: 'A', text: rawOptions.A });
-                        if (rawOptions.B !== undefined) tempOptions.push({ key: 'B', text: rawOptions.B });
-                        if (rawOptions.C !== undefined) tempOptions.push({ key: 'C', text: rawOptions.C });
-                        if (rawOptions.D !== undefined) tempOptions.push({ key: 'D', text: rawOptions.D });
-                        if (rawOptions.E !== undefined) tempOptions.push({ key: 'E', text: rawOptions.E });
-
-                        // Fallback if no A,B,C keys
-                        if (tempOptions.length === 0) {
-                            console.warn(`[v5] Q ${index+1}: Object format has no A,B,C keys. Using insertion order.`);
-                            Object.keys(rawOptions).forEach(key => {
-                                tempOptions.push({ key: key, text: rawOptions[key] });
-                            });
-                        }
-                        
-                        finalOptionsArray = tempOptions.map(opt => opt.text);
-                        
-                        const answerLetter = String(rawAnswer).trim().toUpperCase();
-                        
-                        // Find index by matching the *key* (A, B, C)
-                        finalCorrectIndex = tempOptions.findIndex(opt => opt.key.toUpperCase() === answerLetter);
-
-                        if (finalCorrectIndex === -1) {
-                            // Fallback: Check if answer is full text
-                            console.warn(`[v5] Q ${index+1}: Object format, but answer letter "${answerLetter}" not found. Trying full text match.`);
-                            finalCorrectIndex = finalOptionsArray.findIndex(optText => 
-                                String(optText).trim().toUpperCase() === answerLetter
-                            );
-                            
-                            if(finalCorrectIndex === -1) {
-                                 console.error(`[v5] Q ${index+1}: FATAL. Could not match answer "${rawAnswer}". Defaulting to 0.`);
-                                 finalCorrectIndex = 0;
-                            }
-                        }
                     } else {
-                        console.error(`[v5] Q ${index+1}: Unknown options format.`, rawOptions);
+                        console.error(`[v6] Q ${index+1}: Unknown or empty options format.`, rawOptions);
                     }
 
                     
-                    // Final safety check to prevent "out of bounds" errors
+                    // Final safety check. If index is -1 (not found) or invalid, default to 0.
                     if (finalCorrectIndex < 0 || finalCorrectIndex >= finalOptionsArray.length) {
-                        console.warn(`[v5] Q ${index+1}: Index ${finalCorrectIndex} is out of bounds for options. Defaulting to 0.`);
+                        console.error(`[v6] Q ${index+1}: Could not find answer "${rawAnswer}" in options. Defaulting to 0.`, rawOptions);
                         finalCorrectIndex = 0;
                     }
 
-                    console.log(`[v5] Q ${index+1}: Final Index: ${finalCorrectIndex} | Answer: "${rawAnswer}"`, finalOptionsArray);
+                    console.log(`[v6] Q ${index+1}: Final Index: ${finalCorrectIndex}`, finalOptionsArray);
                     
                     return {
                         id: index + 1,
@@ -1095,11 +1078,6 @@
                 `;
             }
 
-            /**
-             * *** THIS IS THE SIMPLIFIED loadQuestion FUNCTION ***
-             * It now only *displays* the options, as all processing
-             * is done reliably in setupQuiz.
-             */
             loadQuestion() {
                 const question = this.questions[this.currentQuestion - 1];
                 
@@ -1114,7 +1092,7 @@
                     questionImage.src = question.imageUrl;
                     questionImage.classList.add('visible');
                     questionImage.onerror = function() {
-                        console.log('[v5] Failed to load image:', question.imageUrl);
+                        console.log('[v6] Failed to load image:', question.imageUrl);
                         this.classList.remove('visible');
                     };
                 } else {
@@ -1221,7 +1199,7 @@
             }
 
             selectAnswer(optionIndex) {
-                console.log('[v5] Selecting answer (index):', optionIndex);
+                console.log('[v6] Selecting answer (index):', optionIndex);
                 
                 document.querySelectorAll('.answer-option').forEach(option => {
                     option.classList.remove('selected');
@@ -1262,10 +1240,16 @@
             checkAnswer() {
                 if (this.selectedAnswer === null || this.isChecked) return;
                 
+                // *** ADDED: Check for Finish button click ***
+                if (this.currentQuestion === this.totalQuestions) {
+                    this.endQuiz();
+                    return;
+                }
+                
                 const selectedIndex = this.selectedAnswer;
                 const correctIndex = this.correctAnswers[this.currentQuestion - 1];
 
-                console.log(`[v5] Checking Answer: Selected Index ${selectedIndex}, Correct Index ${correctIndex}`);
+                console.log(`[v6] Checking Answer: Selected Index ${selectedIndex}, Correct Index ${correctIndex}`);
 
                 const answerOptions = document.querySelectorAll('.answer-option');
                 if (answerOptions.length === 0) return;
@@ -1283,13 +1267,13 @@
                 if (selectedIndex === correctIndex) {
                     if (selectedOption) selectedOption.classList.add('correct');
                     this.score++;
-                    console.log('[v5] Result: CORRECT');
+                    console.log('[v6] Result: CORRECT');
                 } else {
                     if (selectedOption) selectedOption.classList.add('incorrect');
                     if (correctOption) {
                          correctOption.classList.add('correct');
                     }
-                    console.log('[v5] Result: INCORRECT');
+                    console.log('[v6] Result: INCORRECT');
                 }
                 
                 this.updateProgressBar();
@@ -1298,7 +1282,8 @@
                 // Auto-advance logic with a 1-second delay
                 setTimeout(() => {
                     if (this.currentQuestion === this.totalQuestions) {
-                        this.endQuiz();
+                        // This will just update the button to "Finish"
+                        this.updateCheckButton();
                     } else {
                         this.nextQuestion();
                     }
