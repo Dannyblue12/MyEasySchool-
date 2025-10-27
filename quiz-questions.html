@@ -773,10 +773,6 @@
     </div>
 
     <script>
-        // All JavaScript is exactly the same as your original file,
-        // except for the theme-checking script on DOMContentLoaded
-        // and the restored auto-advance logic in checkAnswer().
-
         const API_BASE = 'https://my-easy-school-api.onrender.com/api';
         
         class QuizApp {
@@ -820,9 +816,9 @@
                 this.courseCode = urlParams.get('courseCode');
                 this.quizTitle = urlParams.get('quizTitle');
                 
-                console.log('[v0] Course ID:', this.courseId);
-                console.log('[v0] Course Code:', this.courseCode);
-                console.log('[v0] Quiz Title:', this.quizTitle);
+                console.log('[v1] Course ID:', this.courseId);
+                console.log('[v1] Course Code:', this.courseCode);
+                console.log('[v1] Quiz Title:', this.quizTitle);
             }
 
             getUserToken() {
@@ -846,7 +842,7 @@
                         throw new Error('No authentication token found');
                     }
 
-                    console.log('[v0] Starting quiz with POST request');
+                    console.log('[v1] Starting quiz with POST request');
                     const response = await fetch(`${API_BASE}/quiz/start`, {
                         method: 'POST',
                         headers: {
@@ -885,13 +881,13 @@
                     this.processQuizResponse(data, title);
                     
                 } catch (error) {
-                    console.error('[v0] Error starting quiz:', error);
+                    console.error('[v1] Error starting quiz:', error);
                     await this.fetchQuizQuestions(title);
                 }
             }
             
             processQuizResponse(data, title) {
-                console.log('[v0] Processing quiz response:', data);
+                console.log('[v1] Processing quiz response:', data);
                 
                 let questions = null;
                 
@@ -932,7 +928,7 @@
                     }
 
                     const data = await response.json();
-                    console.log('[v0] Quiz questions data received:', data);
+                    console.log('[v1] Quiz questions data received:', data);
                     
                     let selectedQuiz = null;
                     
@@ -949,88 +945,102 @@
                     }
 
                 } catch (error) {
-                    console.error('[v0] Error fetching quiz questions:', error);
+                    console.error('[v1] Error fetching quiz questions:', error);
                     this.displayError(`Error fetching quiz questions: ${error.message}`);
                 }
             }
 
+            /**
+             * *** THIS IS THE NEW, ROBUST setupQuiz FUNCTION ***
+             * It processes all incoming question formats into a single, simple format
+             * to prevent mismatches between answer index and options display.
+             */
             setupQuiz(questions) {
                 this.questions = questions.map((q, index) => {
-                    let options = q.options || q.choices || [];
+                    const rawOptions = q.options || q.choices || [];
+                    const rawAnswer = q.correctAnswer || q.answer || q.Ans || q.ans;
                     
-                    let optionsArray = [];
-                    if (Array.isArray(options)) {
-                        optionsArray = options;
-                    } else if (typeof options === 'object' && options !== null) {
+                    let finalOptions = [];
+                    let finalCorrectIndex = 0;
+
+                    // 1. --- Process all option formats into a simple string array ---
+                    if (Array.isArray(rawOptions)) {
+                        // Options are an array, e.g., ["text1", "text2"] OR [{text: "text1"}, {text: "text2"}]
+                        finalOptions = rawOptions.map(opt => {
+                            if (typeof opt === 'string') {
+                                return opt;
+                            } else if (opt && typeof opt === 'object') {
+                                return opt.text || opt.option || opt.answer || "Invalid Option";
+                            }
+                            return "Invalid Option";
+                        });
+                    } else if (typeof rawOptions === 'object' && rawOptions !== null) {
+                        // Options are an object, e.g., {A: "text1", B: "text2"} OR {key1: "text1", key2: "text2"}
                         const orderedOptions = [];
-                        if (options.A) orderedOptions.push(options.A);
-                        if (options.B) orderedOptions.push(options.B);
-                        if (options.C) orderedOptions.push(options.C);
-                        if (options.D) orderedOptions.push(options.D);
-                        if (options.E) orderedOptions.push(options.E);
+                        if (rawOptions.A) orderedOptions.push(rawOptions.A);
+                        if (rawOptions.B) orderedOptions.push(rawOptions.B);
+                        if (rawOptions.C) orderedOptions.push(rawOptions.C);
+                        if (rawOptions.D) orderedOptions.push(rawOptions.D);
+                        if (rawOptions.E) orderedOptions.push(rawOptions.E);
                         
                         if (orderedOptions.length > 0) {
-                             optionsArray = orderedOptions;
+                             finalOptions = orderedOptions;
                         } else {
-                             optionsArray = Object.values(options);
+                             // Fallback for non-A,B,C objects
+                             finalOptions = Object.values(rawOptions);
                         }
                     }
-                    
-                    console.log(`[v0] Final options array for question ${index + 1}:`, optionsArray);
 
-                    const rawAnswer = q.correctAnswer || q.answer || q.Ans || q.ans;
-                    let correctAnswerIndex = 0; 
-
+                    // 2. --- Determine the correct answer index based on the processed options ---
                     if (rawAnswer !== null && rawAnswer !== undefined) {
-                        const answerString = String(rawAnswer).toUpperCase().trim();
+                        const answerString = String(rawAnswer).trim();
+                        const answerStringUpper = answerString.toUpperCase();
 
-                        if (answerString === "A") {
-                            correctAnswerIndex = 0;
-                        } else if (answerString === "B") {
-                            correctAnswerIndex = 1;
-                        } else if (answerString === "C") {
-                            correctAnswerIndex = 2;
-                        } else if (answerString === "D") {
-                            correctAnswerIndex = 3;
-                        } else if (answerString === "E") {
-                            correctAnswerIndex = 4;
-                        } 
-                        else {
-                            const textIndex = optionsArray.findIndex(opt => {
-                                let optText = '';
-                                if (typeof opt === 'string') {
-                                    optText = opt;
-                                } else if (opt.text) {
-                                    optText = opt.text;
-                                } else if (opt.option) {
-                                    optText = opt.option;
-                                } else if (opt.answer) {
-                                    optText = opt.answer;
-                                }
-                                return optText.trim().toUpperCase() === answerString;
-                            });
-                            
+                        // Try to match by letter (A=0, B=1, etc.)
+                        if (answerStringUpper === 'A') {
+                            finalCorrectIndex = 0;
+                        } else if (answerStringUpper === 'B') {
+                            finalCorrectIndex = 1;
+                        } else if (answerStringUpper === 'C') {
+                            finalCorrectIndex = 2;
+                        } else if (answerStringUpper === 'D') {
+                            finalCorrectIndex = 3;
+                        } else if (answerStringUpper === 'E') {
+                            finalCorrectIndex = 4;
+                        } else {
+                            // Try to match by full text
+                            const textIndex = finalOptions.findIndex(opt => 
+                                String(opt).trim().toUpperCase() === answerStringUpper
+                            );
+
                             if (textIndex !== -1) {
-                                correctAnswerIndex = textIndex;
-                            } 
-                            else {
-                                const numIndex = parseInt(rawAnswer, 10);
-                                if (!isNaN(numIndex) && numIndex >= 0 && numIndex < optionsArray.length) {
-                                    correctAnswerIndex = numIndex;
+                                finalCorrectIndex = textIndex;
+                            } else {
+                                // Try to match by numeric index
+                                const numIndex = parseInt(answerString, 10);
+                                if (!isNaN(numIndex) && numIndex >= 0 && numIndex < finalOptions.length) {
+                                    finalCorrectIndex = numIndex;
                                 } else {
-                                    console.warn(`[v0] Unrecognized answer format "${rawAnswer}". Defaulting to 0.`, q);
-                                    correctAnswerIndex = 0;
+                                    console.warn(`[v1] Unrecognized answer format "${rawAnswer}". Defaulting to 0.`, q);
+                                    finalCorrectIndex = 0; // Default fallback
                                 }
                             }
                         }
                     }
-                    console.log(`[v0] Question ${index+1}: Raw Answer "${rawAnswer}" -> Converted Index: ${correctAnswerIndex}`);
+                    
+                    // Ensure index is valid
+                    if (finalCorrectIndex < 0 || finalCorrectIndex >= finalOptions.length) {
+                        console.warn(`[v1] Correct index ${finalCorrectIndex} is out of bounds. Defaulting to 0.`, q);
+                        finalCorrectIndex = 0;
+                    }
+
+                    console.log(`[v1] Question ${index+1}: Raw Answer "${rawAnswer}" -> Converted Index: ${finalCorrectIndex}`);
                     
                     return {
                         id: index + 1,
                         text: q.question || q.text || 'Question text not available',
-                        options: optionsArray, 
-                        correctAnswer: correctAnswerIndex, 
+                        options: finalOptions, // This is now a simple string array
+                        correctAnswer: finalCorrectIndex, // This is the guaranteed correct index
                         solution: q.solution || q.explanation || 'No solution provided',
                         imageUrl: q.ImageUrl || q.imageUrl || q.image || null
                     };
@@ -1038,6 +1048,7 @@
 
                 this.totalQuestions = this.questions.length;
                 this.answers = new Array(this.totalQuestions).fill(null);
+                // This array now correctly holds the numeric index of the correct answer
                 this.correctAnswers = this.questions.map(q => q.correctAnswer);
 
                 this.totalQuestionsEl.textContent = this.totalQuestions;
@@ -1088,6 +1099,11 @@
                 `;
             }
 
+            /**
+             * *** THIS IS THE NEW, SIMPLIFIED loadQuestion FUNCTION ***
+             * It now only *displays* the options, as all processing
+             * is done in setupQuiz.
+             */
             loadQuestion() {
                 const question = this.questions[this.currentQuestion - 1];
                 
@@ -1102,7 +1118,7 @@
                     questionImage.src = question.imageUrl;
                     questionImage.classList.add('visible');
                     questionImage.onerror = function() {
-                        console.log('[v0] Failed to load image:', question.imageUrl);
+                        console.log('[v1] Failed to load image:', question.imageUrl);
                         this.classList.remove('visible');
                     };
                 } else {
@@ -1113,30 +1129,20 @@
                 const answersContainer = document.getElementById('answers-container');
                 answersContainer.innerHTML = '';
                 
+                // question.options is now guaranteed to be a simple array of strings
                 const options = question.options || [];
                 
                 if (options.length === 0) {
                     answersContainer.innerHTML = '<div class="no-options" style="color: var(--accent-red); padding: 20px; text-align: center;">No options available for this question</div>';
                 }
                 
-                options.forEach((option, index) => {
+                // Loop through the simple string array
+                options.forEach((optionText, index) => {
                     const optionDiv = document.createElement('div');
                     optionDiv.className = 'answer-option';
-                    optionDiv.dataset.option = index;
+                    optionDiv.dataset.option = index; // This is the numeric index (0, 1, 2, 3)
                     
-                    let optionText = '';
-                    if (typeof option === 'string') {
-                        optionText = option;
-                    } else if (option.text) {
-                        optionText = option.text;
-                    } else if (option.option) {
-                        optionText = option.option;
-                    } else if (option.answer) {
-                        optionText = option.answer;
-                    } else {
-                        optionText = `Option ${index + 1}`;
-                    }
-                    
+                    // No complex logic needed, just display the text
                     optionDiv.innerHTML = `
                         <span class="option-letter">${String.fromCharCode(65 + index)}</span>
                         <span class="option-text">${optionText}</span>
@@ -1156,6 +1162,7 @@
                     answersContainer.appendChild(optionDiv);
                 });
 
+                // Trigger MathJax to render the new content
                 if (window.MathJax && window.MathJax.typesetPromise) {
                     window.MathJax.typesetPromise([
                         document.getElementById('question-text'),
@@ -1172,6 +1179,7 @@
                 this.isAnswered = this.answers[this.currentQuestion - 1] !== null;
                 this.isChecked = this.isAnswered;
 
+                // If already answered, show results
                 if (this.isChecked) {
                     this.showAnswerResult();
                 }
@@ -1187,6 +1195,7 @@
                     
                     if (this.answers[index] !== null) {
                         answeredCount++;
+                        // Comparison is now number === number and is reliable
                         if (this.answers[index] === this.correctAnswers[index]) {
                             segment.classList.add('correct');
                             correctCount++;
@@ -1216,7 +1225,7 @@
             }
 
             selectAnswer(optionIndex) {
-                console.log('[v0] Selecting answer (index):', optionIndex);
+                console.log('[v1] Selecting answer (index):', optionIndex);
                 
                 document.querySelectorAll('.answer-option').forEach(option => {
                     option.classList.remove('selected');
@@ -1227,7 +1236,7 @@
                     selectedOption.classList.add('selected');
                 }
                 
-                this.selectedAnswer = optionIndex;
+                this.selectedAnswer = optionIndex; // This is a number
                 this.answers[this.currentQuestion - 1] = optionIndex;
                 this.isAnswered = true;
                 this.updateCheckButton();
@@ -1260,7 +1269,7 @@
                 const selectedIndex = this.selectedAnswer;
                 const correctIndex = this.correctAnswers[this.currentQuestion - 1];
 
-                console.log(`[v0] Checking Answer: Selected Index ${selectedIndex}, Correct Index ${correctIndex}`);
+                console.log(`[v1] Checking Answer: Selected Index ${selectedIndex}, Correct Index ${correctIndex}`);
 
                 const answerOptions = document.querySelectorAll('.answer-option');
                 if (answerOptions.length === 0) return;
@@ -1274,30 +1283,27 @@
                 
                 answerOptions.forEach(option => option.classList.add('disabled'));
                 
+                // This comparison is now reliable
                 if (selectedIndex === correctIndex) {
                     if (selectedOption) selectedOption.classList.add('correct');
                     this.score++;
-                    console.log('[v0] Result: CORRECT');
+                    console.log('[v1] Result: CORRECT');
                 } else {
                     if (selectedOption) selectedOption.classList.add('incorrect');
                     if (correctOption) {
                          correctOption.classList.add('correct');
                     }
-                    console.log('[v0] Result: INCORRECT');
+                    console.log('[v1] Result: INCORRECT');
                 }
                 
                 this.updateProgressBar();
                 this.updateCheckButton();
                 
-                // *** THIS IS THE FIX ***
-                // Restore auto-advance logic with a 1-second delay
-                // to allow the user to see the result.
+                // Auto-advance logic with a 1-second delay
                 setTimeout(() => {
                     if (this.currentQuestion === this.totalQuestions) {
-                        // It's the last question, end the quiz
                         this.endQuiz();
                     } else {
-                        // It's not the last question, move to the next one
                         this.nextQuestion();
                     }
                 }, 1000); // 1000ms = 1 second delay
@@ -1428,9 +1434,6 @@
                 // Check button
                 document.addEventListener('click', (e) => {
                     if (e.target.id === 'check-btn') {
-                        // The main checkAnswer() function now handles all logic
-                        // including auto-advance or finishing the quiz.
-                        // We just need to call it if it's active.
                         if (document.getElementById('check-btn').classList.contains('active')) {
                             this.checkAnswer();
                         }
@@ -1481,7 +1484,6 @@
                             e.preventDefault();
                             const checkBtn = document.getElementById('check-btn');
                             if (checkBtn && checkBtn.classList.contains('active')) {
-                                // The main checkAnswer() function now handles all logic
                                 this.checkAnswer();
                             }
                             break;
