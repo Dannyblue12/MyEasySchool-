@@ -30,54 +30,6 @@
     <!-- *** END MATHJAX SCRIPT *** -->
 
     <style>
-        /* * === DARK MODE THEME VARIABLES ===
-         * Copied directly from Dashboard.html to ensure 
-         * matching light/dark modes.
-        */
-        :root {
-            --bg-color: #ffffff;
-            --text-primary: #1a1a1a;
-            --text-secondary: #666666;
-            --text-muted: #9ca3af;
-            --card-bg: #ffffff;
-            --border-color: #e5e7eb;
-            --shadow-light: rgba(0, 0, 0, 0.08);
-            --shadow-medium: rgba(0, 0, 0, 0.15);
-            --accent-green: #22c55e;
-            --accent-green-light: rgba(34, 197, 94, 0.15);
-            --accent-red: #ef4444;
-            --accent-red-light: rgba(239, 68, 68, 0.15);
-            --surface-light: #f8f9fa;
-            --surface-dark: #e9ecef;
-            --link-color: #2196f3;
-            --link-color-light: #e3f2fd;
-            --primary-btn-bg: linear-gradient(135deg, #1a1a1a, #2d2d2d);
-            --primary-btn-text: #ffffff;
-        }
-
-        [data-theme=\"dark\"] {
-            --bg-color: #0f172a;
-            --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1;
-            --text-muted: #64748b;
-            --card-bg: #1e293b;
-            --border-color: #334155;
-            --shadow-light: rgba(0, 0, 0, 0.3);
-            --shadow-medium: rgba(0, 0, 0, 0.5);
-            --accent-green: #22c55e;
-            --accent-green-light: rgba(34, 197, 94, 0.15);
-            --accent-red: #ef4444;
-            --accent-red-light: rgba(239, 68, 68, 0.15);
-            --surface-light: #1e293b;
-            --surface-dark: #334155;
-            --link-color: #3b82f6;
-            --link-color-light: #1e3a8a;
-            --primary-btn-bg: linear-gradient(135deg, #f1f5f9, #e2e8f0);
-            --primary-btn-text: #1e293b;
-        }
-        /* === END THEME VARIABLES === */
-
-
         * {
             margin: 0;
             padding: 0;
@@ -86,35 +38,31 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
+            background-color: #f5f5f5;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 10px;
-            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .quiz-container {
-            background: var(--card-bg);
-            color: var(--text-primary);
+            background: white;
             border-radius: 16px;
-            box-shadow: 0 4px 20px var(--shadow-light);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
             min-height: 600px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            border: 1px solid var(--border-color);
         }
 
         .header {
             padding: 20px 20px 16px;
             text-align: center;
             position: relative;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid #f0f0f0;
         }
 
         .back-arrow {
@@ -126,19 +74,19 @@
             border: none;
             font-size: 18px;
             cursor: pointer;
-            color: var(--text-secondary);
+            color: #666;
             transition: color 0.2s ease;
             padding: 8px;
         }
 
         .back-arrow:hover {
-            color: var(--text-primary);
+            color: #333;
         }
 
         .header-title {
             font-size: 18px;
             font-weight: 600;
-            color: var(--text-primary);
+            color: #333;
             margin-bottom: 16px;
         }
 
@@ -152,15 +100,15 @@
         }
 
         .progress-left {
-            color: var(--text-secondary);
+            color: #666;
         }
 
         .progress-right {
-            color: var(--text-secondary);
+            color: #666;
         }
 
         .progress-right .correct-count {
-            color: var(--accent-green);
+            color: #00ff88;
             font-weight: 600;
         }
 
@@ -173,17 +121,17 @@
         .progress-segment {
             height: 4px;
             flex: 1;
-            background-color: var(--surface-dark);
+            background-color: #e9ecef;
             border-radius: 2px;
             transition: all 0.3s ease;
         }
 
         .progress-segment.correct {
-            background-color: var(--accent-green);
+            background-color: #00ff88;
         }
 
         .progress-segment.incorrect {
-            background-color: var(--accent-red);
+            background-color: #ff4757;
         }
 
         .content {
@@ -195,12 +143,11 @@
 
         .tabs {
             display: flex;
-            background-color: var(--surface-light);
+            background-color: #f8f9fa;
             border-radius: 12px;
             padding: 4px;
             margin-bottom: 24px;
             position: relative;
-            border: 1px solid var(--border-color);
         }
 
         .tab {
@@ -212,13 +159,13 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s ease;
-            color: var(--text-secondary);
+            color: #666;
             position: relative;
             z-index: 2;
         }
 
         .tab.active {
-            background: var(--accent-green);
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
             color: white;
             box-shadow: 0 2px 8px rgba(0, 255, 136, 0.3);
             font-weight: 600;
@@ -258,13 +205,13 @@
         .question-number {
             font-size: 32px;
             font-weight: 800;
-            color: var(--text-primary);
+            color: #333;
             margin-bottom: 20px;
         }
 
         .question-text {
             font-size: 16px;
-            color: var(--text-primary);
+            color: #333;
             line-height: 1.5;
             margin-bottom: 24px;
             /* Allow MathJax to set its own line heights */
@@ -277,9 +224,8 @@
             object-fit: cover;
             border-radius: 12px;
             margin-bottom: 24px;
-            box-shadow: 0 2px 8px var(--shadow-light);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             display: none; /* Hidden by default, shown when image exists */
-            border: 1px solid var(--border-color);
         }
 
         .question-image.visible {
@@ -288,12 +234,12 @@
 
         .solution-text {
             font-size: 16px;
-            color: var(--text-secondary);
+            color: #555;
             line-height: 1.6;
             padding: 20px;
-            background-color: var(--surface-light);
+            background-color: #f8f9fa;
             border-radius: 12px;
-            border-left: 4px solid var(--accent-green);
+            border-left: 4px solid #00ff88;
             margin-bottom: 20px;
         }
 
@@ -308,7 +254,7 @@
             background: none;
             border: none;
             font-size: 18px;
-            color: var(--text-secondary);
+            color: #666;
             cursor: pointer;
             padding: 12px;
             border-radius: 50%;
@@ -321,8 +267,8 @@
         }
 
         .nav-arrow:hover:not(:disabled) {
-            background-color: var(--surface-dark);
-            color: var(--text-primary);
+            background-color: #f0f0f0;
+            color: #333;
         }
 
         .nav-arrow:disabled {
@@ -340,42 +286,40 @@
             align-items: center;
             padding: 16px 20px;
             margin-bottom: 12px;
-            background-color: var(--surface-light);
-            color: var(--text-primary);
+            background-color: #f8f9fa;
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.2s ease;
-            border: 2px solid var(--border-color);
+            border: 2px solid transparent;
         }
 
         .answer-option:hover:not(.disabled) {
-            background-color: var(--surface-dark);
+            background-color: #e9ecef;
             transform: translateY(-1px);
-            box-shadow: 0 2px 8px var(--shadow-light);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .answer-option.selected {
-            background-color: var(--link-color-light);
-            border-color: var(--link-color);
-            color: var(--text-primary);
+            background-color: #e3f2fd;
+            border-color: #2196f3;
         }
 
         .answer-option.correct {
-            background: var(--accent-green-light);
-            border: 3px solid var(--accent-green);
-            color: var(--text-primary);
+            background: rgba(0, 255, 136, 0.15);
+            border: 3px solid #00ff88;
+            color: #006b3c;
             font-weight: 600;
             backdrop-filter: blur(10px);
-            box-shadow: 0 4px 16px var(--shadow-light);
+            box-shadow: 0 4px 16px rgba(0, 255, 136, 0.3);
         }
 
         .answer-option.incorrect {
-            background: var(--accent-red-light);
-            border: 3px solid var(--accent-red);
-            color: var(--text-primary);
+            background: rgba(255, 71, 87, 0.15);
+            border: 3px solid #ff4757;
+            color: #c23616;
             font-weight: 600;
             backdrop-filter: blur(10px);
-            box-shadow: 0 4px 16px var(--shadow-light);
+            box-shadow: 0 4px 16px rgba(255, 71, 87, 0.3);
         }
 
         .answer-option.disabled {
@@ -388,20 +332,18 @@
             margin-right: 16px;
             min-width: 20px;
             font-size: 16px;
-            color: var(--text-primary);
         }
 
         .option-text {
             flex: 1;
             font-size: 15px;
-            color: var(--text-primary);
             /* Allow MathJax to set its own line heights */
             line-height: 1.6;
         }
 
         .check-button {
-            background-color: var(--surface-dark);
-            color: var(--text-secondary);
+            background-color: #dee2e6;
+            color: #6c757d;
             border: none;
             padding: 16px 24px;
             margin: 0 20px 20px;
@@ -416,15 +358,16 @@
         }
 
         .check-button.active {
-            background: var(--primary-btn-bg);
-            color: var(--primary-btn-text);
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            color: white;
             opacity: 1;
-            box-shadow: 0 4px 16px var(--shadow-medium);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
         }
 
         .check-button.active:hover {
+            background: linear-gradient(135deg, #2d2d2d, #404040);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px var(--shadow-medium);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
         }
 
         /* Loading and Error States */
@@ -436,8 +379,8 @@
         .loading-spinner {
             width: 40px;
             height: 40px;
-            border: 3px solid var(--surface-dark);
-            border-top: 3px solid var(--text-primary);
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #333;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto 20px;
@@ -449,8 +392,8 @@
         }
 
         .error-message {
-            background: var(--accent-red-light);
-            color: var(--accent-red);
+            background: #fee;
+            color: #c33;
             padding: 20px;
             border-radius: 12px;
             text-align: center;
@@ -480,14 +423,13 @@
         }
 
         .results-modal {
-            background: var(--card-bg);
-            color: var(--text-primary);
+            background: white;
             border-radius: 20px;
             padding: 30px;
             width: 90%;
             max-width: 350px;
             text-align: center;
-            box-shadow: 0 10px 30px var(--shadow-medium);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             transform: scale(0.9);
             transition: transform 0.3s ease;
         }
@@ -500,22 +442,20 @@
             width: 60px;
             height: 60px;
             margin: 0 auto 20px;
-            /* FIX: Replaced broken URL with a stable placeholder image */
-            background: url('https://placehold.co/60x60/22c55e/ffffff?text=%E2%9C%85') no-repeat center;
-            background-size: cover;
-            border-radius: 50%;
+            background: url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20-%202025-07-23T082911.331-ptcXc6Csp6CfcOsR3jFd1Ndmpqxg9c.jpeg') no-repeat center;
+            background-size: contain;
         }
 
         .score-display {
             font-size: 36px;
             font-weight: 700;
             margin-bottom: 8px;
-            color: var(--accent-green);
+            color: #00ff88;
         }
 
         .score-message {
             font-size: 18px;
-            color: var(--text-secondary);
+            color: #666;
             margin-bottom: 24px;
             font-weight: 500;
         }
@@ -528,11 +468,11 @@
         }
 
         .stat-box {
-            background: var(--card-bg);
+            background: white;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 2px 8px var(--shadow-light);
-            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e9ecef;
         }
 
         .stat-header {
@@ -556,13 +496,13 @@
         .stat-value {
             font-size: 16px;
             font-weight: 600;
-            color: var(--text-primary);
+            color: #333;
             margin-bottom: 2px;
         }
 
         .stat-label {
             font-size: 11px;
-            color: var(--text-secondary);
+            color: #666;
             font-weight: 500;
             text-transform: capitalize;
         }
@@ -584,24 +524,25 @@
         }
 
         .modal-button.primary {
-            background: var(--primary-btn-bg);
-            color: var(--primary-btn-text);
-            box-shadow: 0 4px 12px var(--shadow-light);
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
         .modal-button.primary:hover {
+            background: linear-gradient(135deg, #2d2d2d, #404040);
             transform: translateY(-1px);
-            box-shadow: 0 6px 16px var(--shadow-medium);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
         }
 
         .modal-button.secondary {
             background: transparent;
-            color: var(--text-secondary);
-            border: 1px solid var(--border-color);
+            color: #666;
+            border: 1px solid #dee2e6;
         }
 
         .modal-button.secondary:hover {
-            background-color: var(--surface-light);
+            background-color: #f8f9fa;
         }
 
         /* Responsive Design */
@@ -613,7 +554,6 @@
             .quiz-container {
                 border-radius: 12px;
                 min-height: 100vh;
-                border: none;
             }
 
             .header {
@@ -705,6 +645,44 @@
         }
     </style>
     
+    <!-- *** ADDED DARK MODE STYLES *** -->
+    <style>
+    /* Dark mode overrides for quiz-questions */
+    body[data-theme="dark"] { background-color: #0f172a; }
+    [data-theme="dark"] .quiz-container { background: #111827; color: #ffffff; }
+    [data-theme="dark"] .header { border-bottom-color: #1f2937; }
+    [data-theme="dark"] .header-title, [data-theme="dark"] .question-number, [data-theme="dark"] .question-text { color: #ffffff; }
+    [data-theme="dark"] .back-arrow { color: #e5e7eb; }
+    [data-theme="dark"] .back-arrow:hover { color: #ffffff; }
+    [data-theme="dark"] .progress-left, [data-theme="dark"] .progress-right { color: #9ca3af; }
+    [data-theme="dark"] .tabs { background-color: #1f2937; }
+    [data-theme="dark"] .tab { color: #e5e7eb; }
+    [data-theme="dark"] .tab.active { background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; }
+    [data-theme="dark"] .progress-segment { background-color: #374151; }
+    [data-theme="dark"] .progress-segment.correct { background-color: #10b981; }
+    [data-theme="dark"] .progress-segment.incorrect { background-color: #ef4444; }
+    [data-theme="dark"] .question-image { background-color: #1f2937; border-color: #374151; }
+    [data-theme="dark"] .solution-text { background-color: #1f2937; border-left-color: #10b981; color: #e5e7eb; }
+    [data-theme="dark"] .nav-arrow { color: #e5e7eb; }
+    [data-theme="dark"] .nav-arrow:hover:not(:disabled) { background-color: #1f2937; color: #ffffff; }
+    [data-theme="dark"] .answer-option { background-color: #1f2937; border-color: #374151; }
+    [data-theme="dark"] .option-letter { color: #e5e7eb; }
+    [data-theme="dark"] .option-text { color: #ffffff; }
+    [data-theme="dark"] .answer-option:hover:not(.disabled) { background-color: #374151; }
+    [data-theme="dark"] .answer-option.selected { background-color: #1e3a8a; border-color: #3b82f6; }
+    [data-theme="dark"] .answer-option.correct { background: rgba(16, 185, 129, 0.15); border-color: #10b981; color: #d1fae5; }
+    [data-theme="dark"] .answer-option.incorrect { background: rgba(239, 68, 68, 0.15); border-color: #ef4444; color: #fecaca; }
+    [data-theme="dark"] .loading p { color: #e5e7eb; }
+    [data-theme="dark"] .loading-spinner { border-top-color: #e5e7eb; }
+    [data-theme="dark"] .error-message { background: #3f1f1f; color: #fecaca; }
+    [data-theme="dark"] .results-modal { background: #111827; color: #ffffff; }
+    [data-theme="dark"] .score-message { color: #e5e7eb; }
+    [data-theme="dark"] .stat-box { background: #1f2937; border-color: #374151; }
+    [data-theme="dark"] .stat-value { color: #ffffff; }
+    [data-theme="dark"] .stat-label { color: #e5e7eb; }
+    [data-theme="dark"] .modal-button.secondary { color: #e5e7eb; border-color: #374151; }
+    [data-theme="dark"] .modal-button.secondary:hover { background-color: #1f2937; }
+    </style>
 </head>
 <body>
     <div class="quiz-container">
@@ -782,7 +760,7 @@
                 this.currentQuestion = 1;
                 this.totalQuestions = 0;
                 this.answers = [];
-                this.correctAnswers = []; // Used for local answer check
+                this.correctAnswers = [];
                 this.selectedAnswer = null;
                 this.isAnswered = false;
                 this.isChecked = false;
@@ -798,7 +776,7 @@
                 
                 this.initializeElements();
                 this.getUrlParams();
-                // FIX: Removed this.initQuiz() call from constructor. Will call it on DOMContentLoaded.
+                this.initQuiz();
             }
 
             initializeElements() {
@@ -834,12 +812,64 @@
                 }
 
                 this.headerTitle.textContent = `${this.courseCode} - ${this.quizTitle}`;
-                
-                // FIX: Skip the failing /quiz/start endpoint and go directly to fetching by course ID.
-                await this.fetchQuizQuestions(this.quizTitle);
+                // *** This is the backend fetching logic from your file, unchanged ***
+                await this.startQuiz(this.quizTitle);
+            }
+
+            // *** This is the backend fetching logic from your file, unchanged ***
+            async startQuiz(title) {
+                try {
+                    const userToken = this.getUserToken();
+                    if (!userToken) {
+                        throw new Error('No authentication token found');
+                    }
+
+                    console.log('[v0] Starting quiz with POST request');
+                    const response = await fetch(`${API_BASE}/quiz/start`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${userToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            courseid: this.courseId,
+                            title: title
+                        })
+                    });
+
+                    if (!response.ok) {
+                        // Try with courseId instead of courseid
+                        const retryResponse = await fetch(`${API_BASE}/quiz/start`, {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${userToken}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                courseId: this.courseId,
+                                title: title
+                            })
+                        });
+
+                        if (!retryResponse.ok) {
+                            throw new Error(`HTTP error! status: ${retryResponse.status}`);
+                        }
+
+                        const retryData = await retryResponse.json();
+                        this.processQuizResponse(retryData, title);
+                        return;
+                    }
+
+                    const data = await response.json();
+                    this.processQuizResponse(data, title);
+                    
+                } catch (error) {
+                    console.error('[v0] Error starting quiz:', error);
+                    await this.fetchQuizQuestions(title);
+                }
             }
             
-            // Kept for backward compatibility, though not explicitly used now.
+            // *** This is the backend fetching logic from your file, unchanged ***
             processQuizResponse(data, title) {
                 console.log('[v0] Processing quiz response:', data);
                 
@@ -858,12 +888,11 @@
                 if (questions && Array.isArray(questions) && questions.length > 0) {
                     this.setupQuiz(questions);
                 } else {
-                    // This fallback is now redundant since we start with the full fetch.
-                    console.log('[v0] No questions found in current response, trying full fetch...');
                     this.fetchQuizQuestions(title);
                 }
             }
 
+            // *** This is the backend fetching logic from your file, unchanged ***
             async fetchQuizQuestions(title) {
                 try {
                     const userToken = this.getUserToken();
@@ -871,7 +900,6 @@
                         throw new Error('No authentication token found');
                     }
 
-                    console.log(`[v0] Attempting to fetch quiz list via /quiz/course/${this.courseId}`);
                     const response = await fetch(`${API_BASE}/quiz/course/${this.courseId}`, {
                         method: 'GET',
                         headers: {
@@ -889,24 +917,11 @@
                     
                     let selectedQuiz = null;
                     
-                    // NEW/IMPROVED: Aggressive title normalization for matching
-                    const aggressiveNormalize = (str) => 
-                        str ? str.toLowerCase().replace(/[^a-z0-9]/g, '') : '';
-                    
-                    const normalizedTitle = aggressiveNormalize(title);
-
-                    // Determine which list to search
-                    const quizList = data.success && data.data && data.data.availableTitles
-                        ? data.data.availableTitles 
-                        : (data.success && Array.isArray(data.data) ? data.data : []);
-
-                    // FIX: Use aggressive normalized matching (was the prior bug area)
-                    selectedQuiz = quizList.find(quiz => {
-                        const normalizedApiTitle = aggressiveNormalize(quiz.title);
-                        // Use includes() for forgiving matching
-                        return normalizedApiTitle.includes(normalizedTitle) || normalizedTitle.includes(normalizedApiTitle);
-                    });
-
+                    if (data.success && data.data && data.data.availableTitles) {
+                        selectedQuiz = data.data.availableTitles.find(quiz => quiz.title === title);
+                    } else if (data.success && Array.isArray(data.data)) {
+                        selectedQuiz = data.data.find(quiz => quiz.title === title);
+                    }
 
                     if (selectedQuiz && selectedQuiz.questions) {
                         this.setupQuiz(selectedQuiz.questions);
@@ -916,72 +931,98 @@
 
                 } catch (error) {
                     console.error('[v0] Error fetching quiz questions:', error);
-                    this.displayError(`Error fetching quiz questions: ${error.message}. Please verify the course ID and quiz title match the backend data exactly.`);
+                    this.displayError(`Error fetching quiz questions: ${error.message}`);
                 }
             }
 
-            /**
-             * Processes raw question data and sets up the internal state (including local answer key).
-             */
+            // *** UPDATED: This function now correctly finds the answer index ***
             setupQuiz(questions) {
                 this.questions = questions.map((q, index) => {
                     let options = q.options || q.choices || [];
                     
-                    // 1. Process options into a consistent array format
+                    // Ensure options is always an array
                     let optionsArray = [];
                     if (Array.isArray(options)) {
                         optionsArray = options;
                     } else if (typeof options === 'object' && options !== null) {
-                        // Handle {A: "...", B: "..."} by key order
-                        const orderedKeys = ['A', 'B', 'C', 'D', 'E'];
-                        optionsArray = orderedKeys
-                            .filter(key => options[key])
-                            .map(key => options[key]);
-                        // Fallback in case keys are not A, B, C...
-                        if (optionsArray.length === 0) {
-                            optionsArray = Object.values(options);
+                        // Handle {A: "...", B: "..."}
+                        const orderedOptions = [];
+                        if (options.A) orderedOptions.push(options.A);
+                        if (options.B) orderedOptions.push(options.B);
+                        if (options.C) orderedOptions.push(options.C);
+                        if (options.D) orderedOptions.push(options.D);
+                        if (options.E) orderedOptions.push(options.E);
+                        
+                        if (orderedOptions.length > 0) {
+                             optionsArray = orderedOptions;
+                        } else {
+                             optionsArray = Object.values(options);
                         }
                     }
                     
-                    // 2. Determine the correct answer index (0, 1, 2, 3...)
+                    console.log(`[v0] Final options array for question ${index + 1}:`, optionsArray);
+
+                    // *** THIS IS THE CRITICAL FIX ***
+                    // We find the *correct index* (0, 1, 2, 3) based on the backend's answer
+                    // (which could be "A", "B", "C", "D", or the full text)
                     const rawAnswer = q.correctAnswer || q.answer || q.Ans || q.ans;
-                    let correctAnswerIndex = null; 
+                    let correctAnswerIndex = 0; // Default to 0 (Option A)
 
                     if (rawAnswer !== null && rawAnswer !== undefined) {
                         const answerString = String(rawAnswer).toUpperCase().trim();
 
-                        // Try to convert letter answer (A, B, C...) to index
-                        if (answerString.length === 1 && answerString.charCodeAt(0) >= 65 && answerString.charCodeAt(0) <= 90) {
-                            correctAnswerIndex = answerString.charCodeAt(0) - 65;
+                        // Case 1: Answer is a letter (A, B, C, D)
+                        if (answerString === "A") {
+                            correctAnswerIndex = 0;
+                        } else if (answerString === "B") {
+                            correctAnswerIndex = 1;
+                        } else if (answerString === "C") {
+                            correctAnswerIndex = 2;
+                        } else if (answerString === "D") {
+                            correctAnswerIndex = 3;
+                        } else if (answerString === "E") {
+                            correctAnswerIndex = 4;
                         } 
-                        // Try to find the answer by matching the full text
+                        // Case 2: Answer is the full text
                         else {
                             const textIndex = optionsArray.findIndex(opt => {
-                                // Extract text from potentially complex option structure
-                                let optText = (typeof opt === 'string' ? opt : (opt.text || opt.option || ''));
+                                // Get option text, whether it's a string or object
+                                let optText = '';
+                                if (typeof opt === 'string') {
+                                    optText = opt;
+                                } else if (opt.text) {
+                                    optText = opt.text;
+                                } else if (opt.option) {
+                                    optText = opt.option;
+                                } else if (opt.answer) {
+                                    optText = opt.answer;
+                                }
                                 return optText.trim().toUpperCase() === answerString;
                             });
                             
                             if (textIndex !== -1) {
                                 correctAnswerIndex = textIndex;
                             } 
-                            // Fallback: Answer is already an index (but as a string "0", "1", etc.)
+                            // Case 3: Answer is already an index (but as a string "0", "1", etc.)
                             else {
                                 const numIndex = parseInt(rawAnswer, 10);
                                 if (!isNaN(numIndex) && numIndex >= 0 && numIndex < optionsArray.length) {
                                     correctAnswerIndex = numIndex;
                                 } else {
-                                    console.warn(`[v0] Unrecognized answer format "${rawAnswer}" for question ${index+1}. Treating as unanswered.`);
+                                    console.warn(`[v0] Unrecognized answer format "${rawAnswer}". Defaulting to 0.`, q);
+                                    correctAnswerIndex = 0; // Fallback
                                 }
                             }
                         }
                     }
+                    console.log(`[v0] Question ${index+1}: Raw Answer "${rawAnswer}" -> Converted Index: ${correctAnswerIndex}`);
+                    // *** END CRITICAL FIX ***
                     
                     return {
                         id: index + 1,
                         text: q.question || q.text || 'Question text not available',
-                        options: optionsArray, 
-                        correctAnswer: correctAnswerIndex, // The critical local numeric index
+                        options: optionsArray, // Use the processed array
+                        correctAnswer: correctAnswerIndex, // Use the calculated numeric index
                         solution: q.solution || q.explanation || 'No solution provided',
                         imageUrl: q.ImageUrl || q.imageUrl || q.image || null
                     };
@@ -989,7 +1030,7 @@
 
                 this.totalQuestions = this.questions.length;
                 this.answers = new Array(this.totalQuestions).fill(null);
-                // Store the calculated correct index array for local comparison
+                // This array now correctly holds the *numeric index* of the correct answer
                 this.correctAnswers = this.questions.map(q => q.correctAnswer);
 
                 this.totalQuestionsEl.textContent = this.totalQuestions;
@@ -1036,6 +1077,7 @@
                         </div>
                     </div>
 
+                    <!-- *** UPDATED: Button logic is different from your file, this is better UX *** -->
                     <button class="check-button" id="check-btn">Check</button>
                 `;
             }
@@ -1065,23 +1107,19 @@
                 const answersContainer = document.getElementById('answers-container');
                 answersContainer.innerHTML = '';
                 
-                const options = question.options || [];
+                const options = question.options || []; // Already processed into an array
+                console.log('[v0] Question options:', options);
                 
                 if (options.length === 0) {
-                    answersContainer.innerHTML = '<div class="no-options" style="color: var(--accent-red); padding: 20px; text-align: center;">No options available for this question</div>';
+                    console.log('[v0] No options found for question:', question);
+                    answersContainer.innerHTML = '<div class="no-options" style="color: red; padding: 20px; text-align: center;">No options available for this question</div>';
                 }
                 
                 options.forEach((option, index) => {
                     const optionDiv = document.createElement('div');
-                    // Check if question has been checked already
-                    const isChecked = this.answers[this.currentQuestion - 1] !== null && this.correctAnswers[this.currentQuestion - 1] !== null;
-
                     optionDiv.className = 'answer-option';
-                    if (isChecked) optionDiv.classList.add('disabled');
-
                     optionDiv.dataset.option = index; // This is the numeric index (0, 1, 2, 3)
                     
-                    // Extract option text safely
                     let optionText = '';
                     if (typeof option === 'string') {
                         optionText = option;
@@ -1094,32 +1132,15 @@
                     } else {
                         optionText = `Option ${index + 1}`;
                     }
-
+                    
                     optionDiv.innerHTML = `
                         <span class="option-letter">${String.fromCharCode(65 + index)}</span>
                         <span class="option-text">${optionText}</span>
                     `;
                     
-                    // Apply selected/correct/incorrect styles if already checked/answered
                     if (this.answers[this.currentQuestion - 1] === index) {
                         optionDiv.classList.add('selected');
                         this.selectedAnswer = index;
-
-                        if (isChecked) {
-                            const correctIndex = this.correctAnswers[this.currentQuestion - 1];
-                            if (index === correctIndex) {
-                                optionDiv.classList.add('correct');
-                            } else {
-                                optionDiv.classList.add('incorrect');
-                            }
-                        }
-                    }
-                    
-                    // Highlight the correct answer if the question has been checked
-                    if (isChecked && index === this.correctAnswers[this.currentQuestion - 1]) {
-                        if (index !== this.answers[this.currentQuestion - 1]) {
-                            optionDiv.classList.add('correct');
-                        }
                     }
                     
                     optionDiv.addEventListener('click', () => {
@@ -1131,7 +1152,7 @@
                     answersContainer.appendChild(optionDiv);
                 });
 
-                // Trigger MathJax to render the new content
+                // *** ADDED: Trigger MathJax to render the new content ***
                 if (window.MathJax && window.MathJax.typesetPromise) {
                     window.MathJax.typesetPromise([
                         document.getElementById('question-text'),
@@ -1146,7 +1167,12 @@
                 this.updateProgressBar();
                 this.updateCheckButton();
                 this.isAnswered = this.answers[this.currentQuestion - 1] !== null;
-                this.isChecked = this.isAnswered && (this.correctAnswers[this.currentQuestion - 1] !== null); 
+                this.isChecked = this.isAnswered;
+
+                // If already answered, show results
+                if (this.isChecked) {
+                    this.showAnswerResult();
+                }
             }
 
             updateProgressBar() {
@@ -1157,7 +1183,7 @@
                 segments.forEach((segment, index) => {
                     segment.classList.remove('correct', 'incorrect');
                     
-                    if (this.answers[index] !== null && this.correctAnswers[index] !== null) {
+                    if (this.answers[index] !== null) {
                         answeredCount++;
                         // Comparison is now number === number
                         if (this.answers[index] === this.correctAnswers[index]) {
@@ -1175,12 +1201,10 @@
 
             updateCheckButton() {
                 const checkBtn = document.getElementById('check-btn');
-                const isChecked = this.answers[this.currentQuestion - 1] !== null && this.correctAnswers[this.currentQuestion - 1] !== null;
-
-                if (this.selectedAnswer !== null && !isChecked) {
+                if (this.selectedAnswer !== null && !this.isChecked) {
                     checkBtn.classList.add('active');
                     checkBtn.textContent = 'Check';
-                } else if (isChecked && this.currentQuestion === this.totalQuestions) {
+                } else if (this.isChecked && this.currentQuestion === this.totalQuestions) {
                     checkBtn.classList.add('active');
                     checkBtn.textContent = 'Finish';
                 }
@@ -1191,6 +1215,8 @@
             }
 
             selectAnswer(optionIndex) {
+                console.log('[v0] Selecting answer (index):', optionIndex);
+                
                 document.querySelectorAll('.answer-option').forEach(option => {
                     option.classList.remove('selected');
                 });
@@ -1206,39 +1232,65 @@
                 this.updateCheckButton();
             }
 
-            /**
-             * Performs local answer check.
-             */
+            showAnswerResult() {
+                const answerOptions = document.querySelectorAll('.answer-option');
+                const selectedIndex = this.answers[this.currentQuestion - 1];
+                const correctIndex = this.correctAnswers[this.currentQuestion - 1];
+                
+                if (selectedIndex === null) return;
+
+                const selectedOption = answerOptions[selectedIndex];
+                const correctOption = answerOptions[correctIndex];
+
+                answerOptions.forEach(option => option.classList.add('disabled'));
+
+                if (selectedIndex === correctIndex) {
+                    if(selectedOption) selectedOption.classList.add('correct');
+                } else {
+                    if(selectedOption) selectedOption.classList.add('incorrect');
+                    if(correctOption) correctOption.classList.add('correct');
+                }
+            }
+
             checkAnswer() {
-                const isChecked = this.answers[this.currentQuestion - 1] !== null && this.correctAnswers[this.currentQuestion - 1] !== null;
-                if (this.selectedAnswer === null || isChecked) return;
+                if (this.selectedAnswer === null || this.isChecked) return;
                 
                 const selectedIndex = this.selectedAnswer;
                 const correctIndex = this.correctAnswers[this.currentQuestion - 1];
 
-                if (correctIndex === null) {
-                    console.error("Cannot check answer: Correct answer is missing from data.");
-                    this.displayTemporaryError("Error: Quiz data is incomplete (missing correct answer).");
-                    return;
-                }
+                console.log(`[v0] Checking Answer: Selected Index ${selectedIndex}, Correct Index ${correctIndex}`);
 
-                this.answers[this.currentQuestion - 1] = selectedIndex;
+                const answerOptions = document.querySelectorAll('.answer-option');
+                const selectedOption = answerOptions[selectedIndex];
+                const correctOption = answerOptions[correctIndex];
                 
-                // Update local score only on check
+                this.answers[this.currentQuestion - 1] = selectedIndex;
+                this.isChecked = true;
+                this.isAnswered = true;
+                
+                answerOptions.forEach(option => option.classList.add('disabled'));
+                
+                // Comparison is now number === number
                 if (selectedIndex === correctIndex) {
+                    selectedOption.classList.add('correct');
                     this.score++;
+                    console.log('[v0] Result: CORRECT');
+                } else {
+                    selectedOption.classList.add('incorrect');
+                    if (correctOption) {
+                         correctOption.classList.add('correct');
+                    }
+                    console.log('[v0] Result: INCORRECT');
                 }
-
-                // Force re-render to apply correct/incorrect styling
-                this.loadQuestion(); 
-            }
-
-            displayTemporaryError(message) {
-                const messageElement = document.createElement('div');
-                messageElement.className = 'error-message';
-                messageElement.innerHTML = `<p>${message}</p>`;
-                this.quizContent.prepend(messageElement);
-                setTimeout(() => messageElement.remove(), 5000);
+                
+                this.updateProgressBar();
+                this.updateCheckButton();
+                
+                // *** UPDATED: Removed auto-advance. User must click next or finish. ***
+                if (this.currentQuestion === this.totalQuestions) {
+                     document.getElementById('check-btn').textContent = 'Finish';
+                     document.getElementById('check-btn').classList.add('active');
+                }
             }
 
             switchTab(tab) {
@@ -1256,6 +1308,7 @@
                     solutionTab.classList.add('active');
                     questionContent.classList.add('hidden');
                     solutionContent.classList.add('active');
+                    // *** ADDED: Trigger MathJax for solution tab ***
                     if (window.MathJax && window.MathJax.typesetPromise) {
                         window.MathJax.typesetPromise([solutionContent])
                             .catch((err) => console.log('MathJax typeset error:', err));
@@ -1272,6 +1325,8 @@
                 if (this.currentQuestion < this.totalQuestions) {
                     this.currentQuestion++;
                     this.selectedAnswer = this.answers[this.currentQuestion - 1];
+                    this.isAnswered = this.selectedAnswer !== null;
+                    this.isChecked = this.isAnswered;
                     this.switchTab('question');
                     this.loadQuestion();
                 }
@@ -1281,6 +1336,8 @@
                 if (this.currentQuestion > 1) {
                     this.currentQuestion--;
                     this.selectedAnswer = this.answers[this.currentQuestion - 1];
+                    this.isAnswered = this.selectedAnswer !== null;
+                    this.isChecked = this.isAnswered;
                     this.switchTab('question');
                     this.loadQuestion();
                 }
@@ -1292,12 +1349,8 @@
 
             showResults() {
                 const timeSpent = Math.floor((Date.now() - this.startTime) / 1000 / 60 * 100) / 100;
-                
-                const correctCount = this.answers.filter((ans, index) => ans !== null && ans === this.correctAnswers[index]).length;
-                this.score = correctCount;
-                
                 const wrongAnswers = this.totalQuestions - this.score;
-                const percentage = (this.totalQuestions > 0) ? (this.score / this.totalQuestions) * 100 : 0;
+                const percentage = (this.score / this.totalQuestions) * 100;
                 
                 let grade = 'F';
                 if (percentage >= 90) grade = 'A+';
@@ -1357,25 +1410,19 @@
                 // Answer selection
                 document.addEventListener('click', (e) => {
                     const option = e.target.closest('.answer-option');
-                    if (option) {
-                        const isChecked = this.answers[this.currentQuestion - 1] !== null && this.correctAnswers[this.currentQuestion - 1] !== null;
-                        if (!isChecked) {
-                            const optionIndex = parseInt(option.dataset.option);
-                            this.selectAnswer(optionIndex);
-                        }
+                    if (option && !this.isChecked) {
+                        const optionIndex = parseInt(option.dataset.option);
+                        this.selectAnswer(optionIndex);
                     }
                 });
 
                 // Check button
                 document.addEventListener('click', (e) => {
                     if (e.target.id === 'check-btn') {
-                        if (document.getElementById('check-btn').classList.contains('active')) {
-                            const isChecked = this.answers[this.currentQuestion - 1] !== null && this.correctAnswers[this.currentQuestion - 1] !== null;
-                            if (this.currentQuestion === this.totalQuestions && isChecked) {
-                                this.endQuiz();
-                            } else {
-                                this.checkAnswer();
-                            }
+                        if (this.currentQuestion === this.totalQuestions && this.isChecked) {
+                            this.endQuiz();
+                        } else {
+                            this.checkAnswer();
                         }
                     }
                 });
@@ -1412,8 +1459,7 @@
                         case '3':
                         case '4':
                         case '5': // Added 5 for 'E'
-                            const isChecked = this.answers[this.currentQuestion - 1] !== null && this.correctAnswers[this.currentQuestion - 1] !== null;
-                            if (!isChecked) {
+                            if (!this.isChecked) {
                                 const optionIndex = parseInt(e.key) - 1;
                                 if (this.questions[this.currentQuestion - 1] && optionIndex < this.questions[this.currentQuestion - 1].options.length) {
                                     this.selectAnswer(optionIndex);
@@ -1425,8 +1471,7 @@
                             e.preventDefault();
                             const checkBtn = document.getElementById('check-btn');
                             if (checkBtn && checkBtn.classList.contains('active')) {
-                                const isChecked = this.answers[this.currentQuestion - 1] !== null && this.correctAnswers[this.currentQuestion - 1] !== null;
-                                if (this.currentQuestion === this.totalQuestions && isChecked) {
+                                if (this.currentQuestion === this.totalQuestions && this.isChecked) {
                                     this.endQuiz();
                                 } else {
                                     this.checkAnswer();
@@ -1440,19 +1485,16 @@
 
         // Global functions for navigation
         function goBackToQuizSelection() {
-            if (window.quizApp && window.quizApp.courseId && window.quizApp.courseCode) {
-                const params = new URLSearchParams({
-                    courseId: window.quizApp.courseId,
-                    courseCode: window.quizApp.courseCode
-                });
-                window.location.href = `quiz.html?${params.toString()}`;
-            } else {
-                window.location.href = 'quiz.html';
-            }
+            const params = new URLSearchParams({
+                courseId: window.quizApp.courseId,
+                courseCode: window.quizApp.courseCode
+            });
+            window.location.href = `quiz.html?${params.toString()}`;
         }
 
         // Initialize the quiz app
         document.addEventListener('DOMContentLoaded', () => {
+            // *** ADDED: Apply theme from localStorage on load ***
             const savedTheme = localStorage.getItem('theme');
             const body = document.body;
             if (savedTheme === 'dark') {
@@ -1460,10 +1502,11 @@
             } else {
                 body.removeAttribute('data-theme');
             }
+            // *** END THEME SCRIPT ***
 
             window.quizApp = new QuizApp();
-            window.quizApp.initQuiz(); // Start the quiz load sequence
         });
     </script>
 </body>
 </html>
+
