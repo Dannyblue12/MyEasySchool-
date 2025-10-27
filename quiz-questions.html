@@ -6,7 +6,7 @@
     <title>Interactive Quiz</title>
     <link rel="icon" type="image/jpeg" href="WhatsApp Image 2025-07-06 at 09.14.34_436c71fc.jpg">
     
-    <!-- *** MATHJAX SCRIPT AND CONFIG *** -->
+    <!-- *** ADDED MATHJAX SCRIPT AND CONFIG *** -->
     <script>
     MathJax = {
       tex: {
@@ -30,6 +30,54 @@
     <!-- *** END MATHJAX SCRIPT *** -->
 
     <style>
+        /* * === DARK MODE THEME VARIABLES ===
+         * Copied directly from Dashboard.html to ensure 
+         * matching light/dark modes.
+        */
+        :root {
+            --bg-color: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-muted: #9ca3af;
+            --card-bg: #ffffff;
+            --border-color: #e5e7eb;
+            --shadow-light: rgba(0, 0, 0, 0.08);
+            --shadow-medium: rgba(0, 0, 0, 0.15);
+            --accent-green: #22c55e;
+            --accent-green-light: rgba(34, 197, 94, 0.15);
+            --accent-red: #ef4444;
+            --accent-red-light: rgba(239, 68, 68, 0.15);
+            --surface-light: #f8f9fa;
+            --surface-dark: #e9ecef;
+            --link-color: #2196f3;
+            --link-color-light: #e3f2fd;
+            --primary-btn-bg: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            --primary-btn-text: #ffffff;
+        }
+
+        [data-theme=\"dark\"] {
+            --bg-color: #0f172a;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #64748b;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+            --shadow-light: rgba(0, 0, 0, 0.3);
+            --shadow-medium: rgba(0, 0, 0, 0.5);
+            --accent-green: #22c55e;
+            --accent-green-light: rgba(34, 197, 94, 0.15);
+            --accent-red: #ef4444;
+            --accent-red-light: rgba(239, 68, 68, 0.15);
+            --surface-light: #1e293b;
+            --surface-dark: #334155;
+            --link-color: #3b82f6;
+            --link-color-light: #1e3a8a;
+            --primary-btn-bg: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+            --primary-btn-text: #1e293b;
+        }
+        /* === END THEME VARIABLES === */
+
+
         * {
             margin: 0;
             padding: 0;
@@ -38,31 +86,35 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: #f5f5f5;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 10px;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .quiz-container {
-            background: white;
+            background: var(--card-bg);
+            color: var(--text-primary);
             border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 20px var(--shadow-light);
             width: 100%;
             max-width: 400px;
             min-height: 600px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            border: 1px solid var(--border-color);
         }
 
         .header {
             padding: 20px 20px 16px;
             text-align: center;
             position: relative;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .back-arrow {
@@ -74,19 +126,19 @@
             border: none;
             font-size: 18px;
             cursor: pointer;
-            color: #666;
-            padding: 8px;
+            color: var(--text-secondary);
             transition: color 0.2s ease;
+            padding: 8px;
         }
 
         .back-arrow:hover {
-            color: #333;
+            color: var(--text-primary);
         }
 
         .header-title {
             font-size: 18px;
             font-weight: 600;
-            color: #333;
+            color: var(--text-primary);
             margin-bottom: 16px;
         }
 
@@ -100,15 +152,15 @@
         }
 
         .progress-left {
-            color: #666;
+            color: var(--text-secondary);
         }
 
         .progress-right {
-            color: #666;
+            color: var(--text-secondary);
         }
 
         .progress-right .correct-count {
-            color: #00ff88;
+            color: var(--accent-green);
             font-weight: 600;
         }
 
@@ -121,17 +173,17 @@
         .progress-segment {
             height: 4px;
             flex: 1;
-            background-color: #e9ecef;
+            background-color: var(--surface-dark);
             border-radius: 2px;
             transition: all 0.3s ease;
         }
 
         .progress-segment.correct {
-            background-color: #00ff88;
+            background-color: var(--accent-green);
         }
 
         .progress-segment.incorrect {
-            background-color: #ff4757;
+            background-color: var(--accent-red);
         }
 
         .content {
@@ -143,11 +195,12 @@
 
         .tabs {
             display: flex;
-            background-color: #f8f9fa;
+            background-color: var(--surface-light);
             border-radius: 12px;
             padding: 4px;
             margin-bottom: 24px;
             position: relative;
+            border: 1px solid var(--border-color);
         }
 
         .tab {
@@ -159,15 +212,15 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s ease;
-            color: #666;
+            color: var(--text-secondary);
             position: relative;
             z-index: 2;
         }
 
         .tab.active {
-            background: linear-gradient(135deg, #1a1a1a, #2d2d2d); /* Changed to dark theme for consistency */
+            background: var(--accent-green);
             color: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 255, 136, 0.3);
             font-weight: 600;
         }
 
@@ -205,15 +258,17 @@
         .question-number {
             font-size: 32px;
             font-weight: 800;
-            color: #333;
+            color: var(--text-primary);
             margin-bottom: 20px;
         }
 
         .question-text {
             font-size: 16px;
-            color: #333;
-            line-height: 1.6;
+            color: var(--text-primary);
+            line-height: 1.5;
             margin-bottom: 24px;
+            /* Allow MathJax to set its own line heights */
+            line-height: 1.6;
         }
 
         .question-image {
@@ -222,8 +277,9 @@
             object-fit: cover;
             border-radius: 12px;
             margin-bottom: 24px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            display: none;
+            box-shadow: 0 2px 8px var(--shadow-light);
+            display: none; /* Hidden by default, shown when image exists */
+            border: 1px solid var(--border-color);
         }
 
         .question-image.visible {
@@ -232,12 +288,12 @@
 
         .solution-text {
             font-size: 16px;
-            color: #555;
+            color: var(--text-secondary);
             line-height: 1.6;
             padding: 20px;
-            background-color: #f8f9fa;
+            background-color: var(--surface-light);
             border-radius: 12px;
-            border-left: 4px solid #00cc6a;
+            border-left: 4px solid var(--accent-green);
             margin-bottom: 20px;
         }
 
@@ -252,7 +308,7 @@
             background: none;
             border: none;
             font-size: 18px;
-            color: #666;
+            color: var(--text-secondary);
             cursor: pointer;
             padding: 12px;
             border-radius: 50%;
@@ -265,8 +321,8 @@
         }
 
         .nav-arrow:hover:not(:disabled) {
-            background-color: #f0f0f0;
-            color: #333;
+            background-color: var(--surface-dark);
+            color: var(--text-primary);
         }
 
         .nav-arrow:disabled {
@@ -284,38 +340,42 @@
             align-items: center;
             padding: 16px 20px;
             margin-bottom: 12px;
-            background-color: #f8f9fa;
+            background-color: var(--surface-light);
+            color: var(--text-primary);
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.2s ease;
-            border: 2px solid transparent;
+            border: 2px solid var(--border-color);
         }
 
         .answer-option:hover:not(.disabled) {
-            background-color: #e9ecef;
+            background-color: var(--surface-dark);
             transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 8px var(--shadow-light);
         }
 
         .answer-option.selected {
-            background-color: #e3f2fd;
-            border-color: #2196f3;
+            background-color: var(--link-color-light);
+            border-color: var(--link-color);
+            color: var(--text-primary);
         }
 
         .answer-option.correct {
-            background: rgba(0, 255, 136, 0.15);
-            border: 3px solid #00ff88;
-            color: #006b3c;
+            background: var(--accent-green-light);
+            border: 3px solid var(--accent-green);
+            color: var(--text-primary);
             font-weight: 600;
-            box-shadow: 0 4px 16px rgba(0, 255, 136, 0.3);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 16px var(--shadow-light);
         }
 
         .answer-option.incorrect {
-            background: rgba(255, 71, 87, 0.15);
-            border: 3px solid #ff4757;
-            color: #c23616;
+            background: var(--accent-red-light);
+            border: 3px solid var(--accent-red);
+            color: var(--text-primary);
             font-weight: 600;
-            box-shadow: 0 4px 16px rgba(255, 71, 87, 0.3);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 16px var(--shadow-light);
         }
 
         .answer-option.disabled {
@@ -328,17 +388,20 @@
             margin-right: 16px;
             min-width: 20px;
             font-size: 16px;
+            color: var(--text-primary);
         }
 
         .option-text {
             flex: 1;
             font-size: 15px;
+            color: var(--text-primary);
+            /* Allow MathJax to set its own line heights */
             line-height: 1.6;
         }
 
         .check-button {
-            background-color: #dee2e6;
-            color: #6c757d;
+            background-color: var(--surface-dark);
+            color: var(--text-secondary);
             border: none;
             padding: 16px 24px;
             margin: 0 20px 20px;
@@ -353,27 +416,15 @@
         }
 
         .check-button.active {
-            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
-            color: white;
+            background: var(--primary-btn-bg);
+            color: var(--primary-btn-text);
             opacity: 1;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 16px var(--shadow-medium);
         }
 
         .check-button.active:hover {
-            background: linear-gradient(135deg, #2d2d2d, #404040);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-        }
-
-        .check-button.answered {
-            background: linear-gradient(135deg, #00cc6a, #00994f); /* Green for next/finish */
-            color: white;
-            opacity: 1;
-        }
-        
-        .check-button.answered:hover {
-            background: linear-gradient(135deg, #00ff88, #00cc6a);
-            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--shadow-medium);
         }
 
         /* Loading and Error States */
@@ -385,8 +436,8 @@
         .loading-spinner {
             width: 40px;
             height: 40px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #333;
+            border: 3px solid var(--surface-dark);
+            border-top: 3px solid var(--text-primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto 20px;
@@ -398,8 +449,8 @@
         }
 
         .error-message {
-            background: #fee;
-            color: #c33;
+            background: var(--accent-red-light);
+            color: var(--accent-red);
             padding: 20px;
             border-radius: 12px;
             text-align: center;
@@ -429,13 +480,14 @@
         }
 
         .results-modal {
-            background: white;
+            background: var(--card-bg);
+            color: var(--text-primary);
             border-radius: 20px;
             padding: 30px;
             width: 90%;
             max-width: 350px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 30px var(--shadow-medium);
             transform: scale(0.9);
             transition: transform 0.3s ease;
         }
@@ -448,20 +500,22 @@
             width: 60px;
             height: 60px;
             margin: 0 auto 20px;
-            background: url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20-%202025-07-23T082911.331-ptcXc6Csp6CfcOsR3jFd1Ndmpqxg9c.jpeg') no-repeat center;
-            background-size: contain;
+            /* FIX: Replaced broken URL with a stable placeholder image */
+            background: url('https://placehold.co/60x60/22c55e/ffffff?text=%E2%9C%85') no-repeat center;
+            background-size: cover;
+            border-radius: 50%;
         }
 
         .score-display {
             font-size: 36px;
             font-weight: 700;
             margin-bottom: 8px;
-            color: #00ff88;
+            color: var(--accent-green);
         }
 
         .score-message {
             font-size: 18px;
-            color: #666;
+            color: var(--text-secondary);
             margin-bottom: 24px;
             font-weight: 500;
         }
@@ -474,11 +528,11 @@
         }
 
         .stat-box {
-            background: white;
+            background: var(--card-bg);
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 8px var(--shadow-light);
+            border: 1px solid var(--border-color);
         }
 
         .stat-header {
@@ -502,13 +556,13 @@
         .stat-value {
             font-size: 16px;
             font-weight: 600;
-            color: #333;
+            color: var(--text-primary);
             margin-bottom: 2px;
         }
 
         .stat-label {
             font-size: 11px;
-            color: #666;
+            color: var(--text-secondary);
             font-weight: 500;
             text-transform: capitalize;
         }
@@ -530,25 +584,24 @@
         }
 
         .modal-button.primary {
-            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
-            color: white;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            background: var(--primary-btn-bg);
+            color: var(--primary-btn-text);
+            box-shadow: 0 4px 12px var(--shadow-light);
         }
 
         .modal-button.primary:hover {
-            background: linear-gradient(135deg, #2d2d2d, #404040);
             transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 6px 16px var(--shadow-medium);
         }
 
         .modal-button.secondary {
             background: transparent;
-            color: #666;
-            border: 1px solid #dee2e6;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
         }
 
         .modal-button.secondary:hover {
-            background-color: #f8f9fa;
+            background-color: var(--surface-light);
         }
 
         /* Responsive Design */
@@ -560,6 +613,7 @@
             .quiz-container {
                 border-radius: 12px;
                 min-height: 100vh;
+                border: none;
             }
 
             .header {
@@ -651,43 +705,6 @@
         }
     </style>
     
-    <!-- *** DARK MODE STYLES *** -->
-    <style>
-    body[data-theme="dark"] { background-color: #0f172a; }
-    [data-theme="dark"] .quiz-container { background: #111827; color: #ffffff; }
-    [data-theme="dark"] .header { border-bottom-color: #1f2937; }
-    [data-theme="dark"] .header-title, [data-theme="dark"] .question-number, [data-theme="dark"] .question-text { color: #ffffff; }
-    [data-theme="dark"] .back-arrow { color: #e5e7eb; }
-    [data-theme="dark"] .back-arrow:hover { color: #ffffff; }
-    [data-theme="dark"] .progress-left, [data-theme="dark"] .progress-right { color: #9ca3af; }
-    [data-theme="dark"] .tabs { background-color: #1f2937; }
-    [data-theme="dark"] .tab { color: #e5e7eb; }
-    [data-theme="dark"] .tab.active { background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; }
-    [data-theme="dark"] .progress-segment { background-color: #374151; }
-    [data-theme="dark"] .progress-segment.correct { background-color: #10b981; }
-    [data-theme="dark"] .progress-segment.incorrect { background-color: #ef4444; }
-    [data-theme="dark"] .question-image { background-color: #1f2937; border-color: #374151; }
-    [data-theme="dark"] .solution-text { background-color: #1f2937; border-left-color: #10b981; color: #e5e7eb; }
-    [data-theme="dark"] .nav-arrow { color: #e5e7eb; }
-    [data-theme="dark"] .nav-arrow:hover:not(:disabled) { background-color: #1f2937; color: #ffffff; }
-    [data-theme="dark"] .answer-option { background-color: #1f2937; border-color: #374151; }
-    [data-theme="dark"] .option-letter { color: #e5e7eb; }
-    [data-theme="dark"] .option-text { color: #ffffff; }
-    [data-theme="dark"] .answer-option:hover:not(.disabled) { background-color: #374151; }
-    [data-theme="dark"] .answer-option.selected { background-color: #1e3a8a; border-color: #3b82f6; }
-    [data-theme="dark"] .answer-option.correct { background: rgba(16, 185, 129, 0.15); border-color: #10b981; color: #d1fae5; }
-    [data-theme="dark"] .answer-option.incorrect { background: rgba(239, 68, 68, 0.15); border-color: #ef4444; color: #fecaca; }
-    [data-theme="dark"] .loading p { color: #e5e7eb; }
-    [data-theme="dark"] .loading-spinner { border-top-color: #e5e7eb; }
-    [data-theme="dark"] .error-message { background: #3f1f1f; color: #fecaca; }
-    [data-theme="dark"] .results-modal { background: #111827; color: #ffffff; }
-    [data-theme="dark"] .score-message { color: #e5e7eb; }
-    [data-theme="dark"] .stat-box { background: #1f2937; border-color: #374151; }
-    [data-theme="dark"] .stat-value { color: #ffffff; }
-    [data-theme="dark"] .stat-label { color: #e5e7eb; }
-    [data-theme="dark"] .modal-button.secondary { color: #e5e7eb; border-color: #374151; }
-    [data-theme="dark"] .modal-button.secondary:hover { background-color: #1f2937; }
-    </style>
 </head>
 <body>
     <div class="quiz-container">
@@ -765,14 +782,15 @@
                 this.currentQuestion = 1;
                 this.totalQuestions = 0;
                 this.answers = [];
-                this.correctAnswers = [];
+                this.answerResults = []; // Stores local check result ('correct', 'incorrect', or null)
                 this.selectedAnswer = null;
-                this.isAnswered = false; // Has an option been selected?
-                this.isChecked = false;  // Has the 'Check' button been pressed for this question?
+                this.isAnswered = false;
+                this.isChecked = false;
                 this.currentTab = 'question';
                 this.score = 0;
                 this.startTime = Date.now();
                 this.questions = [];
+                this.quizId = null; 
                 
                 // URL parameters
                 this.courseId = null;
@@ -781,7 +799,7 @@
                 
                 this.initializeElements();
                 this.getUrlParams();
-                this.initQuiz();
+                // We will call initQuiz() outside of the constructor on DOMContentLoaded to fix external script errors.
             }
 
             initializeElements() {
@@ -793,7 +811,6 @@
                 this.progressContainer = document.getElementById('progress-container');
                 this.quizContent = document.getElementById('quiz-content');
                 this.modalOverlay = document.getElementById('modal-overlay');
-                this.checkBtn = null; // Will be set after render
             }
 
             getUrlParams() {
@@ -801,6 +818,10 @@
                 this.courseId = urlParams.get('courseId');
                 this.courseCode = urlParams.get('courseCode');
                 this.quizTitle = urlParams.get('quizTitle');
+                
+                console.log('[v9] Course ID:', this.courseId);
+                console.log('[v9] Course Code:', this.courseCode);
+                console.log('[v9] Quiz Title:', this.quizTitle);
             }
 
             getUserToken() {
@@ -818,57 +839,44 @@
             }
 
             async startQuiz(title) {
+                // Try /quiz/start endpoint first
                 try {
                     const userToken = this.getUserToken();
-                    if (!userToken) {
-                        throw new Error('No authentication token found');
-                    }
+                    if (!userToken) throw new Error('No authentication token found');
 
-                    // Attempt 1: POST /quiz/start with courseid (lowercase 'id')
-                    let response = await fetch(`${API_BASE}/quiz/start`, {
+                    console.log('[v9] Starting quiz with POST request');
+                    const response = await fetch(`${API_BASE}/quiz/start`, {
                         method: 'POST',
                         headers: {
                             'Authorization': `Bearer ${userToken}`,
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            courseid: this.courseId,
+                            courseid: this.courseId, // Try lowercase first
                             title: title
                         })
                     });
 
-                    if (!response.ok) {
-                        // Attempt 2: POST /quiz/start with courseId (camelCase)
-                        response = await fetch(`${API_BASE}/quiz/start`, {
-                            method: 'POST',
-                            headers: {
-                                'Authorization': `Bearer ${userToken}`,
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                courseId: this.courseId,
-                                title: title
-                            })
-                        });
-                        
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.processQuizResponse(data, title);
+                        return;
                     }
-
-                    const data = await response.json();
-                    this.processQuizResponse(data, title);
-                    
                 } catch (error) {
-                    console.error('[QuizApp] Error starting quiz:', error);
-                    // Fallback to GET endpoint
-                    await this.fetchQuizQuestions(title);
+                    console.warn('[v14] Initial /quiz/start failed (expected for some APIs):', error.message);
                 }
+
+                // If /quiz/start fails, fall back to /quiz/course/{courseId}
+                await this.fetchQuizQuestions(title);
             }
             
             processQuizResponse(data, title) {
-                let questions = null;
+                console.log('[v9] Processing quiz response:', data);
                 
+                let questions = null;
+                // Capture Quiz ID from the start response
+                const quizId = data.quizId || data.id || data.data?.quizId || data.data?.id; 
+
                 if (data.success && data.data && Array.isArray(data.data.questions)) {
                     questions = data.data.questions;
                 } else if (data.success && Array.isArray(data.data)) {
@@ -880,8 +888,9 @@
                 }
                 
                 if (questions && Array.isArray(questions) && questions.length > 0) {
-                    this.setupQuiz(questions);
+                    this.setupQuiz(questions, quizId);
                 } else {
+                    // Fallback in case response was just a container
                     this.fetchQuizQuestions(title);
                 }
             }
@@ -889,9 +898,7 @@
             async fetchQuizQuestions(title) {
                 try {
                     const userToken = this.getUserToken();
-                    if (!userToken) {
-                        throw new Error('No authentication token found');
-                    }
+                    if (!userToken) throw new Error('No authentication token found');
 
                     const response = await fetch(`${API_BASE}/quiz/course/${this.courseId}`, {
                         method: 'GET',
@@ -906,108 +913,128 @@
                     }
 
                     const data = await response.json();
+                    console.log('[v9] Quiz questions data received:', data);
                     
                     let selectedQuiz = null;
                     
-                    if (data.success && data.data && data.data.availableTitles) {
-                        selectedQuiz = data.data.availableTitles.find(quiz => quiz.title === title);
-                    } else if (data.success && Array.isArray(data.data)) {
-                        selectedQuiz = data.data.find(quiz => quiz.title === title);
-                    }
+                    // --- NEW AGGRESSIVE NORMALIZATION FUNCTION ---
+                    const aggressiveNormalize = (str) => 
+                        str ? str.toLowerCase().replace(/[^a-z0-9]/g, '') : '';
+                    
+                    const normalizedTitle = aggressiveNormalize(title);
+
+                    // The list of quizzes to search
+                    const quizList = data.success && data.data && data.data.availableTitles
+                        ? data.data.availableTitles 
+                        : (data.success && Array.isArray(data.data) ? data.data : []);
+
+                    // --- CRITICAL FIX: Use aggressive normalized matching ---
+                    selectedQuiz = quizList.find(quiz => {
+                        const normalizedApiTitle = aggressiveNormalize(quiz.title);
+                        // Check if the API title contains the full normalized URL title
+                        return normalizedApiTitle.includes(normalizedTitle) || normalizedTitle.includes(normalizedApiTitle);
+                    });
 
                     if (selectedQuiz && selectedQuiz.questions) {
-                        this.setupQuiz(selectedQuiz.questions);
+                        // Capture Quiz ID from the list response as a fallback
+                        const quizId = selectedQuiz._id || selectedQuiz.id;
+                        this.setupQuiz(selectedQuiz.questions, quizId);
                     } else {
                         throw new Error(`Quiz questions not found for "${title}"`);
                     }
 
                 } catch (error) {
-                    console.error('[QuizApp] Error fetching quiz questions:', error);
+                    console.error('[v9] Error fetching quiz questions:', error);
                     this.displayError(`Error fetching quiz questions: ${error.message}`);
                 }
             }
 
-            setupQuiz(questions) {
+            /**
+             * Processes raw question data and prepares the internal state.
+             * @param {Array} questions - Array of question objects.
+             * @param {string} [quizId=null] - Optional ID for the entire quiz.
+             */
+            setupQuiz(questions, quizId = null) {
+                this.quizId = quizId; // Store the quiz ID
+                console.log(`[v14] Final Quiz ID stored: ${this.quizId}`);
+
                 this.questions = questions.map((q, index) => {
-                    let options = q.options || q.choices || [];
+                    // --- 1️⃣ Handle all possible backend key variations for options ---
+                    const rawOptions = q.options || q.Options || q.choices || {};
+                    const rawAnswer = q.answer || q.Answer || q.ans || q.Ans || 
+                                      q.correct || q.correctOption || q.correct_answer || q.correctAnswer;
                     
-                    let optionsArray = [];
-                    if (Array.isArray(options)) {
-                        optionsArray = options;
-                    } else if (typeof options === 'object' && options !== null) {
-                        const orderedOptions = [];
-                        if (options.A) orderedOptions.push(options.A);
-                        if (options.B) orderedOptions.push(options.B);
-                        if (options.C) orderedOptions.push(options.C);
-                        if (options.D) orderedOptions.push(options.D);
-                        if (options.E) orderedOptions.push(options.E);
+                    let finalOptionsArray = [];
+                    let finalCorrectIndex = -1; // RESTORED: Index of the correct answer
+                    
+                    // NEW: Capture potential server ID for submission (kept for reference)
+                    const serverId = q._id || q.id || q.questionId || null;
+
+                    console.log(`🧩 [Quiz Debug] Q${index + 1}:`);
+                    console.log(`Question:`, q.question);
+                    console.log(`Raw answer value:`, rawAnswer); // RESTORED debug log
+                    
+                    // --- 2️⃣ Handle object format like {A: "...", B: "..."} ---
+                    if (typeof rawOptions === 'object' && rawOptions !== null && !Array.isArray(rawOptions)) {
+                        const optionKeys = Object.keys(rawOptions);
+                        // Sort alphabetically to maintain order (A,B,C,D)
+                        const sortedKeys = optionKeys.sort((a, b) => a.localeCompare(b));
                         
-                        if (orderedOptions.length > 0) {
-                             optionsArray = orderedOptions;
-                        } else {
-                             optionsArray = Object.values(options);
-                        }
-                    }
-                    
-                    const rawAnswer = q.correctAnswer || q.answer || q.Ans || q.ans;
-                    let correctAnswerIndex = 0; 
-
-                    if (rawAnswer !== null && rawAnswer !== undefined) {
-                        const answerString = String(rawAnswer).toUpperCase().trim();
-
-                        if (answerString === "A") {
-                            correctAnswerIndex = 0;
-                        } else if (answerString === "B") {
-                            correctAnswerIndex = 1;
-                        } else if (answerString === "C") {
-                            correctAnswerIndex = 2;
-                        } else if (answerString === "D") {
-                            correctAnswerIndex = 3;
-                        } else if (answerString === "E") {
-                            correctAnswerIndex = 4;
-                        } 
-                        else {
-                            const textIndex = optionsArray.findIndex(opt => {
-                                let optText = (typeof opt === 'string') ? opt : (opt.text || opt.option || opt.answer || '');
-                                return optText.trim().toUpperCase() === answerString;
-                            });
-                            
-                            if (textIndex !== -1) {
-                                correctAnswerIndex = textIndex;
-                            } 
-                            else {
-                                const numIndex = parseInt(rawAnswer, 10);
-                                if (!isNaN(numIndex) && numIndex >= 0 && numIndex < optionsArray.length) {
-                                    correctAnswerIndex = numIndex;
-                                } else {
-                                    correctAnswerIndex = 0;
-                                }
+                        // Find the correct index
+                        if (rawAnswer) {
+                            const answerKey = sortedKeys.find(key => key.toLowerCase() === String(rawAnswer).toLowerCase());
+                            if (answerKey) {
+                                finalCorrectIndex = sortedKeys.indexOf(answerKey);
+                            } else {
+                                console.warn(`[Quiz Debug] Q${index + 1}: Could not match raw answer '${rawAnswer}' to keys. Keys: ${sortedKeys.join(', ')}`);
                             }
                         }
+                        
+                        // Create an array of texts based on sorted keys
+                        finalOptionsArray = sortedKeys.map(key => rawOptions[key]);
+                    } 
+                    // --- 3️⃣ Handle array format (Less reliable without keys) ---
+                    else if (Array.isArray(rawOptions)) {
+                        console.log(`[Quiz Debug] Q${index + 1}: Array format detected`);
+                        finalOptionsArray = rawOptions.map(opt =>
+                            typeof opt === 'string' ? opt : (opt.text || 'Invalid option')
+                        );
+                        // If rawAnswer is a numeric index and the options are an array
+                        if (rawAnswer !== null && rawAnswer !== undefined && !isNaN(parseInt(rawAnswer))) {
+                             finalCorrectIndex = parseInt(rawAnswer);
+                        }
+                    } 
+                    // --- 4️⃣ Handle bad data ---
+                    else {
+                        console.error(`[Quiz Debug] Q${index + 1}: Invalid options format`, rawOptions);
                     }
-                    
+
+                    console.log(`[Quiz Debug] Final Correct Index: ${finalCorrectIndex}`); // RESTORED debug log
+                    console.log('----------------------------');
+
                     return {
-                        id: index + 1,
+                        id: index + 1, // Internal index ID
+                        serverId: serverId, 
                         text: q.question || q.text || 'Question text not available',
-                        options: optionsArray, 
-                        correctAnswer: correctAnswerIndex,
+                        options: finalOptionsArray,
+                        correctAnswer: finalCorrectIndex, // RESTORED: This is the local reference
                         solution: q.solution || q.explanation || 'No solution provided',
                         imageUrl: q.ImageUrl || q.imageUrl || q.image || null
                     };
                 });
 
+                // --- 5️⃣ Initialize quiz state ---
                 this.totalQuestions = this.questions.length;
                 this.answers = new Array(this.totalQuestions).fill(null);
-                this.correctAnswers = this.questions.map(q => q.correctAnswer);
-
+                this.answerResults = new Array(this.totalQuestions).fill(null); // Will store local check verdict
+                
                 this.totalQuestionsEl.textContent = this.totalQuestions;
                 this.createProgressSegments();
                 this.renderQuizInterface();
-                // Get the check button element after rendering
-                this.checkBtn = document.getElementById('check-btn'); 
                 this.loadQuestion();
                 this.bindEvents();
             }
+
 
             createProgressSegments() {
                 this.progressContainer.innerHTML = '';
@@ -1064,6 +1091,7 @@
                     questionImage.src = question.imageUrl;
                     questionImage.classList.add('visible');
                     questionImage.onerror = function() {
+                        console.log('[v9] Failed to load image:', question.imageUrl);
                         this.classList.remove('visible');
                     };
                 } else {
@@ -1077,15 +1105,13 @@
                 const options = question.options || [];
                 
                 if (options.length === 0) {
-                    answersContainer.innerHTML = '<div class="no-options" style="color: red; padding: 20px; text-align: center;">No options available for this question</div>';
+                    answersContainer.innerHTML = '<div class="no-options" style="color: var(--accent-red); padding: 20px; text-align: center;">No options available for this question</div>';
                 }
                 
-                options.forEach((option, index) => {
+                options.forEach((optionText, index) => {
                     const optionDiv = document.createElement('div');
                     optionDiv.className = 'answer-option';
-                    optionDiv.dataset.option = index; 
-                    
-                    let optionText = (typeof option === 'string') ? option : (option.text || option.option || option.answer || `Option ${index + 1}`);
+                    optionDiv.dataset.option = index; // This is the numeric index (0, 1, 2, 3)
                     
                     optionDiv.innerHTML = `
                         <span class="option-letter">${String.fromCharCode(65 + index)}</span>
@@ -1097,16 +1123,16 @@
                         this.selectedAnswer = index;
                     }
                     
-                    // Only attach click listener if not yet checked
-                    if (!this.isChecked) {
-                        optionDiv.addEventListener('click', () => {
+                    optionDiv.addEventListener('click', () => {
+                        if (!optionDiv.classList.contains('disabled')) {
                             this.selectAnswer(index);
-                        });
-                    }
+                        }
+                    });
                     
                     answersContainer.appendChild(optionDiv);
                 });
 
+                // Trigger MathJax to render the new content
                 if (window.MathJax && window.MathJax.typesetPromise) {
                     window.MathJax.typesetPromise([
                         document.getElementById('question-text'),
@@ -1119,15 +1145,13 @@
                 document.getElementById('next-btn').disabled = this.currentQuestion === this.totalQuestions;
                 
                 this.updateProgressBar();
-                this.isAnswered = this.answers[this.currentQuestion - 1] !== null;
-                this.isChecked = this.isAnswered; // Re-evaluate isChecked based on stored answer
-
                 this.updateCheckButton();
-                
-                // If already answered/checked, show results and switch to correct button state
+                this.isAnswered = this.answers[this.currentQuestion - 1] !== null;
+                this.isChecked = this.answerResults[this.currentQuestion - 1] !== null; // Check if local result exists
+
+                // If already answered, show results
                 if (this.isChecked) {
                     this.showAnswerResult();
-                    this.updateCheckButton();
                 }
             }
 
@@ -1139,12 +1163,14 @@
                 segments.forEach((segment, index) => {
                     segment.classList.remove('correct', 'incorrect');
                     
-                    if (this.answers[index] !== null) {
+                    const result = this.answerResults[index]; // Read result from local array
+
+                    if (result !== null) {
                         answeredCount++;
-                        if (this.answers[index] === this.correctAnswers[index]) {
+                        if (result === 'correct') { 
                             segment.classList.add('correct');
                             correctCount++;
-                        } else {
+                        } else if (result === 'incorrect') {
                             segment.classList.add('incorrect');
                         }
                     }
@@ -1155,32 +1181,26 @@
             }
 
             updateCheckButton() {
-                if (!this.checkBtn) return;
+                const checkBtn = document.getElementById('check-btn');
+                const result = this.answerResults[this.currentQuestion - 1];
 
-                this.checkBtn.classList.remove('active', 'answered');
-                
-                if (this.isChecked) {
-                    // Answer has been checked, button becomes Next or Finish
-                    this.checkBtn.classList.add('answered');
-                    if (this.currentQuestion === this.totalQuestions) {
-                        this.checkBtn.textContent = 'Finish Quiz';
-                    } else {
-                        this.checkBtn.textContent = 'Next Question';
-                    }
-                } else if (this.selectedAnswer !== null) {
-                    // Option is selected, but not checked yet
-                    this.checkBtn.classList.add('active');
-                    this.checkBtn.textContent = 'Check';
-                } else {
-                    // No option selected
-                    this.checkBtn.textContent = 'Check';
+                if (this.selectedAnswer !== null && result === null) {
+                    checkBtn.classList.add('active');
+                    checkBtn.textContent = 'Check';
+                } else if (result !== null && this.currentQuestion === this.totalQuestions) {
+                    // Check is done, but show "Finish" on the last question
+                    checkBtn.classList.add('active');
+                    checkBtn.textContent = 'Finish';
+                }
+                else {
+                    checkBtn.classList.remove('active');
+                    checkBtn.textContent = 'Check';
                 }
             }
 
             selectAnswer(optionIndex) {
-                // Ignore selection if question is already checked
-                if (this.isChecked) return;
-
+                console.log('[v9] Selecting answer (index):', optionIndex);
+                
                 document.querySelectorAll('.answer-option').forEach(option => {
                     option.classList.remove('selected');
                 });
@@ -1199,56 +1219,97 @@
             showAnswerResult() {
                 const answerOptions = document.querySelectorAll('.answer-option');
                 const selectedIndex = this.answers[this.currentQuestion - 1];
-                const correctIndex = this.correctAnswers[this.currentQuestion - 1];
+                const result = this.answerResults[this.currentQuestion - 1]; // Get local result
+                const correctAnswerIndex = this.questions[this.currentQuestion - 1].correctAnswer;
                 
-                if (selectedIndex === null) return;
+                if (selectedIndex === null || result === null) return;
+                if (answerOptions.length === 0) return;
 
                 const selectedOption = answerOptions[selectedIndex];
-                const correctOption = answerOptions[correctIndex];
 
-                // Disable clicks on all options
                 answerOptions.forEach(option => option.classList.add('disabled'));
-
-                if (selectedIndex === correctIndex) {
+                
+                if (result === 'correct') {
                     if(selectedOption) selectedOption.classList.add('correct');
-                } else {
+                } else if (result === 'incorrect') {
                     if(selectedOption) selectedOption.classList.add('incorrect');
-                    // Show the correct answer
-                    if(correctOption) correctOption.classList.add('correct');
-                    // Switch to solution tab automatically if answered incorrectly
-                    this.switchTab('solution');
+                    
+                    // Highlight the correct answer locally
+                    if (correctAnswerIndex !== -1 && answerOptions[correctAnswerIndex]) {
+                         answerOptions[correctAnswerIndex].classList.add('correct');
+                    }
                 }
+                
+                // Ensure the check button state is updated (Finish or Check)
+                this.updateCheckButton();
             }
             
+            /**
+             * RESTORED: Performs client-side answer checking.
+             */
             checkAnswer() {
-                // If already checked, treat button click as next/finish
-                if (this.isChecked) {
-                    if (this.currentQuestion === this.totalQuestions) {
+                const currentQuestionIndex = this.currentQuestion - 1;
+                const question = this.questions[currentQuestionIndex];
+                
+                // If no answer selected or already checked
+                if (this.selectedAnswer === null || this.answerResults[currentQuestionIndex] !== null) {
+                    if (this.currentQuestion === this.totalQuestions && this.answerResults[currentQuestionIndex] !== null) {
                         this.endQuiz();
-                    } else {
-                        this.nextQuestion();
                     }
                     return;
                 }
                 
-                // Only proceed if an answer is selected
-                if (this.selectedAnswer === null) return;
-
                 const selectedIndex = this.selectedAnswer;
-                const correctIndex = this.correctAnswers[this.currentQuestion - 1];
-
-                // Mark as checked
-                this.isChecked = true;
-                this.answers[this.currentQuestion - 1] = selectedIndex; // Store definitive answer
+                const correctAnswerIndex = question.correctAnswer;
                 
-                // Update score
-                if (selectedIndex === correctIndex) {
+                // 1. Check the answer locally
+                const isCorrect = selectedIndex === correctAnswerIndex;
+                const verdict = isCorrect ? 'correct' : 'incorrect';
+                
+                // 2. Update local state
+                this.answers[currentQuestionIndex] = selectedIndex; 
+                this.answerResults[currentQuestionIndex] = verdict;
+                
+                if (isCorrect) {
                     this.score++;
+                    console.log('[v15] Local Check: CORRECT');
+                } else {
+                    console.log('[v15] Local Check: INCORRECT');
                 }
                 
-                this.showAnswerResult();
+                // 3. Style the options
+                const answerOptions = document.querySelectorAll('.answer-option');
+                answerOptions.forEach(option => option.classList.add('disabled'));
+                
+                const selectedOptionEl = answerOptions[selectedIndex];
+                if (selectedOptionEl) {
+                    selectedOptionEl.classList.add(verdict);
+                }
+
+                // Highlight the correct answer if incorrect
+                if (!isCorrect && correctAnswerIndex !== -1 && answerOptions[correctAnswerIndex]) {
+                    answerOptions[correctAnswerIndex].classList.add('correct');
+                }
+                
+                // --- 4. Update UI and auto-advance ---
                 this.updateProgressBar();
-                this.updateCheckButton(); // Change button to "Next Question" or "Finish Quiz"
+                this.updateCheckButton();
+                
+                setTimeout(() => {
+                    if (this.currentQuestion === this.totalQuestions) {
+                        this.updateCheckButton(); // Show "Finish"
+                    } else {
+                        this.nextQuestion();
+                    }
+                }, 1000);
+            }
+            
+            displayTemporaryError(message) {
+                const messageElement = document.createElement('div');
+                messageElement.className = 'error-message';
+                messageElement.innerHTML = `<p>${message}</p>`;
+                this.quizContent.prepend(messageElement);
+                setTimeout(() => messageElement.remove(), 5000);
             }
 
             switchTab(tab) {
@@ -1281,10 +1342,9 @@
             nextQuestion() {
                 if (this.currentQuestion < this.totalQuestions) {
                     this.currentQuestion++;
-                    // Reset question state for the new question
                     this.selectedAnswer = this.answers[this.currentQuestion - 1];
                     this.isAnswered = this.selectedAnswer !== null;
-                    this.isChecked = this.isAnswered;
+                    this.isChecked = this.answerResults[this.currentQuestion - 1] !== null;
                     this.switchTab('question');
                     this.loadQuestion();
                 }
@@ -1293,10 +1353,9 @@
             prevQuestion() {
                 if (this.currentQuestion > 1) {
                     this.currentQuestion--;
-                    // Load state from answers array
                     this.selectedAnswer = this.answers[this.currentQuestion - 1];
                     this.isAnswered = this.selectedAnswer !== null;
-                    this.isChecked = this.isAnswered;
+                    this.isChecked = this.answerResults[this.currentQuestion - 1] !== null;
                     this.switchTab('question');
                     this.loadQuestion();
                 }
@@ -1308,8 +1367,11 @@
 
             showResults() {
                 const timeSpent = Math.floor((Date.now() - this.startTime) / 1000 / 60 * 100) / 100;
+                // Re-calculate score in case we missed updating it during submission
+                this.score = this.answerResults.filter(r => r === 'correct').length;
+                
                 const wrongAnswers = this.totalQuestions - this.score;
-                const percentage = (this.score / this.totalQuestions) * 100;
+                const percentage = (this.totalQuestions > 0) ? (this.score / this.totalQuestions) * 100 : 0;
                 
                 let grade = 'F';
                 if (percentage >= 90) grade = 'A+';
@@ -1344,6 +1406,7 @@
             resetQuiz() {
                 this.currentQuestion = 1;
                 this.answers = new Array(this.totalQuestions).fill(null);
+                this.answerResults = new Array(this.totalQuestions).fill(null);
                 this.selectedAnswer = null;
                 this.isAnswered = false;
                 this.isChecked = false;
@@ -1369,20 +1432,22 @@
                 // Answer selection
                 document.addEventListener('click', (e) => {
                     const option = e.target.closest('.answer-option');
-                    if (option && !this.isChecked) {
+                    if (option && this.answerResults[this.currentQuestion - 1] === null) {
                         const optionIndex = parseInt(option.dataset.option);
                         this.selectAnswer(optionIndex);
                     }
                 });
 
-                // Check/Next/Finish button logic
+                // Check button
                 document.addEventListener('click', (e) => {
                     if (e.target.id === 'check-btn') {
-                        this.checkAnswer();
+                        if (document.getElementById('check-btn').classList.contains('active')) {
+                            this.checkAnswer();
+                        }
                     }
                 });
 
-                // Navigation arrows (independent of Check button)
+                // Navigation
                 document.addEventListener('click', (e) => {
                     if (e.target.id === 'next-btn') this.nextQuestion();
                     if (e.target.id === 'prev-btn') this.prevQuestion();
@@ -1413,8 +1478,8 @@
                         case '2':
                         case '3':
                         case '4':
-                        case '5':
-                            if (!this.isChecked) {
+                        case '5': // Added 5 for 'E'
+                            if (this.answerResults[this.currentQuestion - 1] === null) {
                                 const optionIndex = parseInt(e.key) - 1;
                                 if (this.questions[this.currentQuestion - 1] && optionIndex < this.questions[this.currentQuestion - 1].options.length) {
                                     this.selectAnswer(optionIndex);
@@ -1424,7 +1489,8 @@
                         case 'Enter':
                         case ' ':
                             e.preventDefault();
-                            if (this.checkBtn && this.checkBtn.classList.contains('active') || this.checkBtn && this.checkBtn.classList.contains('answered')) {
+                            const checkBtn = document.getElementById('check-btn');
+                            if (checkBtn && checkBtn.classList.contains('active')) {
                                 this.checkAnswer();
                             }
                             break;
@@ -1435,11 +1501,15 @@
 
         // Global functions for navigation
         function goBackToQuizSelection() {
-            const params = new URLSearchParams({
-                courseId: window.quizApp.courseId,
-                courseCode: window.quizApp.courseCode
-            });
-            window.location.href = `quiz.html?${params.toString()}`;
+            if (window.quizApp && window.quizApp.courseId && window.quizApp.courseCode) {
+                const params = new URLSearchParams({
+                    courseId: window.quizApp.courseId,
+                    courseCode: window.quizApp.courseCode
+                });
+                window.location.href = `quiz.html?${params.toString()}`;
+            } else {
+                window.location.href = 'quiz.html';
+            }
         }
 
         // Initialize the quiz app
@@ -1452,7 +1522,9 @@
                 body.removeAttribute('data-theme');
             }
 
+            // Start the quiz app after the DOM is fully loaded, mitigating external script dependency issues.
             window.quizApp = new QuizApp();
+            window.quizApp.initQuiz();
         });
     </script>
 </body>
