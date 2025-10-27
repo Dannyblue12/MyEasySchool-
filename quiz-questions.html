@@ -500,7 +500,7 @@
             width: 60px;
             height: 60px;
             margin: 0 auto 20px;
-            background: url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20-%202025-07-23T082911.331-ptcXc6Csp6CfcOsR3jFd1Ndmpqxg9c.jpeg') no-repeat center;
+            background: url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/images%20-%202025-07-23T082911.331-ptcXc6Csp6CfcOsR3jfd1Ndmpqxg9c.jpeg') no-repeat center;
             background-size: contain;
         }
 
@@ -918,15 +918,22 @@
                     // Normalize the target title for robust comparison
                     const normalizedTitle = title.toLowerCase().trim().replace(/\s+/g, ' ');
 
-                    if (data.success && data.data && data.data.availableTitles) {
-                        selectedQuiz = data.data.availableTitles.find(quiz => 
-                            quiz.title.toLowerCase().trim().replace(/\s+/g, ' ') === normalizedTitle
-                        );
-                    } else if (data.success && Array.isArray(data.data)) {
-                        selectedQuiz = data.data.find(quiz => 
-                            quiz.title.toLowerCase().trim().replace(/\s+/g, ' ') === normalizedTitle
-                        );
-                    }
+                    // Helper function to normalize API titles
+                    const normalizeApiTitle = (apiTitle) => 
+                        apiTitle ? apiTitle.toLowerCase().trim().replace(/\s+/g, ' ') : '';
+                    
+                    // The list of quizzes to search
+                    const quizList = data.success && data.data && data.data.availableTitles
+                        ? data.data.availableTitles 
+                        : (data.success && Array.isArray(data.data) ? data.data : []);
+
+                    // --- CRITICAL FIX: Use partial matching for robustness ---
+                    selectedQuiz = quizList.find(quiz => {
+                        const normalizedApiTitle = normalizeApiTitle(quiz.title);
+                        // Check if the API title contains the full normalized URL title
+                        // This handles cases where the API title might have a slight prefix/suffix
+                        return normalizedApiTitle.includes(normalizedTitle) || normalizedTitle.includes(normalizedApiTitle);
+                    });
 
                     if (selectedQuiz && selectedQuiz.questions) {
                         // Capture Quiz ID from the list response as a fallback
