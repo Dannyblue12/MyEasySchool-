@@ -788,7 +788,7 @@
                 this.score = 0;
                 this.startTime = Date.now();
                 this.questions = [];
-                
+                this.answerResults = [];
                 // URL parameters
                 this.courseId = null;
                 this.courseCode = null;
@@ -1043,7 +1043,7 @@ setupQuiz(questions) {
     // --- 7️⃣ Initialize quiz state ---
     this.totalQuestions = this.questions.length;
     this.answers = new Array(this.totalQuestions).fill(null);
-    this.correctAnswers = this.questions.map(q => q.correctAnswer);
+    this.answerResults = new Array(this.totalQuestions).fill(null);
 
     this.totalQuestionsEl.textContent = this.totalQuestions;
     this.createProgressSegments();
@@ -1183,13 +1183,14 @@ setupQuiz(questions) {
                 segments.forEach((segment, index) => {
                     segment.classList.remove('correct', 'incorrect');
                     
-                    if (this.answers[index] !== null) {
+                    const result = this.answerResults[index]; // <-- Read from new array
+
+                    if (result !== null) {
                         answeredCount++;
-                        // Comparison is now number === number and is reliable
-                        if (this.answers[index] === this.correctAnswers[index]) {
+                        if (result === 'correct') { // <-- Check result string
                             segment.classList.add('correct');
                             correctCount++;
-                        } else {
+                        } else if (result === 'incorrect') {
                             segment.classList.add('incorrect');
                         }
                     }
@@ -1253,57 +1254,104 @@ setupQuiz(questions) {
                 }
             }
 
-            checkAnswer() {
+            async checkAnswer() {
                 if (this.selectedAnswer === null || this.isChecked) {
-                    // *** ADDED: Allow "Finish" button to work even if checked ***
                     if (this.currentQuestion === this.totalQuestions && this.isChecked) {
                         this.endQuiz();
                     }
                     return;
                 }
-                
+
                 const selectedIndex = this.selectedAnswer;
-                const correctIndex = this.correctAnswers[this.currentQuestion - 1];
+                const currentQuestion = this.questions[this.currentQuestion - 1];
+                const selectedOptionLetter = String.fromCharCode(65 + selectedIndex);
 
-                console.log(`[v8] Checking Answer: Selected Index ${selectedIndex}, Correct Index ${correctIndex}`);
+                console.log(`[v9] Submitting answer for: ${currentQuestion.text}`);
+                console.log(`[v9] Selected option: ${selectedOptionLetter}`);
 
+                // Disable options
                 const answerOptions = document.querySelectorAll('.answer-option');
-                if (answerOptions.length === 0) return;
-
-                const selectedOption = answerOptions[selectedIndex];
-                const correctOption = answerOptions[correctIndex];
-                
-                this.answers[this.currentQuestion - 1] = selectedIndex;
-                this.isChecked = true;
-                this.isAnswered = true;
-                
                 answerOptions.forEach(option => option.classList.add('disabled'));
                 
-                // This comparison is now reliable
-                if (selectedIndex === correctIndex) {
-                    if (selectedOption) selectedOption.classList.add('correct');
-                    this.score++;
-                    console.log('[v8] Result: CORRECT');
-                } else {
-                    if (selectedOption) selectedOption.classList.add('incorrect');
-                    if (correctOption) {
-                         correctOption.classList.add('correct');
-                    }
-                    console.log('[v8] Result: INCORRECT');
+                // Get token
+                const userToken = this.getUserToken();
+                if (!userToken) {
+                    console.error("No user token found for submission");
+                    alert("Error: You are not logged in.");
+                    return;
                 }
-                
+
+                try {
+                    // --- 1. Call your /quiz/submit endpoint ---
+                    const response = await fetch(`${API_BASE}/quiz/submit`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${userToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            courseId: this.courseId,
+                            quizTitle: this.quizTitle,
+                            question: currentQuestion.text, // Send question text as identifier
+                            answer: selectedOptionLetter    // Send "A", "B", "C", etc.
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Server error: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    
+                    // --- 2. Process the server's response ---
+                    this.isChecked = true;
+                    this.isAnswered = true;
+                    this.answers[this.currentQuestion - 1] = selectedIndex; // Still save the user's choice
+
+                    const selectedOptionEl = answerOptions[selectedIndex];
+                    
+                    if (result.isCorrect === true || result.correct === true) {
+                        // --- 3. Handle CORRECT answer ---
+                        console.log('[v9] Result: CORRECT');
+                        if (selectedOptionEl) selectedOptionEl.classList.add('correct');
+                        this.score++;
+                        this.answerResults[this.currentQuestion - 1] = 'correct';
+
+                    } else {
+                        // --- 4. Handle INCORRECT answer ---
+                        console.log('[v9] Result: INCORRECT');
+                        if (selectedOptionEl) selectedOptionEl.classList.add('incorrect');
+                        this.answerResults[this.currentQuestion - 1] = 'incorrect';
+
+                        // Highlight the correct answer received from the server
+                        if (result.correctAnswer) {
+                            // Convert letter "A", "B", etc. back to an index
+                            const correctIndex = result.correctAnswer.toUpperCase().charCodeAt(0) - 65;
+                            if (answerOptions[correctIndex]) {
+                                answerOptions[correctIndex].classList.add('correct');
+                            }
+                        }
+                    }
+
+                } catch (error) {
+                    console.error('Error submitting answer:', error);
+                    // Re-enable options if submit fails
+                    answerOptions.forEach(option => option.classList.remove('disabled'));
+                    alert(`Error checking answer: ${error.message}`);
+                    return; // Stop execution
+                }
+
+                // --- 5. Update UI and auto-advance ---
                 this.updateProgressBar();
                 this.updateCheckButton();
-                
-                // Auto-advance logic with a 1-second delay
+
                 setTimeout(() => {
                     if (this.currentQuestion === this.totalQuestions) {
-                        // This will just update the button to "Finish"
-                        this.updateCheckButton();
+                        this.updateCheckButton(); // Show "Finish"
                     } else {
                         this.nextQuestion();
                     }
-                }, 1000); // 1000ms = 1 second delay
+                }, 1000);
             }
 
             switchTab(tab) {
