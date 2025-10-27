@@ -797,7 +797,7 @@
                 
                 this.initializeElements();
                 this.getUrlParams();
-                this.initQuiz();
+                // We will call initQuiz() outside of the constructor on DOMContentLoaded to fix external script errors.
             }
 
             initializeElements() {
@@ -915,10 +915,17 @@
                     
                     let selectedQuiz = null;
                     
+                    // Normalize the target title for robust comparison
+                    const normalizedTitle = title.toLowerCase().trim().replace(/\s+/g, ' ');
+
                     if (data.success && data.data && data.data.availableTitles) {
-                        selectedQuiz = data.data.availableTitles.find(quiz => quiz.title === title);
+                        selectedQuiz = data.data.availableTitles.find(quiz => 
+                            quiz.title.toLowerCase().trim().replace(/\s+/g, ' ') === normalizedTitle
+                        );
                     } else if (data.success && Array.isArray(data.data)) {
-                        selectedQuiz = data.data.find(quiz => quiz.title === title);
+                        selectedQuiz = data.data.find(quiz => 
+                            quiz.title.toLowerCase().trim().replace(/\s+/g, ' ') === normalizedTitle
+                        );
                     }
 
                     if (selectedQuiz && selectedQuiz.questions) {
@@ -1553,7 +1560,9 @@
                 body.removeAttribute('data-theme');
             }
 
+            // Start the quiz app after the DOM is fully loaded, mitigating external script dependency issues.
             window.quizApp = new QuizApp();
+            window.quizApp.initQuiz();
         });
     </script>
 </body>
