@@ -675,6 +675,44 @@ body[data-theme="dark"] { background-color: #0f172a; }
 [data-theme="dark"] .nav-arrow { color: #e5e7eb; }
 [data-theme="dark"] .nav-arrow:hover:not(:disabled) { background-color: #1f2937; color: #ffffff; }
 [data-theme="dark"] .option-text { color: #ffffff; }
+
+/* --- START: Added Dark Mode Styles for Answer Options --- */
+[data-theme="dark"] .answer-option {
+    background-color: #1f2937;
+    border: 2px solid #374151;
+    color: #e5e7eb;
+}
+
+[data-theme="dark"] .answer-option:hover:not(.disabled) {
+    background-color: #2b3648;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .answer-option.selected {
+    background-color: #1e3a8a; /* A dark blue for selection */
+    border-color: #60a5fa; /* Lighter blue border */
+}
+
+[data-theme="dark"] .answer-option.correct {
+    background: rgba(16, 185, 129, 0.25); /* Teal/green background */
+    border: 3px solid #10b981; /* Darker green border */
+    color: #a7f3d0; /* Light green text */
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+}
+
+[data-theme="dark"] .answer-option.incorrect {
+    background: rgba(239, 68, 68, 0.25); /* Red background */
+    border: 3px solid #ef4444; /* Darker red border */
+    color: #fca5a5; /* Light red text */
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+}
+
+[data-theme="dark"] .option-letter {
+    color: #e5e7eb; /* Ensure option letter is visible */
+}
+
+/* --- END: Added Dark Mode Styles for Answer Options --- */
+
 [data-theme="dark"] .stat-box { background: #1f2937; border-color: #374151; }
 [data-theme="dark"] .stat-value { color: #ffffff; }
 [data-theme="dark"] .stat-label { color: #9ca3af; }
