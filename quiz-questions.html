@@ -789,6 +789,7 @@
                 this.score = 0;
                 this.startTime = Date.now();
                 this.questions = [];
+                this.quizId = null; // Stored Quiz ID
                 
                 // URL parameters
                 this.courseId = null;
@@ -857,6 +858,7 @@
                     });
 
                     if (!response.ok) {
+                        // Fallback attempt: retry with courseId casing
                         const retryResponse = await fetch(`${API_BASE}/quiz/start`, {
                             method: 'POST',
                             headers: {
@@ -883,6 +885,7 @@
                     
                 } catch (error) {
                     console.error('[v9] Error starting quiz:', error);
+                    // Fallback to fetch full quiz list if start fails
                     await this.fetchQuizQuestions(title);
                 }
             }
@@ -891,7 +894,9 @@
                 console.log('[v9] Processing quiz response:', data);
                 
                 let questions = null;
-                
+                // Try to find the quiz ID from the start response
+                const quizId = data.quizId || data.id || data.data?.quizId || data.data?.id; 
+
                 if (data.success && data.data && Array.isArray(data.data.questions)) {
                     questions = data.data.questions;
                 } else if (data.success && Array.isArray(data.data)) {
@@ -903,7 +908,7 @@
                 }
                 
                 if (questions && Array.isArray(questions) && questions.length > 0) {
-                    this.setupQuiz(questions);
+                    this.setupQuiz(questions, quizId);
                 } else {
                     this.fetchQuizQuestions(title);
                 }
@@ -940,7 +945,9 @@
                     }
 
                     if (selectedQuiz && selectedQuiz.questions) {
-                        this.setupQuiz(selectedQuiz.questions);
+                        // Capture Quiz ID from the list response as a fallback
+                        const quizId = selectedQuiz._id || selectedQuiz.id;
+                        this.setupQuiz(selectedQuiz.questions, quizId);
                     } else {
                         throw new Error(`Quiz questions not found for "${title}"`);
                     }
@@ -953,9 +960,13 @@
 
             /**
              * Processes raw question data and prepares the internal state.
-             * Answer checking logic is removed here as it's handled by the server.
+             * @param {Array} questions - Array of question objects.
+             * @param {string} [quizId=null] - Optional ID for the entire quiz.
              */
-            setupQuiz(questions) {
+            setupQuiz(questions, quizId = null) {
+                this.quizId = quizId; // Store the quiz ID
+                console.log(`[v13] Final Quiz ID stored: ${this.quizId}`);
+
                 this.questions = questions.map((q, index) => {
                     // --- 1️⃣ Handle all possible backend key variations for options ---
                     const rawOptions = q.options || q.Options || q.choices || {};
@@ -1215,14 +1226,7 @@
                 } else if (result === 'incorrect') {
                     if(selectedOption) selectedOption.classList.add('incorrect');
                     
-                    // Since the server verified it, we now need to retrieve the correct answer 
-                    // from the server response (if it's not already in local storage/state)
-                    // For simplicity, we just highlight the correct one if the server response had it.
-                    // Since the server response is not saved, we can't show the correct option here
-                    // unless we fetch it again or the server returns it when checking (which is preferred).
                     // We must trust the server's verdict that the selected one is incorrect.
-                    
-                    // Since we can't re-read the server's correct answer, the solution tab is the fallback
                 }
                 
                 // Ensure the check button state is updated (Finish or Check)
@@ -1240,54 +1244,74 @@
                 }
 
                 const selectedIndex = this.selectedAnswer;
-                const currentQuestion = this.questions[this.currentQuestion - 1];
-                // Convert index (0, 1, 2, 3) to option letter ("A", "B", "C", "D") for the API
-                const selectedOptionLetter = String.fromCharCode(65 + selectedIndex);
+                const currentQuestionIndex = this.currentQuestion - 1;
 
-                console.log(`[v9] Submitting answer for: ${currentQuestion.text}`);
-                console.log(`[v9] Selected option: ${selectedOptionLetter}`);
+                // 1. Update the local answer for the current question
+                this.answers[currentQuestionIndex] = selectedIndex; 
+                
+                // --- Validation Check for Missing Quiz ID ---
+                if (!this.quizId) {
+                    this.displayTemporaryError(`Error: Quiz ID is missing. Cannot submit answers. Ensure /quiz/start or /quiz/course/${this.courseId} returns an 'id' or 'quizId'.`);
+                    return;
+                }
 
-                // Disable options and show loading indicator (optional)
+                // 2. Prepare the complete answers array for the server
+                const answersArray = this.questions
+                    .map((q, index) => {
+                        const userSelectedOptionIndex = this.answers[index];
+                        
+                        // Only include questions that have been answered (index !== null)
+                        if (userSelectedOptionIndex !== null) {
+                            // Convert index (0, 1, 2, 3) to option letter ("A", "B", "C", "D")
+                            const selectedOptionLetter = String.fromCharCode(65 + userSelectedOptionIndex);
+                            
+                            // Determine the question ID to send
+                            let questionIdField = {};
+                            
+                            // Send the server's unique ID if available. Use 'id' and 'questionId' as common field names.
+                            if (q.serverId) {
+                                // Try the two most common required field names for question identification
+                                questionIdField.id = q.serverId; 
+                                questionIdField.questionId = q.serverId; 
+                            } else {
+                                // Fallback: send the question text if no ID is available (highly discouraged by the API error)
+                                questionIdField.question = q.text;
+                            }
+
+                            return {
+                                ...questionIdField,
+                                answer: selectedOptionLetter
+                            };
+                        }
+                        return null; // Skip unanswered questions
+                    })
+                    .filter(a => a !== null);
+                
+                // 3. Construct the final submission payload
+                const payload = {
+                    // Required Quiz Identifier
+                    quizId: this.quizId, // MUST send the captured quiz ID
+                    
+                    // Required Answers Array
+                    answers: answersArray
+                };
+
+                // --- Start API Submission ---
+                console.log(`[v13] Submission Payload:`, payload);
+
+                // Disable options and show loading indicator
                 const answerOptions = document.querySelectorAll('.answer-option');
                 answerOptions.forEach(option => option.classList.add('disabled'));
                 
                 const userToken = this.getUserToken();
                 if (!userToken) {
                     console.error("No user token found for submission");
-                    // Display an error message to the user instead of alert()
-                    const messageElement = document.createElement('div');
-                    messageElement.className = 'error-message';
-                    messageElement.innerHTML = `<p>Error: You are not logged in. Cannot submit answer.</p>`;
-                    this.quizContent.prepend(messageElement);
-                    setTimeout(() => messageElement.remove(), 5000);
+                    this.displayTemporaryError(`Error: You are not logged in. Cannot submit answer.`);
                     answerOptions.forEach(option => option.classList.remove('disabled'));
                     return;
                 }
 
                 try {
-                    // --- 1. Construct the base payload ---
-                    const payload = {
-                        courseId: this.courseId,
-                        quizTitle: this.quizTitle,
-                        answer: selectedOptionLetter
-                    };
-
-                    // *** CRITICAL FIX: Attempt multiple common ID formats for robust submission ***
-                    if (currentQuestion.serverId) {
-                         // TRY 1: Common API fields: 'id' or 'question_id'
-                        payload.id = currentQuestion.serverId;
-                        payload.question_id = currentQuestion.serverId;
-
-                        // Remove question text as ID is preferred
-                        // payload.question = currentQuestion.text; 
-                    } else {
-                        // Fallback to text, though this is the likely source of the 400 error.
-                        payload.question = currentQuestion.text;
-                    }
-
-                    console.log(`[v11] Submission Payload:`, payload);
-                    
-                    // --- 2. Call your /quiz/submit endpoint ---
                     const response = await fetch(`${API_BASE}/quiz/submit`, {
                         method: 'POST',
                         headers: {
@@ -1298,7 +1322,6 @@
                     });
 
                     if (!response.ok) {
-                        // The server response likely contains a more specific error message in the body
                         let serverErrorMessage = `Server error: ${response.status}`;
                         try {
                             const errorData = await response.json();
@@ -1308,7 +1331,6 @@
                                 serverErrorMessage = `Server rejected request: ${errorData.error}`;
                             }
                         } catch (e) {
-                            // Ignore JSON parsing error if response is not JSON
                             console.error("Could not parse server error response:", e);
                         }
                         throw new Error(serverErrorMessage);
@@ -1316,48 +1338,47 @@
 
                     const result = await response.json();
                     
-                    // --- 3. Process the server's response ---
-                    this.answers[this.currentQuestion - 1] = selectedIndex; // Still save the user's choice
-
-                    const selectedOptionEl = answerOptions[selectedIndex];
-                    
-                    if (result.isCorrect === true || result.correct === true) {
-                        // --- 4. Handle CORRECT answer ---
-                        console.log('[v11] Result: CORRECT');
-                        if (selectedOptionEl) selectedOptionEl.classList.add('correct');
-                        this.score++;
-                        this.answerResults[this.currentQuestion - 1] = 'correct';
-
-                    } else {
-                        // --- 5. Handle INCORRECT answer ---
-                        console.log('[v11] Result: INCORRECT');
-                        if (selectedOptionEl) selectedOptionEl.classList.add('incorrect');
-                        this.answerResults[this.currentQuestion - 1] = 'incorrect';
-
-                        // Highlight the correct answer received from the server (if provided)
-                        if (result.correctAnswer) {
-                            // Convert letter "A", "B", etc. back to an index
-                            const correctIndex = result.correctAnswer.toUpperCase().charCodeAt(0) - 65;
-                            if (answerOptions[correctIndex]) {
-                                answerOptions[correctIndex].classList.add('correct');
+                    // 4. Process the server's updated results
+                    if (result.success && Array.isArray(result.results)) {
+                        this.score = 0;
+                        result.results.forEach(apiResult => {
+                            // Find the local index of the question based on server ID or text
+                            const qIndex = this.questions.findIndex(q => 
+                                q.serverId === apiResult.questionId || 
+                                q.serverId === apiResult.id || 
+                                q.text === apiResult.question
+                            );
+                            
+                            if (qIndex !== -1) {
+                                const verdict = apiResult.isCorrect === true ? 'correct' : 'incorrect';
+                                this.answerResults[qIndex] = verdict;
+                                if (verdict === 'correct') {
+                                    this.score++;
+                                }
                             }
-                        }
+                        });
+                    }
+                    
+                    // Now show the result for the CURRENT question
+                    const selectedOptionEl = answerOptions[selectedIndex];
+                    const currentQuestionResult = this.answerResults[currentQuestionIndex];
+
+                    if (currentQuestionResult === 'correct') {
+                        console.log('[v13] Result: CORRECT (from server array)');
+                        if (selectedOptionEl) selectedOptionEl.classList.add('correct');
+                    } else if (currentQuestionResult === 'incorrect') {
+                        console.log('[v13] Result: INCORRECT (from server array)');
+                        if (selectedOptionEl) selectedOptionEl.classList.add('incorrect');
                     }
 
                 } catch (error) {
                     console.error('Error submitting answer:', error);
-                    // Re-enable options if submit fails
                     answerOptions.forEach(option => option.classList.remove('disabled'));
-                    // Display an error message to the user instead of alert()
-                    const messageElement = document.createElement('div');
-                    messageElement.className = 'error-message';
-                    messageElement.innerHTML = `<p>Failed to check answer: ${error.message}. Please try again.</p>`;
-                    this.quizContent.prepend(messageElement);
-                    setTimeout(() => messageElement.remove(), 5000);
+                    this.displayTemporaryError(`Failed to check answer: ${error.message}. Please check console.`);
                     return; 
                 }
 
-                // --- 6. Update UI and auto-advance ---
+                // --- 5. Update UI and auto-advance ---
                 this.updateProgressBar();
                 this.updateCheckButton();
                 
@@ -1368,6 +1389,14 @@
                         this.nextQuestion();
                     }
                 }, 1000);
+            }
+            
+            displayTemporaryError(message) {
+                const messageElement = document.createElement('div');
+                messageElement.className = 'error-message';
+                messageElement.innerHTML = `<p>${message}</p>`;
+                this.quizContent.prepend(messageElement);
+                setTimeout(() => messageElement.remove(), 5000);
             }
 
             switchTab(tab) {
