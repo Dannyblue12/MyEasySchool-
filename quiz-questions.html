@@ -701,10 +701,6 @@
         .fade-transition {
             transition: opacity 0.2s ease;
         }
-
-        /* * The specific dark mode block is no longer needed
-         * as the CSS variables handle all styling changes.
-        */
     </style>
     
 </head>
@@ -778,7 +774,8 @@
 
     <script>
         // All JavaScript is exactly the same as your original file,
-        // except for the theme-checking script on DOMContentLoaded.
+        // except for the theme-checking script on DOMContentLoaded
+        // and the restored auto-advance logic in checkAnswer().
 
         const API_BASE = 'https://my-easy-school-api.onrender.com/api';
         
@@ -839,11 +836,9 @@
                 }
 
                 this.headerTitle.textContent = `${this.courseCode} - ${this.quizTitle}`;
-                // *** This is the backend fetching logic from your file, unchanged ***
                 await this.startQuiz(this.quizTitle);
             }
 
-            // *** This is the backend fetching logic from your file, unchanged ***
             async startQuiz(title) {
                 try {
                     const userToken = this.getUserToken();
@@ -865,7 +860,6 @@
                     });
 
                     if (!response.ok) {
-                        // Try with courseId instead of courseid
                         const retryResponse = await fetch(`${API_BASE}/quiz/start`, {
                             method: 'POST',
                             headers: {
@@ -896,7 +890,6 @@
                 }
             }
             
-            // *** This is the backend fetching logic from your file, unchanged ***
             processQuizResponse(data, title) {
                 console.log('[v0] Processing quiz response:', data);
                 
@@ -919,7 +912,6 @@
                 }
             }
 
-            // *** This is the backend fetching logic from your file, unchanged ***
             async fetchQuizQuestions(title) {
                 try {
                     const userToken = this.getUserToken();
@@ -962,17 +954,14 @@
                 }
             }
 
-            // *** This logic is from your file, unchanged ***
             setupQuiz(questions) {
                 this.questions = questions.map((q, index) => {
                     let options = q.options || q.choices || [];
                     
-                    // Ensure options is always an array
                     let optionsArray = [];
                     if (Array.isArray(options)) {
                         optionsArray = options;
                     } else if (typeof options === 'object' && options !== null) {
-                        // Handle {A: "...", B: "..."}
                         const orderedOptions = [];
                         if (options.A) orderedOptions.push(options.A);
                         if (options.B) orderedOptions.push(options.B);
@@ -989,14 +978,12 @@
                     
                     console.log(`[v0] Final options array for question ${index + 1}:`, optionsArray);
 
-                    // Find the correct answer index
                     const rawAnswer = q.correctAnswer || q.answer || q.Ans || q.ans;
-                    let correctAnswerIndex = 0; // Default to 0 (Option A)
+                    let correctAnswerIndex = 0; 
 
                     if (rawAnswer !== null && rawAnswer !== undefined) {
                         const answerString = String(rawAnswer).toUpperCase().trim();
 
-                        // Case 1: Answer is a letter (A, B, C, D)
                         if (answerString === "A") {
                             correctAnswerIndex = 0;
                         } else if (answerString === "B") {
@@ -1008,10 +995,8 @@
                         } else if (answerString === "E") {
                             correctAnswerIndex = 4;
                         } 
-                        // Case 2: Answer is the full text
                         else {
                             const textIndex = optionsArray.findIndex(opt => {
-                                // Get option text, whether it's a string or object
                                 let optText = '';
                                 if (typeof opt === 'string') {
                                     optText = opt;
@@ -1028,14 +1013,13 @@
                             if (textIndex !== -1) {
                                 correctAnswerIndex = textIndex;
                             } 
-                            // Case 3: Answer is already an index (but as a string "0", "1", etc.)
                             else {
                                 const numIndex = parseInt(rawAnswer, 10);
                                 if (!isNaN(numIndex) && numIndex >= 0 && numIndex < optionsArray.length) {
                                     correctAnswerIndex = numIndex;
                                 } else {
                                     console.warn(`[v0] Unrecognized answer format "${rawAnswer}". Defaulting to 0.`, q);
-                                    correctAnswerIndex = 0; // Fallback
+                                    correctAnswerIndex = 0;
                                 }
                             }
                         }
@@ -1045,8 +1029,8 @@
                     return {
                         id: index + 1,
                         text: q.question || q.text || 'Question text not available',
-                        options: optionsArray, // Use the processed array
-                        correctAnswer: correctAnswerIndex, // Use the calculated numeric index
+                        options: optionsArray, 
+                        correctAnswer: correctAnswerIndex, 
                         solution: q.solution || q.explanation || 'No solution provided',
                         imageUrl: q.ImageUrl || q.imageUrl || q.image || null
                     };
@@ -1172,7 +1156,6 @@
                     answersContainer.appendChild(optionDiv);
                 });
 
-                // *** ADDED: Trigger MathJax to render the new content ***
                 if (window.MathJax && window.MathJax.typesetPromise) {
                     window.MathJax.typesetPromise([
                         document.getElementById('question-text'),
@@ -1256,8 +1239,6 @@
                 const correctIndex = this.correctAnswers[this.currentQuestion - 1];
                 
                 if (selectedIndex === null) return;
-
-                // Handle cases where there might not be options (e.g., error)
                 if (answerOptions.length === 0) return;
 
                 const selectedOption = answerOptions[selectedIndex];
@@ -1282,7 +1263,6 @@
                 console.log(`[v0] Checking Answer: Selected Index ${selectedIndex}, Correct Index ${correctIndex}`);
 
                 const answerOptions = document.querySelectorAll('.answer-option');
-                // Handle cases where there might not be options (e.g., error)
                 if (answerOptions.length === 0) return;
 
                 const selectedOption = answerOptions[selectedIndex];
@@ -1309,10 +1289,18 @@
                 this.updateProgressBar();
                 this.updateCheckButton();
                 
-                if (this.currentQuestion === this.totalQuestions) {
-                     document.getElementById('check-btn').textContent = 'Finish';
-                     document.getElementById('check-btn').classList.add('active');
-                }
+                // *** THIS IS THE FIX ***
+                // Restore auto-advance logic with a 1-second delay
+                // to allow the user to see the result.
+                setTimeout(() => {
+                    if (this.currentQuestion === this.totalQuestions) {
+                        // It's the last question, end the quiz
+                        this.endQuiz();
+                    } else {
+                        // It's not the last question, move to the next one
+                        this.nextQuestion();
+                    }
+                }, 1000); // 1000ms = 1 second delay
             }
 
             switchTab(tab) {
@@ -1440,9 +1428,10 @@
                 // Check button
                 document.addEventListener('click', (e) => {
                     if (e.target.id === 'check-btn') {
-                        if (this.currentQuestion === this.totalQuestions && this.isChecked) {
-                            this.endQuiz();
-                        } else {
+                        // The main checkAnswer() function now handles all logic
+                        // including auto-advance or finishing the quiz.
+                        // We just need to call it if it's active.
+                        if (document.getElementById('check-btn').classList.contains('active')) {
                             this.checkAnswer();
                         }
                     }
@@ -1492,11 +1481,8 @@
                             e.preventDefault();
                             const checkBtn = document.getElementById('check-btn');
                             if (checkBtn && checkBtn.classList.contains('active')) {
-                                if (this.currentQuestion === this.totalQuestions && this.isChecked) {
-                                    this.endQuiz();
-                                } else {
-                                    this.checkAnswer();
-                                }
+                                // The main checkAnswer() function now handles all logic
+                                this.checkAnswer();
                             }
                             break;
                     }
@@ -1506,7 +1492,6 @@
 
         // Global functions for navigation
         function goBackToQuizSelection() {
-            // Check if quizApp is initialized and has the properties
             if (window.quizApp && window.quizApp.courseId && window.quizApp.courseCode) {
                 const params = new URLSearchParams({
                     courseId: window.quizApp.courseId,
@@ -1514,14 +1499,12 @@
                 });
                 window.location.href = `quiz.html?${params.toString()}`;
             } else {
-                // Fallback in case something went wrong
                 window.location.href = 'quiz.html';
             }
         }
 
         // Initialize the quiz app
         document.addEventListener('DOMContentLoaded', () => {
-            // *** This script now matches the Dashboard's logic ***
             const savedTheme = localStorage.getItem('theme');
             const body = document.body;
             if (savedTheme === 'dark') {
@@ -1529,10 +1512,10 @@
             } else {
                 body.removeAttribute('data-theme');
             }
-            // *** END THEME SCRIPT ***
 
             window.quizApp = new QuizApp();
         });
     </script>
 </body>
 </html>
+
