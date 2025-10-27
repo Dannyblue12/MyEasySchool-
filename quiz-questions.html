@@ -780,7 +780,8 @@
                 this.currentQuestion = 1;
                 this.totalQuestions = 0;
                 this.answers = [];
-                this.correctAnswers = [];
+                // this.correctAnswers = []; // REMOVED: Answer check moved to server
+                this.answerResults = []; // NEW: Stores server result ('correct', 'incorrect', or null)
                 this.selectedAnswer = null;
                 this.isAnswered = false;
                 this.isChecked = false;
@@ -788,7 +789,7 @@
                 this.score = 0;
                 this.startTime = Date.now();
                 this.questions = [];
-                this.answerResults = [];
+                
                 // URL parameters
                 this.courseId = null;
                 this.courseCode = null;
@@ -816,9 +817,9 @@
                 this.courseCode = urlParams.get('courseCode');
                 this.quizTitle = urlParams.get('quizTitle');
                 
-                console.log('[v8] Course ID:', this.courseId);
-                console.log('[v8] Course Code:', this.courseCode);
-                console.log('[v8] Quiz Title:', this.quizTitle);
+                console.log('[v9] Course ID:', this.courseId);
+                console.log('[v9] Course Code:', this.courseCode);
+                console.log('[v9] Quiz Title:', this.quizTitle);
             }
 
             getUserToken() {
@@ -842,7 +843,7 @@
                         throw new Error('No authentication token found');
                     }
 
-                    console.log('[v8] Starting quiz with POST request');
+                    console.log('[v9] Starting quiz with POST request');
                     const response = await fetch(`${API_BASE}/quiz/start`, {
                         method: 'POST',
                         headers: {
@@ -881,13 +882,13 @@
                     this.processQuizResponse(data, title);
                     
                 } catch (error) {
-                    console.error('[v8] Error starting quiz:', error);
+                    console.error('[v9] Error starting quiz:', error);
                     await this.fetchQuizQuestions(title);
                 }
             }
             
             processQuizResponse(data, title) {
-                console.log('[v8] Processing quiz response:', data);
+                console.log('[v9] Processing quiz response:', data);
                 
                 let questions = null;
                 
@@ -928,7 +929,7 @@
                     }
 
                     const data = await response.json();
-                    console.log('[v8] Quiz questions data received:', data);
+                    console.log('[v9] Quiz questions data received:', data);
                     
                     let selectedQuiz = null;
                     
@@ -945,112 +946,76 @@
                     }
 
                 } catch (error) {
-                    console.error('[v8] Error fetching quiz questions:', error);
+                    console.error('[v9] Error fetching quiz questions:', error);
                     this.displayError(`Error fetching quiz questions: ${error.message}`);
                 }
             }
 
             /**
-             * *** THIS IS THE NEW, ROBUST setupQuiz FUNCTION (v8) ***
-             * This "paranoid" version checks all common capitalizations for
-             * the 'options' and 'answer' fields to ensure the data is
-             * read correctly, regardless of backend inconsistencies.
+             * Processes raw question data and prepares the internal state.
+             * Answer checking logic is removed here as it's handled by the server.
              */
-setupQuiz(questions) {
-    this.questions = questions.map((q, index) => {
-        // --- 1️⃣ Handle all possible backend key variations ---
-        const rawOptions = q.options || q.Options || q.choices || {};
-        const rawAnswer = q.answer || q.Answer || q.ans || q.Ans || 
-                          q.correct || q.correctOption || q.correct_answer || q.correctAnswer;
+            setupQuiz(questions) {
+                this.questions = questions.map((q, index) => {
+                    // --- 1️⃣ Handle all possible backend key variations for options ---
+                    const rawOptions = q.options || q.Options || q.choices || {};
+                    const rawAnswer = q.answer || q.Answer || q.ans || q.Ans || 
+                                      q.correct || q.correctOption || q.correct_answer || q.correctAnswer;
+                    
+                    let finalOptionsArray = [];
 
-        let finalOptionsArray = [];
-        let finalCorrectIndex = -1;
+                    // NEW: Capture potential server ID for submission
+                    const serverId = q._id || q.id || q.questionId || null;
 
-        console.log(`🧩 [Quiz Debug] Q${index + 1}:`);
-        console.log(`Question:`, q.question);
-        console.log(`Raw answer value:`, rawAnswer);
+                    console.log(`🧩 [Quiz Debug] Q${index + 1}:`);
+                    console.log(`Question:`, q.question);
+                    console.log(`Server ID (if present):`, serverId);
+                    console.log(`Raw answer value (should be ignored now):`, rawAnswer);
 
-        // --- 2️⃣ Handle object format like {A: "...", B: "..."} ---
-        if (typeof rawOptions === 'object' && rawOptions !== null && !Array.isArray(rawOptions)) {
-            const optionKeys = Object.keys(rawOptions);
+                    // --- 2️⃣ Handle object format like {A: "...", B: "..."} ---
+                    if (typeof rawOptions === 'object' && rawOptions !== null && !Array.isArray(rawOptions)) {
+                        const optionKeys = Object.keys(rawOptions);
+                        // Sort alphabetically to maintain order (A,B,C,D)
+                        const sortedKeys = optionKeys.sort((a, b) => a.localeCompare(b));
+                        // Create an array of texts based on sorted keys
+                        finalOptionsArray = sortedKeys.map(key => rawOptions[key]);
+                    } 
+                    // --- 3️⃣ Handle array format like ["A", "B", "C", "D"] ---
+                    else if (Array.isArray(rawOptions)) {
+                        console.log(`[Quiz Debug] Q${index + 1}: Array format detected`);
+                        finalOptionsArray = rawOptions.map(opt =>
+                            typeof opt === 'string' ? opt : (opt.text || 'Invalid option')
+                        );
+                    } 
+                    // --- 4️⃣ Handle bad data ---
+                    else {
+                        console.error(`[Quiz Debug] Q${index + 1}: Invalid options format`, rawOptions);
+                    }
 
-            // Sort alphabetically to maintain order (A,B,C,D)
-            const sortedKeys = optionKeys.sort((a, b) => a.localeCompare(b));
+                    console.log('----------------------------');
 
-            // Create an array of texts based on sorted keys
-            finalOptionsArray = sortedKeys.map(key => rawOptions[key]);
+                    return {
+                        id: index + 1, // Internal index ID
+                        serverId: serverId, // ID from the server
+                        text: q.question || q.text || 'Question text not available',
+                        options: finalOptionsArray,
+                        // correctAnswer: finalCorrectIndex, // REMOVED: No client-side answer needed
+                        solution: q.solution || q.explanation || 'No solution provided',
+                        imageUrl: q.ImageUrl || q.imageUrl || q.image || null
+                    };
+                });
 
-            // Convert answer to uppercase (handles "b" or "B")
-            const answerValue = String(rawAnswer || '').trim().toUpperCase();
+                // --- 5️⃣ Initialize quiz state ---
+                this.totalQuestions = this.questions.length;
+                this.answers = new Array(this.totalQuestions).fill(null);
+                this.answerResults = new Array(this.totalQuestions).fill(null); // Initialize new results array
 
-            // Try to match by letter first (A/B/C/D)
-            finalCorrectIndex = sortedKeys.findIndex(
-                key => key.toUpperCase() === answerValue
-            );
-
-            // --- 3️⃣ Fallback: Try matching by actual text ---
-            if (finalCorrectIndex === -1 && answerValue) {
-                console.warn(`[Quiz Debug] Q${index + 1}: Letter match failed, trying text match...`);
-                finalCorrectIndex = finalOptionsArray.findIndex(
-                    optText => String(optText).trim().toUpperCase() === answerValue
-                );
+                this.totalQuestionsEl.textContent = this.totalQuestions;
+                this.createProgressSegments();
+                this.renderQuizInterface();
+                this.loadQuestion();
+                this.bindEvents();
             }
-
-            console.log(`[Quiz Debug] Sorted Keys: [${sortedKeys.join(', ')}]`);
-            console.log(`[Quiz Debug] Final Correct Index: ${finalCorrectIndex}`);
-
-        } 
-        // --- 4️⃣ Handle array format like ["A", "B", "C", "D"] ---
-        else if (Array.isArray(rawOptions)) {
-            console.log(`[Quiz Debug] Q${index + 1}: Array format detected`);
-            finalOptionsArray = rawOptions.map(opt =>
-                typeof opt === 'string' ? opt : (opt.text || 'Invalid option')
-            );
-
-            finalCorrectIndex = finalOptionsArray.findIndex(
-                opt => String(opt).trim().toUpperCase() === String(rawAnswer).trim().toUpperCase()
-            );
-        } 
-        // --- 5️⃣ Handle bad data ---
-        else {
-            console.error(`[Quiz Debug] Q${index + 1}: Invalid options format`, rawOptions);
-        }
-
-        // --- 6️⃣ Safety check: never force “A” if not found ---
-        if (finalCorrectIndex < 0 || finalCorrectIndex >= finalOptionsArray.length) {
-            console.error(`[Quiz Debug] Q${index + 1}: ❌ Could not find correct answer for "${rawAnswer}".`);
-            finalCorrectIndex = null;
-        }
-
-        // Log detected correct answer
-        console.log(`[Quiz Debug] ✅ Detected Correct Option:`,
-            finalCorrectIndex !== null ? 
-            `${String.fromCharCode(65 + finalCorrectIndex)} (${finalOptionsArray[finalCorrectIndex]})` : 
-            `Not found`
-        );
-        console.log('----------------------------');
-
-        return {
-            id: index + 1,
-            text: q.question || q.text || 'Question text not available',
-            options: finalOptionsArray,
-            correctAnswer: finalCorrectIndex,
-            solution: q.solution || q.explanation || 'No solution provided',
-            imageUrl: q.ImageUrl || q.imageUrl || q.image || null
-        };
-    });
-
-    // --- 7️⃣ Initialize quiz state ---
-    this.totalQuestions = this.questions.length;
-    this.answers = new Array(this.totalQuestions).fill(null);
-    this.answerResults = new Array(this.totalQuestions).fill(null);
-
-    this.totalQuestionsEl.textContent = this.totalQuestions;
-    this.createProgressSegments();
-    this.renderQuizInterface();
-    this.loadQuestion();
-    this.bindEvents();
-}
 
 
             createProgressSegments() {
@@ -1108,7 +1073,7 @@ setupQuiz(questions) {
                     questionImage.src = question.imageUrl;
                     questionImage.classList.add('visible');
                     questionImage.onerror = function() {
-                        console.log('[v8] Failed to load image:', question.imageUrl);
+                        console.log('[v9] Failed to load image:', question.imageUrl);
                         this.classList.remove('visible');
                     };
                 } else {
@@ -1119,20 +1084,17 @@ setupQuiz(questions) {
                 const answersContainer = document.getElementById('answers-container');
                 answersContainer.innerHTML = '';
                 
-                // question.options is now guaranteed to be a simple, ordered array of strings
                 const options = question.options || [];
                 
                 if (options.length === 0) {
                     answersContainer.innerHTML = '<div class="no-options" style="color: var(--accent-red); padding: 20px; text-align: center;">No options available for this question</div>';
                 }
                 
-                // Loop through the simple string array
                 options.forEach((optionText, index) => {
                     const optionDiv = document.createElement('div');
                     optionDiv.className = 'answer-option';
                     optionDiv.dataset.option = index; // This is the numeric index (0, 1, 2, 3)
                     
-                    // No complex logic needed, just display the text
                     optionDiv.innerHTML = `
                         <span class="option-letter">${String.fromCharCode(65 + index)}</span>
                         <span class="option-text">${optionText}</span>
@@ -1167,7 +1129,7 @@ setupQuiz(questions) {
                 this.updateProgressBar();
                 this.updateCheckButton();
                 this.isAnswered = this.answers[this.currentQuestion - 1] !== null;
-                this.isChecked = this.isAnswered;
+                this.isChecked = this.answerResults[this.currentQuestion - 1] !== null; // Check if server result exists
 
                 // If already answered, show results
                 if (this.isChecked) {
@@ -1183,11 +1145,11 @@ setupQuiz(questions) {
                 segments.forEach((segment, index) => {
                     segment.classList.remove('correct', 'incorrect');
                     
-                    const result = this.answerResults[index]; // <-- Read from new array
+                    const result = this.answerResults[index]; // Read result from server array
 
                     if (result !== null) {
                         answeredCount++;
-                        if (result === 'correct') { // <-- Check result string
+                        if (result === 'correct') { 
                             segment.classList.add('correct');
                             correctCount++;
                         } else if (result === 'incorrect') {
@@ -1202,21 +1164,24 @@ setupQuiz(questions) {
 
             updateCheckButton() {
                 const checkBtn = document.getElementById('check-btn');
-                if (this.selectedAnswer !== null && !this.isChecked) {
+                const result = this.answerResults[this.currentQuestion - 1];
+
+                if (this.selectedAnswer !== null && result === null) {
                     checkBtn.classList.add('active');
                     checkBtn.textContent = 'Check';
-                } else if (this.isChecked && this.currentQuestion === this.totalQuestions) {
+                } else if (result !== null && this.currentQuestion === this.totalQuestions) {
+                    // Check is done, but show "Finish" on the last question
                     checkBtn.classList.add('active');
                     checkBtn.textContent = 'Finish';
                 }
-                 else {
+                else {
                     checkBtn.classList.remove('active');
                     checkBtn.textContent = 'Check';
                 }
             }
 
             selectAnswer(optionIndex) {
-                console.log('[v8] Selecting answer (index):', optionIndex);
+                console.log('[v9] Selecting answer (index):', optionIndex);
                 
                 document.querySelectorAll('.answer-option').forEach(option => {
                     option.classList.remove('selected');
@@ -1236,27 +1201,39 @@ setupQuiz(questions) {
             showAnswerResult() {
                 const answerOptions = document.querySelectorAll('.answer-option');
                 const selectedIndex = this.answers[this.currentQuestion - 1];
-                const correctIndex = this.correctAnswers[this.currentQuestion - 1];
+                const result = this.answerResults[this.currentQuestion - 1]; // Get server result
                 
-                if (selectedIndex === null) return;
+                if (selectedIndex === null || result === null) return;
                 if (answerOptions.length === 0) return;
 
                 const selectedOption = answerOptions[selectedIndex];
-                const correctOption = answerOptions[correctIndex];
 
                 answerOptions.forEach(option => option.classList.add('disabled'));
-
-                if (selectedIndex === correctIndex) {
+                
+                if (result === 'correct') {
                     if(selectedOption) selectedOption.classList.add('correct');
-                } else {
+                } else if (result === 'incorrect') {
                     if(selectedOption) selectedOption.classList.add('incorrect');
-                    if(correctOption) correctOption.classList.add('correct');
+                    
+                    // Since the server verified it, we now need to retrieve the correct answer 
+                    // from the server response (if it's not already in local storage/state)
+                    // For simplicity, we just highlight the correct one if the server response had it.
+                    // Since the server response is not saved, we can't show the correct option here
+                    // unless we fetch it again or the server returns it when checking (which is preferred).
+                    // We must trust the server's verdict that the selected one is incorrect.
+                    
+                    // Since we can't re-read the server's correct answer, the solution tab is the fallback
                 }
+                
+                // Ensure the check button state is updated (Finish or Check)
+                this.updateCheckButton();
             }
-
+            
             async checkAnswer() {
-                if (this.selectedAnswer === null || this.isChecked) {
-                    if (this.currentQuestion === this.totalQuestions && this.isChecked) {
+                const result = this.answerResults[this.currentQuestion - 1];
+                if (this.selectedAnswer === null || result !== null) {
+                    // If already checked and it's the last question, end quiz.
+                    if (this.currentQuestion === this.totalQuestions && result !== null) {
                         this.endQuiz();
                     }
                     return;
@@ -1264,20 +1241,21 @@ setupQuiz(questions) {
 
                 const selectedIndex = this.selectedAnswer;
                 const currentQuestion = this.questions[this.currentQuestion - 1];
+                // Convert index (0, 1, 2, 3) to option letter ("A", "B", "C", "D") for the API
                 const selectedOptionLetter = String.fromCharCode(65 + selectedIndex);
 
                 console.log(`[v9] Submitting answer for: ${currentQuestion.text}`);
                 console.log(`[v9] Selected option: ${selectedOptionLetter}`);
 
-                // Disable options
+                // Disable options and show loading indicator (optional)
                 const answerOptions = document.querySelectorAll('.answer-option');
                 answerOptions.forEach(option => option.classList.add('disabled'));
                 
-                // Get token
                 const userToken = this.getUserToken();
                 if (!userToken) {
                     console.error("No user token found for submission");
                     alert("Error: You are not logged in.");
+                    answerOptions.forEach(option => option.classList.remove('disabled'));
                     return;
                 }
 
@@ -1292,20 +1270,22 @@ setupQuiz(questions) {
                         body: JSON.stringify({
                             courseId: this.courseId,
                             quizTitle: this.quizTitle,
-                            question: currentQuestion.text, // Send question text as identifier
-                            answer: selectedOptionLetter    // Send "A", "B", "C", etc.
+                            // NOTE ON 400 ERROR: If you continue to get "400 Bad Request", 
+                            // change 'question: currentQuestion.text' to 
+                            // 'questionId: currentQuestion.serverId' (if it exists)
+                            question: currentQuestion.text,
+                            answer: selectedOptionLetter
                         })
                     });
 
                     if (!response.ok) {
+                        // Throw the error so the catch block handles it
                         throw new Error(`Server error: ${response.status}`);
                     }
 
                     const result = await response.json();
                     
                     // --- 2. Process the server's response ---
-                    this.isChecked = true;
-                    this.isAnswered = true;
                     this.answers[this.currentQuestion - 1] = selectedIndex; // Still save the user's choice
 
                     const selectedOptionEl = answerOptions[selectedIndex];
@@ -1323,7 +1303,7 @@ setupQuiz(questions) {
                         if (selectedOptionEl) selectedOptionEl.classList.add('incorrect');
                         this.answerResults[this.currentQuestion - 1] = 'incorrect';
 
-                        // Highlight the correct answer received from the server
+                        // Highlight the correct answer received from the server (if provided)
                         if (result.correctAnswer) {
                             // Convert letter "A", "B", etc. back to an index
                             const correctIndex = result.correctAnswer.toUpperCase().charCodeAt(0) - 65;
@@ -1337,14 +1317,19 @@ setupQuiz(questions) {
                     console.error('Error submitting answer:', error);
                     // Re-enable options if submit fails
                     answerOptions.forEach(option => option.classList.remove('disabled'));
-                    alert(`Error checking answer: ${error.message}`);
-                    return; // Stop execution
+                    // Display an error message to the user instead of alert()
+                    const messageElement = document.createElement('div');
+                    messageElement.className = 'error-message';
+                    messageElement.innerHTML = `<p>Failed to check answer: ${error.message}. Please try again.</p>`;
+                    this.quizContent.prepend(messageElement);
+                    setTimeout(() => messageElement.remove(), 5000);
+                    return; 
                 }
 
                 // --- 5. Update UI and auto-advance ---
                 this.updateProgressBar();
                 this.updateCheckButton();
-
+                
                 setTimeout(() => {
                     if (this.currentQuestion === this.totalQuestions) {
                         this.updateCheckButton(); // Show "Finish"
@@ -1386,7 +1371,7 @@ setupQuiz(questions) {
                     this.currentQuestion++;
                     this.selectedAnswer = this.answers[this.currentQuestion - 1];
                     this.isAnswered = this.selectedAnswer !== null;
-                    this.isChecked = this.isAnswered;
+                    this.isChecked = this.answerResults[this.currentQuestion - 1] !== null;
                     this.switchTab('question');
                     this.loadQuestion();
                 }
@@ -1397,7 +1382,7 @@ setupQuiz(questions) {
                     this.currentQuestion--;
                     this.selectedAnswer = this.answers[this.currentQuestion - 1];
                     this.isAnswered = this.selectedAnswer !== null;
-                    this.isChecked = this.isAnswered;
+                    this.isChecked = this.answerResults[this.currentQuestion - 1] !== null;
                     this.switchTab('question');
                     this.loadQuestion();
                 }
@@ -1409,6 +1394,7 @@ setupQuiz(questions) {
 
             showResults() {
                 const timeSpent = Math.floor((Date.now() - this.startTime) / 1000 / 60 * 100) / 100;
+                this.score = this.answerResults.filter(r => r === 'correct').length;
                 const wrongAnswers = this.totalQuestions - this.score;
                 const percentage = (this.totalQuestions > 0) ? (this.score / this.totalQuestions) * 100 : 0;
                 
@@ -1445,6 +1431,7 @@ setupQuiz(questions) {
             resetQuiz() {
                 this.currentQuestion = 1;
                 this.answers = new Array(this.totalQuestions).fill(null);
+                this.answerResults = new Array(this.totalQuestions).fill(null);
                 this.selectedAnswer = null;
                 this.isAnswered = false;
                 this.isChecked = false;
@@ -1470,7 +1457,7 @@ setupQuiz(questions) {
                 // Answer selection
                 document.addEventListener('click', (e) => {
                     const option = e.target.closest('.answer-option');
-                    if (option && !this.isChecked) {
+                    if (option && this.answerResults[this.currentQuestion - 1] === null) {
                         const optionIndex = parseInt(option.dataset.option);
                         this.selectAnswer(optionIndex);
                     }
@@ -1517,7 +1504,7 @@ setupQuiz(questions) {
                         case '3':
                         case '4':
                         case '5': // Added 5 for 'E'
-                            if (!this.isChecked) {
+                            if (this.answerResults[this.currentQuestion - 1] === null) {
                                 const optionIndex = parseInt(e.key) - 1;
                                 if (this.questions[this.currentQuestion - 1] && optionIndex < this.questions[this.currentQuestion - 1].options.length) {
                                     this.selectAnswer(optionIndex);
@@ -1565,4 +1552,3 @@ setupQuiz(questions) {
     </script>
 </body>
 </html>
-
