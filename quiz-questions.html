@@ -830,13 +830,17 @@
                         return;
                     }
 
-                    console.log('[v0] Fetching questions from /questions/all-per-course');
-                    const response = await fetch(`${API_BASE}/questions/all-per-course?courseId=${this.courseId}`, {
-                        method: 'GET',
+                    console.log('[v0] Fetching questions from /quiz/start');
+                    const response = await fetch(`${API_BASE}/quiz/start`, {
+                        method: 'POST',
                         headers: {
                             'Authorization': `Bearer ${userToken}`,
                             'Content-Type': 'application/json'
-                        }
+                        },
+                        body: JSON.stringify({
+                            courseId: this.courseId,
+                            title: this.quizTitle
+                        })
                     });
 
                     if (!response.ok) {
@@ -846,21 +850,21 @@
                     const data = await response.json();
                     console.log('[v0] API Response:', data);
                     
-                    let questions = [];
+                    let selectedQuiz = null;
                     
-                    if (data.success && Array.isArray(data.data)) {
-                        questions = data.data;
-                    } else if (Array.isArray(data.data)) {
-                        questions = data.data;
-                    } else if (Array.isArray(data)) {
-                        questions = data;
+                    // Handle different response structures
+                    if (data.success && data.data && data.data.availableTitles) {
+                        selectedQuiz = data.data.availableTitles.find(quiz => quiz.title === this.quizTitle);
+                    } else if (data.success && Array.isArray(data.data)) {
+                        selectedQuiz = data.data.find(quiz => quiz.title === this.quizTitle);
                     }
 
-                    if (questions.length === 0) {
-                        throw new Error('No questions found for this course');
+                    if (selectedQuiz && selectedQuiz.questions) {
+                        console.log(`[v0] Found quiz "${this.quizTitle}" with ${selectedQuiz.questions.length} questions`);
+                        this.setupQuiz(selectedQuiz.questions);
+                    } else {
+                        throw new Error(`Quiz "${this.quizTitle}" not found in course ${this.courseId}`);
                     }
-
-                    this.setupQuiz(questions);
 
                 } catch (error) {
                     console.error('[v0] Error fetching quiz questions:', error);
