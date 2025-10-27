@@ -956,68 +956,79 @@
              * the 'options' and 'answer' fields to ensure the data is
              * read correctly, regardless of backend inconsistencies.
              */
-                       setupQuiz(questions) {
+setupQuiz(questions) {
     this.questions = questions.map((q, index) => {
-        // --- 1️⃣ Handle possible variations in backend data keys ---
+        // --- 1️⃣ Handle all possible backend key variations ---
         const rawOptions = q.options || q.Options || q.choices || {};
-        const rawAnswer = q.answer || q.Answer || q.ans || q.Ans || q.correctAnswer;
+        const rawAnswer = q.answer || q.Answer || q.ans || q.Ans || 
+                          q.correct || q.correctOption || q.correct_answer || q.correctAnswer;
 
         let finalOptionsArray = [];
         let finalCorrectIndex = -1;
 
-        console.log(`[Fixed] Processing Q${index + 1}`);
-        console.log(`[Fixed] Raw answer key:`, rawAnswer);
+        console.log(`🧩 [Quiz Debug] Q${index + 1}:`);
+        console.log(`Question:`, q.question);
+        console.log(`Raw answer value:`, rawAnswer);
 
-        // --- 2️⃣ Handle Object format (A: "", B: "", etc.) ---
+        // --- 2️⃣ Handle object format like {A: "...", B: "..."} ---
         if (typeof rawOptions === 'object' && rawOptions !== null && !Array.isArray(rawOptions)) {
             const optionKeys = Object.keys(rawOptions);
 
-            // Sort keys alphabetically to ensure A,B,C,D order
+            // Sort alphabetically to maintain order (A,B,C,D)
             const sortedKeys = optionKeys.sort((a, b) => a.localeCompare(b));
 
-            // Create an ordered array of option texts
+            // Create an array of texts based on sorted keys
             finalOptionsArray = sortedKeys.map(key => rawOptions[key]);
 
-            // Normalize answer to uppercase (so “b” and “B” are the same)
-            const answerLetter = String(rawAnswer).trim().toUpperCase();
+            // Convert answer to uppercase (handles "b" or "B")
+            const answerValue = String(rawAnswer || '').trim().toUpperCase();
 
-            // Find index by letter match (A/B/C/D)
-            finalCorrectIndex = sortedKeys.findIndex(key => key.toUpperCase() === answerLetter);
+            // Try to match by letter first (A/B/C/D)
+            finalCorrectIndex = sortedKeys.findIndex(
+                key => key.toUpperCase() === answerValue
+            );
 
-            console.log(`[Fixed] Sorted Keys: [${sortedKeys.join(', ')}], Answer Letter: ${answerLetter}, Found Index: ${finalCorrectIndex}`);
-
-            // --- 3️⃣ Fallback: Try matching full text instead of letter ---
-            if (finalCorrectIndex === -1) {
-                console.warn(`[Fixed] Letter match failed for Q${index + 1}. Trying text match...`);
-                finalCorrectIndex = finalOptionsArray.findIndex(optText =>
-                    String(optText).trim().toUpperCase() === answerLetter
+            // --- 3️⃣ Fallback: Try matching by actual text ---
+            if (finalCorrectIndex === -1 && answerValue) {
+                console.warn(`[Quiz Debug] Q${index + 1}: Letter match failed, trying text match...`);
+                finalCorrectIndex = finalOptionsArray.findIndex(
+                    optText => String(optText).trim().toUpperCase() === answerValue
                 );
             }
 
+            console.log(`[Quiz Debug] Sorted Keys: [${sortedKeys.join(', ')}]`);
+            console.log(`[Quiz Debug] Final Correct Index: ${finalCorrectIndex}`);
+
         } 
-        // --- 4️⃣ Handle Array format ---
+        // --- 4️⃣ Handle array format like ["A", "B", "C", "D"] ---
         else if (Array.isArray(rawOptions)) {
-            console.log(`[Fixed] Q${index + 1}: Array format detected`);
+            console.log(`[Quiz Debug] Q${index + 1}: Array format detected`);
             finalOptionsArray = rawOptions.map(opt =>
                 typeof opt === 'string' ? opt : (opt.text || 'Invalid option')
             );
 
-            finalCorrectIndex = finalOptionsArray.findIndex(opt =>
-                String(opt).trim().toUpperCase() === String(rawAnswer).trim().toUpperCase()
+            finalCorrectIndex = finalOptionsArray.findIndex(
+                opt => String(opt).trim().toUpperCase() === String(rawAnswer).trim().toUpperCase()
             );
         } 
-        // --- 5️⃣ Handle unknown formats ---
+        // --- 5️⃣ Handle bad data ---
         else {
-            console.error(`[Fixed] Q${index + 1}: Invalid options format.`, rawOptions);
+            console.error(`[Quiz Debug] Q${index + 1}: Invalid options format`, rawOptions);
         }
 
-        // --- 6️⃣ Final safety check (no longer defaults to A) ---
+        // --- 6️⃣ Safety check: never force “A” if not found ---
         if (finalCorrectIndex < 0 || finalCorrectIndex >= finalOptionsArray.length) {
-            console.error(`[Fixed] Q${index + 1}: Could not find valid correct answer for "${rawAnswer}".`);
-            finalCorrectIndex = null; // don’t default to 0 anymore
+            console.error(`[Quiz Debug] Q${index + 1}: ❌ Could not find correct answer for "${rawAnswer}".`);
+            finalCorrectIndex = null;
         }
 
-        console.log(`[Fixed] Q${index + 1} → Final Index:`, finalCorrectIndex, finalOptionsArray);
+        // Log detected correct answer
+        console.log(`[Quiz Debug] ✅ Detected Correct Option:`,
+            finalCorrectIndex !== null ? 
+            `${String.fromCharCode(65 + finalCorrectIndex)} (${finalOptionsArray[finalCorrectIndex]})` : 
+            `Not found`
+        );
+        console.log('----------------------------');
 
         return {
             id: index + 1,
