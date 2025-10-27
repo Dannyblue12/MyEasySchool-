@@ -745,6 +745,7 @@ body[data-theme="dark"] { background-color: #0f172a; }
         </div>
     </div>
 
+    <!-- Results Modal -->
     <div class="modal-overlay" id="modal-overlay">
         <div class="results-modal">
             <div class="fire-icon"></div>
@@ -1390,18 +1391,29 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                 const answerOptions = document.querySelectorAll('.answer-option');
                 const selectedOptionEl = answerOptions[userSelectedAnswer];
                 
-                selectedOptionEl.textContent = "Checking..."; // Give user feedback
+                // Get the option text element safely
+                const optionTextEl = selectedOptionEl.querySelector('.option-text');
+                const originalOptionText = optionTextEl ? optionTextEl.textContent : 'Option';
+                
+                if (optionTextEl) {
+                    optionTextEl.textContent = "Checking..."; // Give user feedback
+                } else {
+                    console.error('[v0] Failed to find option text element during check.');
+                }
                 
                 try {
                     const userToken = this.getUserToken();
+                    const currentQuestionData = this.questions[questionIndex];
+                    
+                    // --- API PAYLOAD ADJUSTMENT: Using 1-based question index (questionIndex + 1) ---
                     const bodyData = {
                         courseId: this.courseId,
                         quizTitle: this.quizTitle,
-                        questionIndex: questionIndex,
+                        questionIndex: questionIndex + 1, // Changed from questionIndex to questionIndex + 1
                         selectedOptionIndex: userSelectedAnswer,
                     };
                     
-                    console.log('[v0] Submitting answer to API:', bodyData);
+                    console.log('[v0] Submitting answer to API with 1-based index:', bodyData);
                     
                     const response = await fetch(`${API_BASE}/questions/submit-answer`, {
                         method: 'POST',
@@ -1413,30 +1425,32 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     });
 
                     if (!response.ok) {
+                        // The server response status 400 will jump here
                         throw new Error(`Server validation failed with status: ${response.status}`);
                     }
 
                     const data = await response.json();
                     
-                    // Assuming data.isCorrect is a boolean and data.correctAnswerIndex is the index of the correct answer (0-3)
                     const isCorrect = data.isCorrect;
                     let correctOptionIndex = data.correctAnswerIndex;
                     
-                    // Fallback to local data if API doesn't provide the correct index, but it should!
                     if (correctOptionIndex === undefined) {
                         correctOptionIndex = this.correctAnswers[questionIndex];
                         console.warn('[v0] API did not return correct index, falling back to local data.');
                     } else {
-                         // Update local correct answer with server's authoritative answer
+                        // Update local correct answer with server's authoritative answer
                         this.correctAnswers[questionIndex] = correctOptionIndex;
-                        // For display, use the user's selected option index for text restoration
-                        selectedOptionEl.querySelector('.option-text').textContent = this.questions[questionIndex].options[userSelectedAnswer].text || this.questions[questionIndex].options[userSelectedAnswer];
                     }
 
 
                     const correctOptionEl = answerOptions[correctOptionIndex];
                     
                     answerOptions.forEach(option => option.classList.add('disabled'));
+                    
+                    // Restore original option text after check
+                    if (optionTextEl) {
+                        optionTextEl.textContent = originalOptionText;
+                    }
                     
                     if (isCorrect) {
                         selectedOptionEl.classList.add('correct');
@@ -1451,14 +1465,20 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     this.updateCheckButton();
                     
                 } catch (error) {
-                    console.error('[v0] Error during answer submission:', error);
-                    // Handle API failure by falling back to client-side check for continuity
+                    console.error('[v0] Error during answer submission (likely API 400):', error);
+                    
+                    // --- FIX FOR TYPE ERROR IMPLEMENTED SAFELY IN CATCH BLOCK ---
                     const correctOptionIndex = this.correctAnswers[questionIndex];
                     const isCorrect = userSelectedAnswer === correctOptionIndex;
                     const correctOptionEl = answerOptions[correctOptionIndex];
                     
                     answerOptions.forEach(option => option.classList.add('disabled'));
                     
+                    // Restore option text SAFELY
+                    if (optionTextEl) {
+                         optionTextEl.textContent = originalOptionText; 
+                    }
+
                     if (isCorrect) {
                         selectedOptionEl.classList.add('correct');
                     } else {
@@ -1468,12 +1488,11 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                         }
                     }
                     
-                    // Restore option text
-                    selectedOptionEl.querySelector('.option-text').textContent = this.questions[questionIndex].options[userSelectedAnswer].text || this.questions[questionIndex].options[userSelectedAnswer];
-
                     this.updateProgressBar();
                     this.updateCheckButton();
-                    this.displayError('Server check failed. Using local answer verification.');
+                    this.displayError(`Answer validation failed. (Status: ${error.message.includes('400') ? '400 Bad Request' : 'Unknown Error'})`);
+                    // --- END OF CATCH BLOCK FIX ---
+
                 } finally {
                     // Timeout to show result before moving to the next question
                     setTimeout(() => {
