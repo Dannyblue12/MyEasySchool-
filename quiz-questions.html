@@ -816,9 +816,9 @@
                 this.courseCode = urlParams.get('courseCode');
                 this.quizTitle = urlParams.get('quizTitle');
                 
-                console.log('[v1] Course ID:', this.courseId);
-                console.log('[v1] Course Code:', this.courseCode);
-                console.log('[v1] Quiz Title:', this.quizTitle);
+                console.log('[v3] Course ID:', this.courseId);
+                console.log('[v3] Course Code:', this.courseCode);
+                console.log('[v3] Quiz Title:', this.quizTitle);
             }
 
             getUserToken() {
@@ -842,7 +842,7 @@
                         throw new Error('No authentication token found');
                     }
 
-                    console.log('[v1] Starting quiz with POST request');
+                    console.log('[v3] Starting quiz with POST request');
                     const response = await fetch(`${API_BASE}/quiz/start`, {
                         method: 'POST',
                         headers: {
@@ -881,13 +881,13 @@
                     this.processQuizResponse(data, title);
                     
                 } catch (error) {
-                    console.error('[v1] Error starting quiz:', error);
+                    console.error('[v3] Error starting quiz:', error);
                     await this.fetchQuizQuestions(title);
                 }
             }
             
             processQuizResponse(data, title) {
-                console.log('[v1] Processing quiz response:', data);
+                console.log('[v3] Processing quiz response:', data);
                 
                 let questions = null;
                 
@@ -928,7 +928,7 @@
                     }
 
                     const data = await response.json();
-                    console.log('[v1] Quiz questions data received:', data);
+                    console.log('[v3] Quiz questions data received:', data);
                     
                     let selectedQuiz = null;
                     
@@ -945,101 +945,110 @@
                     }
 
                 } catch (error) {
-                    console.error('[v1] Error fetching quiz questions:', error);
+                    console.error('[v3] Error fetching quiz questions:', error);
                     this.displayError(`Error fetching quiz questions: ${error.message}`);
                 }
             }
 
             /**
-             * *** THIS IS THE NEW, ROBUST setupQuiz FUNCTION ***
-             * It processes all incoming question formats into a single, simple format
-             * to prevent mismatches between answer index and options display.
+             * *** THIS IS THE CORRECTED setupQuiz FUNCTION (v3) ***
+             * This function robustly converts any backend option format (array, object)
+             * into a simple array of strings and a guaranteed-correct numeric index.
              */
             setupQuiz(questions) {
                 this.questions = questions.map((q, index) => {
                     const rawOptions = q.options || q.choices || [];
                     const rawAnswer = q.correctAnswer || q.answer || q.Ans || q.ans;
                     
-                    let finalOptions = [];
-                    let finalCorrectIndex = 0;
-
+                    let finalOptionsArray = []; // This will be our simple string array
+                    let keys = []; // To store keys if rawOptions is an object
+                    
                     // 1. --- Process all option formats into a simple string array ---
                     if (Array.isArray(rawOptions)) {
-                        // Options are an array, e.g., ["text1", "text2"] OR [{text: "text1"}, {text: "text2"}]
-                        finalOptions = rawOptions.map(opt => {
-                            if (typeof opt === 'string') {
-                                return opt;
-                            } else if (opt && typeof opt === 'object') {
+                        // Backend sent an array: ["text1", "text2"] OR [{text: "text1"}, {text: "text2"}]
+                        finalOptionsArray = rawOptions.map(opt => {
+                            if (typeof opt === 'string') return opt;
+                            if (typeof opt === 'object' && opt !== null) {
+                                // Handle {text: "..."} or {option: "..."}
                                 return opt.text || opt.option || opt.answer || "Invalid Option";
                             }
                             return "Invalid Option";
                         });
                     } else if (typeof rawOptions === 'object' && rawOptions !== null) {
-                        // Options are an object, e.g., {A: "text1", B: "text2"} OR {key1: "text1", key2: "text2"}
-                        const orderedOptions = [];
-                        if (rawOptions.A) orderedOptions.push(rawOptions.A);
-                        if (rawOptions.B) orderedOptions.push(rawOptions.B);
-                        if (rawOptions.C) orderedOptions.push(rawOptions.C);
-                        if (rawOptions.D) orderedOptions.push(rawOptions.D);
-                        if (rawOptions.E) orderedOptions.push(rawOptions.E);
-                        
-                        if (orderedOptions.length > 0) {
-                             finalOptions = orderedOptions;
-                        } else {
-                             // Fallback for non-A,B,C objects
-                             finalOptions = Object.values(rawOptions);
-                        }
+                        // Backend sent an object: {A: "text1", C: "text2"}
+                        // We respect the order sent by the backend, NOT A,B,C...
+                        keys = Object.keys(rawOptions); // e.g., ["A", "C"] or ["C", "A"]
+                        finalOptionsArray = Object.values(rawOptions); // e.g., ["text1", "text2"]
                     }
-
-                    // 2. --- Determine the correct answer index based on the processed options ---
+                    
+                    // 2. --- Determine the correct answer index based on our new simple array ---
+                    let finalCorrectIndex = 0; // Default to 0 (Option A)
+                    
                     if (rawAnswer !== null && rawAnswer !== undefined) {
                         const answerString = String(rawAnswer).trim();
                         const answerStringUpper = answerString.toUpperCase();
 
-                        // Try to match by letter (A=0, B=1, etc.)
-                        if (answerStringUpper === 'A') {
-                            finalCorrectIndex = 0;
-                        } else if (answerStringUpper === 'B') {
-                            finalCorrectIndex = 1;
-                        } else if (answerStringUpper === 'C') {
-                            finalCorrectIndex = 2;
-                        } else if (answerStringUpper === 'D') {
-                            finalCorrectIndex = 3;
-                        } else if (answerStringUpper === 'E') {
-                            finalCorrectIndex = 4;
-                        } else {
-                            // Try to match by full text
-                            const textIndex = finalOptions.findIndex(opt => 
+                        let found = false;
+                        
+                        // Case 1: Answer is a letter (e.g., "C").
+                        // This is most common when options was an object.
+                        if (keys.length > 0) {
+                            // rawOptions was an object. Check if rawAnswer is one of its keys.
+                            const keyIndex = keys.findIndex(k => k.toUpperCase() === answerStringUpper);
+                            if (keyIndex !== -1) {
+                                finalCorrectIndex = keyIndex; // e.g., keys was ["A", "C"], rawAnswer was "C", index is 1.
+                                found = true;
+                            }
+                        }
+                        
+                        // Case 2: Answer is a letter (A=0, B=1) and options was an array.
+                        if (!found && keys.length === 0) {
+                            if (answerStringUpper === 'A') { finalCorrectIndex = 0; found = true; }
+                            else if (answerStringUpper === 'B') { finalCorrectIndex = 1; found = true; }
+                            else if (answerStringUpper === 'C') { finalCorrectIndex = 2; found = true; }
+                            else if (answerStringUpper === 'D') { finalCorrectIndex = 3; found = true; }
+                            else if (answerStringUpper === 'E') { finalCorrectIndex = 4; found = true; }
+                        }
+
+                        // Case 3: Answer is the full text of the option.
+                        if (!found) {
+                            const textIndex = finalOptionsArray.findIndex(opt => 
                                 String(opt).trim().toUpperCase() === answerStringUpper
                             );
-
                             if (textIndex !== -1) {
                                 finalCorrectIndex = textIndex;
-                            } else {
-                                // Try to match by numeric index
-                                const numIndex = parseInt(answerString, 10);
-                                if (!isNaN(numIndex) && numIndex >= 0 && numIndex < finalOptions.length) {
-                                    finalCorrectIndex = numIndex;
-                                } else {
-                                    console.warn(`[v1] Unrecognized answer format "${rawAnswer}". Defaulting to 0.`, q);
-                                    finalCorrectIndex = 0; // Default fallback
-                                }
+                                found = true;
                             }
+                        }
+                        
+                        // Case 4: Answer is a numeric index (e.g., "0", "1").
+                        if (!found) {
+                            const numIndex = parseInt(answerString, 10);
+                            if (!isNaN(numIndex) && numIndex >= 0 && numIndex < finalOptionsArray.length) {
+                                finalCorrectIndex = numIndex;
+                                found = true;
+                            }
+                        }
+
+                        // If still not found, log a warning and default to 0
+                        if (!found) {
+                            console.warn(`[v3] Unrecognized answer format "${rawAnswer}". Defaulting to 0.`, q);
+                            finalCorrectIndex = 0;
                         }
                     }
                     
-                    // Ensure index is valid
-                    if (finalCorrectIndex < 0 || finalCorrectIndex >= finalOptions.length) {
-                        console.warn(`[v1] Correct index ${finalCorrectIndex} is out of bounds. Defaulting to 0.`, q);
+                    // Final safety check to prevent "out of bounds" errors
+                    if (finalCorrectIndex < 0 || finalCorrectIndex >= finalOptionsArray.length) {
+                        console.warn(`[v3] Index ${finalCorrectIndex} is out of bounds for options. Defaulting to 0.`, q);
                         finalCorrectIndex = 0;
                     }
 
-                    console.log(`[v1] Question ${index+1}: Raw Answer "${rawAnswer}" -> Converted Index: ${finalCorrectIndex}`);
+                    console.log(`[v3] Question ${index+1}: Raw Answer "${rawAnswer}" -> Converted Index: ${finalCorrectIndex}. Options:`, finalOptionsArray);
                     
                     return {
                         id: index + 1,
                         text: q.question || q.text || 'Question text not available',
-                        options: finalOptions, // This is now a simple string array
+                        options: finalOptionsArray, // This is now a simple string array
                         correctAnswer: finalCorrectIndex, // This is the guaranteed correct index
                         solution: q.solution || q.explanation || 'No solution provided',
                         imageUrl: q.ImageUrl || q.imageUrl || q.image || null
@@ -1100,9 +1109,9 @@
             }
 
             /**
-             * *** THIS IS THE NEW, SIMPLIFIED loadQuestion FUNCTION ***
+             * *** THIS IS THE SIMPLIFIED loadQuestion FUNCTION ***
              * It now only *displays* the options, as all processing
-             * is done in setupQuiz.
+             * is done reliably in setupQuiz.
              */
             loadQuestion() {
                 const question = this.questions[this.currentQuestion - 1];
@@ -1118,7 +1127,7 @@
                     questionImage.src = question.imageUrl;
                     questionImage.classList.add('visible');
                     questionImage.onerror = function() {
-                        console.log('[v1] Failed to load image:', question.imageUrl);
+                        console.log('[v3] Failed to load image:', question.imageUrl);
                         this.classList.remove('visible');
                     };
                 } else {
@@ -1225,7 +1234,7 @@
             }
 
             selectAnswer(optionIndex) {
-                console.log('[v1] Selecting answer (index):', optionIndex);
+                console.log('[v3] Selecting answer (index):', optionIndex);
                 
                 document.querySelectorAll('.answer-option').forEach(option => {
                     option.classList.remove('selected');
@@ -1269,7 +1278,7 @@
                 const selectedIndex = this.selectedAnswer;
                 const correctIndex = this.correctAnswers[this.currentQuestion - 1];
 
-                console.log(`[v1] Checking Answer: Selected Index ${selectedIndex}, Correct Index ${correctIndex}`);
+                console.log(`[v3] Checking Answer: Selected Index ${selectedIndex}, Correct Index ${correctIndex}`);
 
                 const answerOptions = document.querySelectorAll('.answer-option');
                 if (answerOptions.length === 0) return;
@@ -1287,13 +1296,13 @@
                 if (selectedIndex === correctIndex) {
                     if (selectedOption) selectedOption.classList.add('correct');
                     this.score++;
-                    console.log('[v1] Result: CORRECT');
+                    console.log('[v3] Result: CORRECT');
                 } else {
                     if (selectedOption) selectedOption.classList.add('incorrect');
                     if (correctOption) {
                          correctOption.classList.add('correct');
                     }
-                    console.log('[v1] Result: INCORRECT');
+                    console.log('[v3] Result: INCORRECT');
                 }
                 
                 this.updateProgressBar();
