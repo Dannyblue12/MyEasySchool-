@@ -1265,23 +1265,27 @@
                 }
 
                 try {
-                    // --- 1. Construct the payload using Server ID if available, otherwise use text ---
+                    // --- 1. Construct the base payload ---
                     const payload = {
                         courseId: this.courseId,
                         quizTitle: this.quizTitle,
                         answer: selectedOptionLetter
                     };
 
-                    // *** CRITICAL FIX: Use the unique serverId for identification if it exists. ***
+                    // *** CRITICAL FIX: Attempt multiple common ID formats for robust submission ***
                     if (currentQuestion.serverId) {
-                         // Assume the API endpoint expects 'questionId' if a server ID is available
-                        payload.questionId = currentQuestion.serverId;
+                         // TRY 1: Common API fields: 'id' or 'question_id'
+                        payload.id = currentQuestion.serverId;
+                        payload.question_id = currentQuestion.serverId;
+
+                        // Remove question text as ID is preferred
+                        // payload.question = currentQuestion.text; 
                     } else {
-                        // Fallback to question text, but this is the likely cause of the 400 error.
+                        // Fallback to text, though this is the likely source of the 400 error.
                         payload.question = currentQuestion.text;
                     }
 
-                    console.log(`[v10] Submission Payload:`, payload);
+                    console.log(`[v11] Submission Payload:`, payload);
                     
                     // --- 2. Call your /quiz/submit endpoint ---
                     const response = await fetch(`${API_BASE}/quiz/submit`, {
@@ -1319,14 +1323,14 @@
                     
                     if (result.isCorrect === true || result.correct === true) {
                         // --- 4. Handle CORRECT answer ---
-                        console.log('[v10] Result: CORRECT');
+                        console.log('[v11] Result: CORRECT');
                         if (selectedOptionEl) selectedOptionEl.classList.add('correct');
                         this.score++;
                         this.answerResults[this.currentQuestion - 1] = 'correct';
 
                     } else {
                         // --- 5. Handle INCORRECT answer ---
-                        console.log('[v10] Result: INCORRECT');
+                        console.log('[v11] Result: INCORRECT');
                         if (selectedOptionEl) selectedOptionEl.classList.add('incorrect');
                         this.answerResults[this.currentQuestion - 1] = 'incorrect';
 
