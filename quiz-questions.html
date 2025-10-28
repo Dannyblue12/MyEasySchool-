@@ -982,8 +982,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                                     D: "O2"
                                 },
                                 answer: "A",
-                                ImageUrl: null,
-                                solution: "Water's chemical formula is H₂O, meaning two hydrogen atoms and one oxygen atom."
+                                ImageUrl: null
                             },
                             {
                                 question: "Which element has the atomic number 1?",
@@ -994,8 +993,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                                     D: "Carbon"
                                 },
                                 answer: "B",
-                                ImageUrl: null,
-                                solution: "Hydrogen is the lightest element and the first on the periodic table."
+                                ImageUrl: null
                             },
                             {
                                 question: "What is the pH of pure water at 25°C?",
@@ -1006,8 +1004,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                                     D: "9"
                                 },
                                 answer: "B",
-                                ImageUrl: null,
-                                solution: "Pure water is neutral, with a pH of 7."
+                                ImageUrl: null
                             }
                         ];
                         this.setupQuiz(testQuestions);
@@ -1128,7 +1125,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     
                     console.log(`[v0] Final options array for question ${index + 1}:`, options);
                     
-                    // --- FINAL FIX: Prioritize MongoDB _id or questionId string ---
+                    // --- PREVIOUS FIX FOR 500 ERROR: Prioritize MongoDB _id or questionId string ---
                     const questionId = q._id || q.questionId || q.id;
                     const finalId = (typeof questionId === 'string' && questionId) ? questionId : (index + 1);
 
@@ -1405,19 +1402,19 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     console.error('[v0] Failed to find option text element during check.');
                 }
                 
-                // Get the raw text of the selected option, matching the format required by the API
-                const userSelectedAnswerText = currentQuestionData.options[userSelectedAnswer].text || currentQuestionData.options[userSelectedAnswer];
+                // --- FINAL FIX: Send the option letter (A, B, C, D) instead of the full text ---
+                const userSelectedAnswerKey = String.fromCharCode(65 + userSelectedAnswer);
 
                 try {
                     const userToken = this.getUserToken();
                     
-                    // --- API PAYLOAD: Question ID + Option TEXT (Confirmed Correct Structure) ---
+                    // --- CORRECTED API PAYLOAD ---
                     const bodyData = {
                         questionId: currentQuestionData.id, 
-                        answerProvided: userSelectedAnswerText, // Sending the text value
+                        answerProvided: userSelectedAnswerKey, // Now sending "A", "B", etc.
                     };
                     
-                    console.log('[v0] Submitting answer to API with Question ID and Text:', bodyData);
+                    console.log('[v0] Submitting answer to API with Correct Payload:', bodyData);
                     
                     const response = await fetch(`${API_BASE}/questions/submit-answer`, {
                         method: 'POST',
@@ -1436,15 +1433,19 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     const data = await response.json();
                     
                     // Assuming data.isCorrect and data.correctAnswerIndex are returned from the API
-                    const isCorrect = data.isCorrect;
-                    let correctOptionIndex = data.correctAnswerIndex;
-                    
-                    if (correctOptionIndex === undefined) {
-                        correctOptionIndex = this.correctAnswers[questionIndex];
-                        console.warn('[v0] API did not return correct index, falling back to local data.');
+                    const isCorrect = data.data?.isCorrect || false; // Added safe chaining based on successful logs
+                    let correctAnswerKey = data.data?.correctAnswer; // Correct answer will be "A", "B", etc.
+
+                    // If server returns the correct answer key ("A") but we only stored the index (0) locally
+                    // We must convert the key back to an index for local display logic
+                    let correctOptionIndex = -1;
+                    if (correctAnswerKey) {
+                         correctOptionIndex = correctAnswerKey.charCodeAt(0) - 65;
+                         this.correctAnswers[questionIndex] = correctOptionIndex;
                     } else {
-                        // Update local correct answer with server's authoritative answer
-                        this.correctAnswers[questionIndex] = correctOptionIndex;
+                        // Fallback to local index if API response is inconsistent
+                        correctOptionIndex = this.correctAnswers[questionIndex];
+                        console.warn('[v0] API did not return correct answer key, falling back to local index.');
                     }
 
 
@@ -1499,7 +1500,9 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
 
                     // Determine error message for display
                     let errorMessage = 'Unknown Error';
-                    if (error.message.includes('500')) {
+                    if (error.message.includes('400')) {
+                        errorMessage = '400 Bad Request (Validation Failure)';
+                    } else if (error.message.includes('500')) {
                         errorMessage = '500 Internal Server Error (API Crash)';
                     } else if (error.message.includes('401')) {
                         errorMessage = '401 Unauthorized (Missing Token)';
