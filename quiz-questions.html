@@ -242,8 +242,8 @@
         }
 
         @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .solution-text {
@@ -1210,9 +1210,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                 
                 this.currentQuestionEl.textContent = this.currentQuestion;
                 document.getElementById('question-number').textContent = this.currentQuestion;
-                // CRASH FIX: This line is safe because the full interface is guaranteed to exist here, 
-                // but only if renderQuizInterface was called successfully
-                document.getElementById('solution-question-number').textContent = this.currentQuestion; 
+                document.getElementById('solution-question-number').textContent = this.currentQuestion;
                 document.getElementById('question-text').textContent = question.text;
                 document.getElementById('solution-text').textContent = question.solution;
                 
@@ -1409,7 +1407,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                 try {
                     const userToken = this.getUserToken();
                     
-                    // --- API PAYLOAD: Question ID + Option TEXT ---
+                    // --- API PAYLOAD: Question ID + Option TEXT (Confirmed Correct Structure) ---
                     const bodyData = {
                         questionId: currentQuestionData.id, 
                         answerProvided: userSelectedAnswerText, // Sending the text value
@@ -1471,7 +1469,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     console.error('[v0] Error during answer submission:', error);
                     this.errorDisplayed = true; // Set flag to prevent navigation
 
-                    // --- FALLBACK AND CRASH FIX (in case of API failure) ---
+                    // --- FALLBACK (in case of API failure) ---
                     const correctOptionIndex = this.correctAnswers[questionIndex];
                     const isCorrect = userSelectedAnswer === correctOptionIndex;
                     const correctOptionEl = answerOptions[correctOptionIndex];
@@ -1497,8 +1495,8 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
 
                     // Determine error message for display
                     let errorMessage = 'Unknown Error';
-                    if (error.message.includes('400')) {
-                        errorMessage = '400 Bad Request (Check Question ID/Answer Format)';
+                    if (error.message.includes('500')) {
+                        errorMessage = '500 Internal Server Error (API Crash)';
                     } else if (error.message.includes('401')) {
                         errorMessage = '401 Unauthorized (Missing Token)';
                     }
