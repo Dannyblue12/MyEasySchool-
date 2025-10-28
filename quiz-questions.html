@@ -1128,8 +1128,12 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     
                     console.log(`[v0] Final options array for question ${index + 1}:`, options);
                     
+                    // --- FINAL FIX: Prioritize MongoDB _id or questionId string ---
+                    const questionId = q._id || q.questionId || q.id;
+                    const finalId = (typeof questionId === 'string' && questionId) ? questionId : (index + 1);
+
                     return {
-                        id: q.id || index + 1, // Ensure a unique ID is captured, default to index + 1
+                        id: finalId, // Use the unique string ID
                         text: q.question || q.text || 'Question text not available',
                         options: options,
                         correctAnswer: q.correctAnswer || q.answer || 0,
