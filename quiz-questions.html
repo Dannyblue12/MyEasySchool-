@@ -819,6 +819,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                 this.score = 0;
                 this.startTime = Date.now();
                 this.questions = [];
+                this.errorDisplayed = false; // Flag to track if an error screen is showing
                 
                 // URL parameters
                 this.courseId = null;
@@ -1193,6 +1194,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
 
                     <button class="check-button" id="check-btn">Check</button>
                 `;
+                this.errorDisplayed = false; // Reset error flag when interface is rendered
             }
 
             loadQuestion() {
@@ -1208,7 +1210,9 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                 
                 this.currentQuestionEl.textContent = this.currentQuestion;
                 document.getElementById('question-number').textContent = this.currentQuestion;
-                document.getElementById('solution-question-number').textContent = this.currentQuestion;
+                // CRASH FIX: This line is safe because the full interface is guaranteed to exist here, 
+                // but only if renderQuizInterface was called successfully
+                document.getElementById('solution-question-number').textContent = this.currentQuestion; 
                 document.getElementById('question-text').textContent = question.text;
                 document.getElementById('solution-text').textContent = question.solution;
                 
@@ -1405,7 +1409,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                 try {
                     const userToken = this.getUserToken();
                     
-                    // --- API PAYLOAD ADJUSTMENT: MATCHING WORKING AXIOS CODE ---
+                    // --- API PAYLOAD: Question ID + Option TEXT ---
                     const bodyData = {
                         questionId: currentQuestionData.id, 
                         answerProvided: userSelectedAnswerText, // Sending the text value
@@ -1423,7 +1427,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     });
 
                     if (!response.ok) {
-                        // The server response status 400 will jump here
+                        // Throw an error that includes the status for more descriptive catch handling
                         throw new Error(`Server validation failed with status: ${response.status}`);
                     }
 
@@ -1464,8 +1468,9 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     this.updateCheckButton();
                     
                 } catch (error) {
-                    console.error('[v0] Error during answer submission (likely API 400):', error);
-                    
+                    console.error('[v0] Error during answer submission:', error);
+                    this.errorDisplayed = true; // Set flag to prevent navigation
+
                     // --- FALLBACK AND CRASH FIX (in case of API failure) ---
                     const correctOptionIndex = this.correctAnswers[questionIndex];
                     const isCorrect = userSelectedAnswer === correctOptionIndex;
@@ -1489,13 +1494,24 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     
                     this.updateProgressBar();
                     this.updateCheckButton();
-                    this.displayError(`Answer validation failed. (Status: ${error.message.includes('400') ? '400 Bad Request' : 'Unknown Error'})`);
+
+                    // Determine error message for display
+                    let errorMessage = 'Unknown Error';
+                    if (error.message.includes('400')) {
+                        errorMessage = '400 Bad Request (Check Question ID/Answer Format)';
+                    } else if (error.message.includes('401')) {
+                        errorMessage = '401 Unauthorized (Missing Token)';
+                    }
+                    this.displayError(`Answer validation failed. (Status: ${errorMessage})`);
                     // --- END OF FALLBACK ---
 
                 } finally {
-                    // Timeout to show result before moving to the next question
+                    // Check if an error screen is being displayed before navigating
                     setTimeout(() => {
-                        if (this.currentQuestion === this.totalQuestions) {
+                        if (this.errorDisplayed) {
+                            // Do nothing, let the user stay on the error screen
+                            console.log('[v0] Error screen displayed, stopping automatic navigation.');
+                        } else if (this.currentQuestion === this.totalQuestions) {
                             this.endQuiz();
                         } else {
                             this.nextQuestion();
@@ -1603,6 +1619,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                 
                 this.modalOverlay.classList.remove('active');
                 this.switchTab('question');
+                this.renderQuizInterface(); // Re-render the interface after error screen
                 this.loadQuestion();
             }
 
@@ -1611,9 +1628,10 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     <div class="error-message">
                         <h3>Error</h3>
                         <p>${message}</p>
-                        <button class="modal-button primary" onclick="location.reload()" style="margin-top: 15px;">Try Again</button>
+                        <button class="modal-button primary" onclick="window.quizApp.resetQuiz()" style="margin-top: 15px;">Continue Quiz</button>
                     </div>
                 `;
+                this.errorDisplayed = true;
             }
 
             bindEvents() {
