@@ -745,7 +745,6 @@ body[data-theme="dark"] { background-color: #0f172a; }
         </div>
     </div>
 
-    <!-- Results Modal -->
     <div class="modal-overlay" id="modal-overlay">
         <div class="results-modal">
             <div class="fire-icon"></div>
@@ -1129,7 +1128,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     console.log(`[v0] Final options array for question ${index + 1}:`, options);
                     
                     return {
-                        id: index + 1,
+                        id: q.id || index + 1, // Ensure a unique ID is captured, default to index + 1
                         text: q.question || q.text || 'Question text not available',
                         options: options,
                         correctAnswer: q.correctAnswer || q.answer || 0,
@@ -1202,11 +1201,9 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                 // Debug: Log the complete question data
                 console.log('[v0] === QUESTION DEBUG ===');
                 console.log('[v0] Current question index:', this.currentQuestion - 1);
+                console.log('[v0] Question ID:', question.id); // Log the ID being used
                 console.log('[v0] Total questions:', this.questions.length);
                 console.log('[v0] Complete question data:', question);
-                console.log('[v0] Question imageUrl:', question.imageUrl);
-                console.log('[v0] Question ImageUrl:', question.ImageUrl);
-                console.log('[v0] Question image:', question.image);
                 console.log('[v0] === END DEBUG ===');
                 
                 this.currentQuestionEl.textContent = this.currentQuestion;
@@ -1390,7 +1387,8 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                 const questionIndex = this.currentQuestion - 1; // 0-based index
                 const answerOptions = document.querySelectorAll('.answer-option');
                 const selectedOptionEl = answerOptions[userSelectedAnswer];
-                
+                const currentQuestionData = this.questions[questionIndex];
+
                 // Get the option text element safely
                 const optionTextEl = selectedOptionEl.querySelector('.option-text');
                 const originalOptionText = optionTextEl ? optionTextEl.textContent : 'Option';
@@ -1401,19 +1399,19 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     console.error('[v0] Failed to find option text element during check.');
                 }
                 
+                // Get the raw text of the selected option, matching the format required by the API
+                const userSelectedAnswerText = currentQuestionData.options[userSelectedAnswer].text || currentQuestionData.options[userSelectedAnswer];
+
                 try {
                     const userToken = this.getUserToken();
-                    const currentQuestionData = this.questions[questionIndex];
                     
-                    // --- API PAYLOAD ADJUSTMENT: Using 1-based question index (questionIndex + 1) ---
+                    // --- API PAYLOAD ADJUSTMENT: MATCHING WORKING AXIOS CODE ---
                     const bodyData = {
-                        courseId: this.courseId,
-                        quizTitle: this.quizTitle,
-                        questionIndex: questionIndex + 1, // Changed from questionIndex to questionIndex + 1
-                        selectedOptionIndex: userSelectedAnswer,
+                        questionId: currentQuestionData.id, 
+                        answerProvided: userSelectedAnswerText, // Sending the text value
                     };
                     
-                    console.log('[v0] Submitting answer to API with 1-based index:', bodyData);
+                    console.log('[v0] Submitting answer to API with Question ID and Text:', bodyData);
                     
                     const response = await fetch(`${API_BASE}/questions/submit-answer`, {
                         method: 'POST',
@@ -1431,6 +1429,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
 
                     const data = await response.json();
                     
+                    // Assuming data.isCorrect and data.correctAnswerIndex are returned from the API
                     const isCorrect = data.isCorrect;
                     let correctOptionIndex = data.correctAnswerIndex;
                     
@@ -1467,7 +1466,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                 } catch (error) {
                     console.error('[v0] Error during answer submission (likely API 400):', error);
                     
-                    // --- FIX FOR TYPE ERROR IMPLEMENTED SAFELY IN CATCH BLOCK ---
+                    // --- FALLBACK AND CRASH FIX (in case of API failure) ---
                     const correctOptionIndex = this.correctAnswers[questionIndex];
                     const isCorrect = userSelectedAnswer === correctOptionIndex;
                     const correctOptionEl = answerOptions[correctOptionIndex];
@@ -1491,7 +1490,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     this.updateProgressBar();
                     this.updateCheckButton();
                     this.displayError(`Answer validation failed. (Status: ${error.message.includes('400') ? '400 Bad Request' : 'Unknown Error'})`);
-                    // --- END OF CATCH BLOCK FIX ---
+                    // --- END OF FALLBACK ---
 
                 } finally {
                     // Timeout to show result before moving to the next question
