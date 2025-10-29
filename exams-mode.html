@@ -371,7 +371,6 @@
             // Constants
             const API_BASE = "https://my-easy-school-api.onrender.com/api";
             const EXAM_DURATION = 900; // 15 minutes in seconds
-            const AUTHORIZATION_TIMEOUT = 5000; // 5 seconds
 
             // DOM Elements
             const elements = {
@@ -405,7 +404,7 @@
             const state = {
                 quizData: [],
                 currentQuestionIndex: 0,
-                selectedAnswers: {},
+                selectedAnswers: {}, // Stores answers locally: { questionId: "A", questionId2: "B", ... }
                 timeLeft: EXAM_DURATION,
                 timerInterval: null,
                 isQuizActive: false,
@@ -428,7 +427,7 @@
                 }
             }
 
-            // Get user token from localStorage (same as quiz-questions.html)
+            // Get user token from localStorage
             function getUserToken() {
                 return localStorage.getItem('token');
             }
@@ -476,27 +475,16 @@
                 elements.resultContainer.classList.add('hidden');
             }
 
-            // Hide unauthorized message
-            function hideUnauthorized() {
-                elements.unauthorizedMessage.classList.add('hidden');
-            }
-
             // Fetch university name
             async function fetchUniversityName() {
                 try {
-                    console.log('[v0] Fetching universities from:', `${API_BASE}/universities/all`);
-                    // Get current user data to find their university
                     const currentUserData = JSON.parse(localStorage.getItem('currentUserData') || '{}');
                     const currentUser = currentUserData.user;
-                    if (!currentUser || !currentUser.university) {
-                        console.log('[v0] No user university found, using default name');
-                        return;
-                    }
+                    if (!currentUser || !currentUser.university) return;
+                    
                     const response = await fetch(`${API_BASE}/universities/all`);
-                    if (!response.ok) {
-                        console.log('[v0] Universities endpoint failed, using default name');
-                        return;
-                    }
+                    if (!response.ok) return;
+
                     const data = await response.json();
                     const universities = data.data || data;
 
@@ -511,7 +499,7 @@
                 }
             }
 
-            // Start CBT exam
+            // Start CBT exam - Fetches questions and sets up state
             async function startCBTExam() {
                 try {
                     showLoader('Starting exam...');
@@ -527,9 +515,6 @@
                         courseId: state.courseId
                     };
                     
-                    // Add numberOfQuestions if needed (optional field)
-                    // requestBody.numberOfQuestions = 20; // Uncomment if you want to specify
-
                     const response = await fetch(`${API_BASE}/cbt/start`, {
                         method: 'POST',
                         headers: {
@@ -559,7 +544,6 @@
                         const MAX_QUESTIONS = 35;
                         if (allQuestions.length > MAX_QUESTIONS) {
                             console.log(`[v0] Limiting questions from ${allQuestions.length} to ${MAX_QUESTIONS}`);
-                            // Shuffle questions and take first 35 for variety
                             allQuestions = shuffleArray(allQuestions).slice(0, MAX_QUESTIONS);
                         }
                         
@@ -591,7 +575,7 @@
                 state.currentQuestionIndex = 0;
                 state.selectedAnswers = {};
                 
-                hideUnauthorized();
+                elements.unauthorizedMessage.classList.add('hidden');
                 elements.quizContainer.classList.remove('hidden');
                 elements.resultContainer.classList.add('hidden');
                 
@@ -603,17 +587,14 @@
                 elements.nextButton.onclick = nextQuestion;
                 elements.confirmSubmitButton.onclick = submitQuiz;
                 elements.cancelSubmitButton.onclick = hideConfirmationDialog;
-                elements.showAnswersButton.onclick = showAnswers; // Added to handle the toggle
+                elements.showAnswersButton.onclick = showAnswers;
                 elements.restartButton.onclick = restartQuiz;
             }
 
             // Display current question
             function displayQuestion() {
                 const questionData = state.quizData[state.currentQuestionIndex];
-                if (!questionData) {
-                    console.error('[v0] No question data at index:', state.currentQuestionIndex);
-                    return;
-                }
+                if (!questionData) return;
 
                 elements.questionElement.textContent = `${state.currentQuestionIndex + 1}. ${questionData.question || questionData.Q}`;
                 
@@ -622,52 +603,34 @@
                 let formattedChoices = [];
                 const choices = questionData.choices || questionData.options;
 
+                // --- Logic to handle A-E options ---
                 if (Array.isArray(choices)) {
-                    // Case 1: It's an array
                     formattedChoices = choices.map((choice, index) => {
-                        const defaultLetter = String.fromCharCode(65 + index); // A, B, C...
-                        if (typeof choice === 'string') {
-                            return { text: choice, value: defaultLetter };
-                        }
-                        if (typeof choice === 'object' && choice !== null) {
-                            const text = choice.text || choice.option || choice.choice || choice.value;
-                            const value = choice.value || choice.key || defaultLetter;
-                            return { text: text, value: value };
-                        }
-                        return { text: String(choice), value: defaultLetter };
-                    });
+                        const defaultLetter = String.fromCharCode(65 + index);
+                        let text = String(choice);
+                        let value = defaultLetter;
 
+                        if (typeof choice === 'object' && choice !== null) {
+                            text = choice.text || choice.option || choice.choice || choice.value || String(choice);
+                            value = choice.value || choice.key || defaultLetter;
+                        }
+                        return { text, value };
+                    }).filter(c => c.text !== 'undefined');
                 } else if (typeof choices === 'object' && choices !== null) {
-                    // Case 2: It's an object { "A": "Text", "B": "Text" }
                     formattedChoices = Object.keys(choices).map(key => {
                         return { text: choices[key], value: key };
                     });
-
                 } else {
-                    // Case 3: No 'choices' or 'options', try A, B, C, D properties
-                    const potentialChoices = [
-                        { text: questionData.A, value: 'A' },
-                        { text: questionData.B, value: 'B' },
-                        { text: questionData.C, value: 'C' },
-                        { text: questionData.D, value: 'D' },
-                        { text: questionData.E, value: 'E' }
-                    ];
-                    
-                    formattedChoices = potentialChoices.filter(choice => {
-                        const text = choice.text;
-                        return text !== null && 
-                               text !== undefined && 
-                               String(text).trim() !== '' &&
-                               String(text).trim().toLowerCase() !== 'undefined' &&
-                               String(text).trim().toLowerCase() !== 'null';
-                    });
+                    const letters = ['A', 'B', 'C', 'D', 'E']; // Supports up to E
+                    formattedChoices = letters.map(letter => {
+                        return { text: questionData[letter], value: letter };
+                    }).filter(choice => choice.text);
                 }
+                // --- End A-E Logic ---
 
-                // If still no choices, show the error
                 if (formattedChoices.length === 0) {
                     elements.choicesElement.innerHTML = '<li style="color: red;">Error: No choices available for this question.</li>';
                 } else {
-                    // Render the choices
                     formattedChoices.forEach((choice, index) => {
                         const li = document.createElement('li');
                         const label = document.createElement('label');
@@ -678,7 +641,6 @@
                         input.value = String(choice.value);
                         input.id = `choice-${index}`;
                         
-                        // Use a consistent ID key for state lookup (e.g., MongoDB ID, or fallback to index)
                         const questionId = questionData._id || questionData.id || state.currentQuestionIndex;
                         
                         if (state.selectedAnswers[questionId] === input.value) {
@@ -694,10 +656,9 @@
                         let choiceTextContent = String(choice.text);
                         const choiceValue = String(choice.value);
 
-                        // Prepend letter if text doesn't already start with it
                         if (!choiceTextContent.trim().startsWith(choiceValue + '.') && 
                             !choiceTextContent.trim().startsWith(choiceValue + ')') &&
-                            /^[A-Z]$/.test(choiceValue)) {
+                            /^[A-E]$/.test(choiceValue)) {
                              choiceTextContent = `${choiceValue}. ${choiceTextContent}`;
                         }
 
@@ -740,30 +701,7 @@
                 elements.confirmationDialog.classList.add('hidden');
             }
 
-            // Validate token by checking user data
-            async function validateToken(token) {
-                try {
-                    console.log('[v0] Validating token...');
-                    const response = await fetch(`${API_BASE}/users/me`, {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        }
-                    });
-
-                    if (response.ok) {
-                        const userData = await response.json();
-                        return { valid: true, userData };
-                    } else {
-                        return { valid: false, status: response.status };
-                    }
-                } catch (error) {
-                    return { valid: false, error: error.message };
-                }
-            }
-
-            // --- NEW FUNCTION: Generate local results on API failure or for Test Mode ---
+            // --- LOCAL RESULT FALLBACK ---
             function generateLocalResultsAndShow() {
                 console.warn('[v0] Generating local results for display/fallback.');
                 
@@ -773,7 +711,8 @@
                 state.quizData.forEach((question, index) => {
                     const questionId = question._id || question.id || index;
                     const submittedAnswer = state.selectedAnswers[questionId];
-                    // FIX: Ensure 'Ans' is used as the source of truth for the local key
+                    
+                    // The correct answer is ONLY present in the local data if test mode was loaded.
                     const correctAnswer = question.Ans; 
 
                     const isCorrect = submittedAnswer === correctAnswer;
@@ -784,7 +723,7 @@
                     localResults.push({
                         questionId: questionId,
                         isCorrect: isCorrect,
-                        // Set the correct answer key only if it exists in the local data
+                        // Correct answer is provided if it exists, otherwise 'N/A'
                         correctAnswer: correctAnswer || 'N/A', 
                         submittedAnswer: submittedAnswer || 'N/A'
                     });
@@ -802,7 +741,7 @@
                 stopTimer();
                 showResults(localData);
             }
-            // --- END NEW FUNCTION ---
+            // --- END LOCAL RESULT FALLBACK ---
 
             // Submit quiz
             async function submitQuiz() {
@@ -816,26 +755,26 @@
                         throw new Error('No authentication token found. Please sign in again.');
                     }
 
-                    // *** FIX 1: Removed redundant validateToken() call to prevent blocking on network timeout/failure ***
-                    // showLoader('Validating authentication...');
-                    // const tokenValidation = await validateToken(userToken);
-                    
-                    // if (!tokenValidation.valid) { ... }
-
                     showLoader('Submitting exam...');
 
-                    // Prepare answers array
+                    // Prepare answers array in the strict JSON format expected by the API
                     const answers = [];
                     state.quizData.forEach((question, index) => {
                         const questionId = question._id || question.id || index;
                         const answer = state.selectedAnswers[questionId];
                         
+                        // Only submit answers that were actually selected
                         if (answer) {
                             answers.push({
                                 questionId: questionId,
-                                answer: answer
+                                answer: answer // This is the single letter key (A, B, C, D, E)
                             });
                         }
+                    });
+
+                    console.log('[v0] Final Submission Payload:', {
+                        cbtId: state.cbtId,
+                        answers: answers
                     });
 
                     const response = await fetch(`${API_BASE}/cbt/submit`, {
@@ -853,14 +792,14 @@
                     if (!response.ok) {
                         const errorText = await response.text();
                         
-                        // --- CHECK FOR 500/BAD REQUEST ERROR (Live API Submission Failed) ---
+                        // --- API Submission Failed (500, 400, etc.) ---
                         if (response.status >= 500 || response.status === 400) {
                             console.error('[v0] Fatal API error, triggering local fallback.', { status: response.status, body: errorText });
                             // The live questions won't have the answer key, so the fallback will correctly show N/A for live mode.
                             generateLocalResultsAndShow();
-                            return; // STOP execution after local processing
+                            return; 
                         }
-                        // --- END CHECK ---
+                        // --- END API Submission Failed ---
 
                         if (response.status === 401) {
                             localStorage.removeItem('token');
@@ -873,6 +812,7 @@
                     }
 
                     const data = await response.json();
+                    console.log('[v0] SUCCESSFUL API GRADE RESPONSE:', data);
 
                     hideLoader();
                     stopTimer();
@@ -904,7 +844,6 @@
                 
                 elements.scoreElement.textContent = `Your Score: ${score}/${totalQuestions} (${percentage}%)`;
 
-                // --- FIX: Populate the Answers List with detailed results ---
                 const results = data.data?.results || data.results || [];
                 
                 // Map original questions by ID for easy lookup
@@ -914,16 +853,14 @@
                 
                 if (results.length > 0) {
                     results.forEach((result, index) => {
-                        // Use the index for questions without IDs, or the provided ID
                         const questionIdentifier = result.questionId || state.quizData[index]?._id || state.quizData[index]?.id || index;
                         let originalQuestion = quizMap.get(questionIdentifier);
                         
-                        // Fallback to direct array access if map lookup fails
-                        if (!originalQuestion && state.quizData[index]) {
+                        if (!originalQuestion) {
                             originalQuestion = state.quizData[index];
                         }
                         
-                        if (!originalQuestion) return; // Skip if question not found
+                        if (!originalQuestion) return;
 
                         const li = document.createElement('li');
                         
@@ -933,13 +870,13 @@
                         li.classList.add(isCorrect ? 'correct' : 'incorrect');
                         
                         const questionText = originalQuestion.question || originalQuestion.Q;
-                        const submittedAnswer = state.selectedAnswers[questionIdentifier] || 'N/A'; // Use selectedAnswers state
+                        const submittedAnswer = state.selectedAnswers[questionIdentifier] || 'N/A';
                         
                         let correctAnswer = result.correctAnswer || 'N/A';
                         
-                        // FIX 2: Show descriptive message if the correct answer is N/A/unknown
+                        // Show descriptive message if the correct answer is N/A/unknown (usually from live mode fallback)
                         if (correctAnswer === 'N/A') {
-                            correctAnswer = '<span style="color: red;">Unknown (API Failed)</span>';
+                            correctAnswer = '<span style="color: red;">Unknown (API Failed to Grade)</span>';
                         }
                         
                         li.innerHTML = `
@@ -951,11 +888,9 @@
                         elements.answersListElement.appendChild(li);
                     });
                     
-                    // Initially hide the answers list, user clicks button to reveal
                     elements.answersListElement.classList.add('hidden');
                     elements.showAnswersButton.classList.remove('hidden');
                 } else {
-                    // If no detailed results from server, show simple message
                     elements.answersListElement.innerHTML = `<li style="list-style: none;">Detailed answers are unavailable from the server.</li>`;
                     elements.showAnswersButton.classList.add('hidden');
                 }
@@ -991,10 +926,8 @@
                 }
             }
 
-            // --- FIX: Implement the missing showAnswers toggle logic ---
             // Show answers
             function showAnswers() {
-                // Toggle the visibility of the detailed answers list
                 const isHidden = elements.answersListElement.classList.toggle('hidden');
                 elements.showAnswersButton.textContent = isHidden ? 'Show Answers' : 'Hide Answers';
             }
@@ -1010,14 +943,13 @@
             function loadTestExamData() {
                 console.log('[v0] Loading test exam data...');
                 
-                // Generate 35 test questions for exam mode
                 const testQuestions = [];
                 const sampleQuestions = [
                     {
-                        _id: "test1", Q: "The Yoruba believe that life started in?", A: "Ile-Ife", B: "Oyo", C: "Benin", D: "Lagos", Ans: "A"
+                        _id: "test1", Q: "The Yoruba believe that life started in?", A: "Ile-Ife", B: "Oyo", C: "Benin", D: "Lagos", E: "Kaduna", Ans: "A"
                     },
                     {
-                        _id: "test2", Q: "___ is the practice of resolving differences in a manner prescribed by society as opposed to creating conflict.", A: "Negotiation", B: "Conflict Resolution", C: "Mediation", D: "Arbitration", Ans: "B"
+                        _id: "test2", Q: "___ is the practice of resolving differences in a manner prescribed by society as opposed to creating conflict.", A: "Negotiation", B: "Conflict Resolution", C: "Mediation", D: "Arbitration", E: "Debate", Ans: "B"
                     },
                     {
                         _id: "test3", Q: "What is the pH of pure water at 25°C?", A: "6", B: "7", C: "8", D: "9", Ans: "B"
@@ -1030,30 +962,24 @@
                     }
                 ];
                 
-                // Duplicate and modify questions to reach 35
                 for (let i = 0; i < 35; i++) {
                     const baseQuestion = sampleQuestions[i % sampleQuestions.length];
                     testQuestions.push({
                         ...baseQuestion,
-                        // Ensure unique ID for map lookups and use the correct answer key
                         _id: `test-${i}`,
-                        Ans: baseQuestion.Ans // Keep the answer key (A, B, C...)
+                        Ans: baseQuestion.Ans
                     });
                 }
                 
                 state.quizData = testQuestions;
                 state.cbtId = 'test-exam-' + Date.now();
                 
-                // --- Set placeholder answers for test mode ---
                 state.quizData.forEach(q => {
                     const questionId = q._id;
-                    // Set 1/3 incorrect, 2/3 correct
                     const submittedAnswer = (parseInt(questionId.split('-')[1]) % 3 === 0) ? (q.Ans === 'A' ? 'B' : 'A') : q.Ans;
                     state.selectedAnswers[questionId] = submittedAnswer;
                 });
-                // --- End placeholder answers ---
                 
-                // Simulate successful submission and show results directly
                 generateLocalResultsAndShow();
             }
 
@@ -1090,7 +1016,6 @@
 
                     showLoader('Checking authorization...');
                     
-                    // Fetch university name (don't wait for it to complete)
                     fetchUniversityName();
                     
                     if (!checkAuthentication()) {
