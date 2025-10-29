@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Quiz</title>
     <link rel="icon" type="image/jpeg" href="WhatsApp Image 2025-07-06 at 09.14.34_436c71fc.jpg">
+    <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
     <style>
         * {
             margin: 0;
@@ -191,6 +194,14 @@
             line-height: 1.5;
             margin-bottom: 24px;
         }
+        
+        /* MathJax Container Styling */
+        .question-text .math-output {
+            display: inline-block; /* Ensure it respects line height */
+        }
+        .answer-option .math-output {
+            display: inline-block;
+        }
 
         .question-image {
             width: 100%;
@@ -351,6 +362,11 @@
         .option-text {
             flex: 1;
             font-size: 15px;
+        }
+        
+        /* Ensure MathJax elements are vertically aligned in options */
+        .option-text .MathJax {
+            vertical-align: middle;
         }
 
         .check-button {
@@ -711,6 +727,22 @@ body[data-theme="dark"] { background-color: #0f172a; }
     color: #e5e7eb; /* Ensure option letter is visible */
 }
 
+/* --- Check Button Dark Mode Fix: White Button, Black Text --- */
+[data-theme="dark"] .check-button.active {
+    background: white; /* White background for the button */
+    color: #1a1a1a; /* Black text */
+    opacity: 1;
+    box-shadow: 0 4px 16px rgba(255, 255, 255, 0.3);
+}
+
+[data-theme="dark"] .check-button.active:hover {
+    background: #f0f0f0; /* Slightly darker white on hover */
+    color: #1a1a1a;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.4);
+}
+/* --- End Check Button Dark Mode Fix --- */
+
 [data-theme="dark"] .stat-box { background: #1f2937; border-color: #374151; }
 [data-theme="dark"] .stat-value { color: #ffffff; }
 [data-theme="dark"] .stat-label { color: #9ca3af; }
@@ -789,16 +821,16 @@ body[data-theme="dark"] { background-color: #0f172a; }
     </div>
 
     <script>
-        console.log('[v0] 🚀 QUIZ-QUESTIONS.HTML LOADED - Console logging is working!');
+        console.log('[v1] 🚀 QUIZ-QUESTIONS.HTML LOADED - Console logging is working!');
         
         // Add visible debug info to the page
         document.addEventListener('DOMContentLoaded', function() {
             const debugDiv = document.createElement('div');
             debugDiv.id = 'debug-info';
             debugDiv.style.cssText = 'position: fixed; top: 10px; right: 10px; background: red; color: white; padding: 10px; z-index: 9999; font-size: 12px; max-width: 300px;';
-            debugDiv.innerHTML = '[v0] DEBUG: JavaScript loaded and running. Check console for logs.';
+            debugDiv.innerHTML = '[v1] DEBUG: JavaScript loaded and running. Check console for logs.';
             document.body.appendChild(debugDiv);
-            console.log('[v0] 🔧 Debug div added to page');
+            console.log('[v1] 🔧 Debug div added to page');
         });
         
         // Add CORS proxy to handle CORS issues
@@ -807,7 +839,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
         
         class QuizApp {
             constructor() {
-                console.log('[v0] 🎯 QuizApp constructor called - initializing quiz application');
+                console.log('[v1] 🎯 QuizApp constructor called - initializing quiz application');
                 this.currentQuestion = 1;
                 this.totalQuestions = 0;
                 this.answers = [];
@@ -844,7 +876,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     new URL(cleanUrl);
                     return cleanUrl;
                 } catch (e) {
-                    console.log('[v0] Invalid image URL format:', imageUrl);
+                    console.log('[v1] Invalid image URL format:', imageUrl);
                     return null;
                 }
             }
@@ -866,9 +898,9 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                 this.courseCode = urlParams.get('courseCode');
                 this.quizTitle = urlParams.get('quizTitle');
                 
-                console.log('[v0] Course ID:', this.courseId);
-                console.log('[v0] Course Code:', this.courseCode);
-                console.log('[v0] Quiz Title:', this.quizTitle);
+                console.log('[v1] Course ID:', this.courseId);
+                console.log('[v1] Course Code:', this.courseCode);
+                console.log('[v1] Quiz Title:', this.quizTitle);
             }
 
             getUserToken() {
@@ -889,12 +921,12 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                 try {
                     const userToken = this.getUserToken();
                     if (!userToken) {
-                        console.warn('[v0] No authentication token found, trying fallback method');
+                        console.warn('[v1] No authentication token found, trying fallback method');
                         await this.fetchQuizQuestions(title);
                         return;
                     }
 
-                    console.log('[v0] Starting quiz with POST request to:', `${API_BASE}/quiz/start`);
+                    console.log('[v1] Starting quiz with POST request to:', `${API_BASE}/quiz/start`);
                     const response = await fetch(`${API_BASE}/quiz/start`, {
                         method: 'POST',
                         headers: {
@@ -908,7 +940,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     });
 
                     if (!response.ok) {
-                        console.warn(`[v0] First attempt failed with status: ${response.status}, trying with courseId parameter`);
+                        console.warn(`[v1] First attempt failed with status: ${response.status}, trying with courseId parameter`);
                         
                         // Try with courseId instead of courseid
                         const retryResponse = await fetch(`${API_BASE}/quiz/start`, {
@@ -924,29 +956,29 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                         });
 
                         if (!retryResponse.ok) {
-                            console.warn(`[v0] Retry also failed with status: ${retryResponse.status}, falling back to GET method`);
+                            console.warn(`[v1] Retry also failed with status: ${retryResponse.status}, falling back to GET method`);
                             throw new Error(`API endpoint not available (status: ${retryResponse.status})`);
                         }
 
                         const retryData = await retryResponse.json();
-                        console.log('[v0] Quiz started successfully with retry');
+                        console.log('[v1] Quiz started successfully with retry');
                         this.processQuizResponse(retryData, title);
                         return;
                     }
 
                     const data = await response.json();
-                    console.log('[v0] Quiz started successfully');
+                    console.log('[v1] Quiz started successfully');
                     this.processQuizResponse(data, title);
                     
                 } catch (error) {
-                    console.warn('[v0] POST method failed, falling back to GET method:', error.message);
-                    console.log('[v0] Attempting to fetch quiz questions directly...');
+                    console.warn('[v1] POST method failed, falling back to GET method:', error.message);
+                    console.log('[v1] Attempting to fetch quiz questions directly...');
                     await this.fetchQuizQuestions(title);
                 }
             }
 
             processQuizResponse(data, title) {
-                console.log('[v0] Processing quiz response:', data);
+                console.log('[v1] Processing quiz response:', data);
                 
                 let questions = null;
                 
@@ -971,7 +1003,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                 try {
                     // Handle test data when API is unavailable
                     if (title === 'test-quiz-1') {
-                        console.log('[v0] Loading test quiz data...');
+                        console.log('[v1] Loading test quiz data...');
                         const testQuestions = [
                             {
                                 question: "What is the chemical symbol for water?",
@@ -1013,12 +1045,12 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
 
                     const userToken = this.getUserToken();
                     if (!userToken) {
-                        console.error('[v0] No authentication token found for fallback method');
+                        console.error('[v1] No authentication token found for fallback method');
                         this.displayError('Authentication required. Please sign in to access quizzes.');
                         return;
                     }
 
-                    console.log('[v0] Fetching quiz questions from:', `${API_BASE}/quiz/start`);
+                    console.log('[v1] Fetching quiz questions from:', `${API_BASE}/quiz/start`);
                     const response = await fetch(`${API_BASE}/quiz/start`, {
                         method: 'POST',
                         headers: {
@@ -1042,17 +1074,17 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     }
 
                     const data = await response.json();
-                    console.log('[v0] === API RESPONSE DEBUG ===');
-                    console.log('[v0] Full API response:', JSON.stringify(data, null, 2));
-                    console.log('[v0] Response structure:');
-                    console.log('[v0] - data.success:', data.success);
-                    console.log('[v0] - data.data type:', typeof data.data);
-                    console.log('[v0] - data.data:', data.data);
+                    console.log('[v1] === API RESPONSE DEBUG ===');
+                    console.log('[v1] Full API response:', JSON.stringify(data, null, 2));
+                    console.log('[v1] Response structure:');
+                    console.log('[v1] - data.success:', data.success);
+                    console.log('[v1] - data.data type:', typeof data.data);
+                    console.log('[v1] - data.data:', data.data);
                     if (data.data && data.data.availableTitles) {
-                        console.log('[v0] - availableTitles length:', data.data.availableTitles.length);
-                        console.log('[v0] - availableTitles:', data.data.availableTitles);
+                        console.log('[v1] - availableTitles length:', data.data.availableTitles.length);
+                        console.log('[v1] - availableTitles:', data.data.availableTitles);
                     }
-                    console.log('[v0] === END API RESPONSE DEBUG ===');
+                    console.log('[v1] === END API RESPONSE DEBUG ===');
                     
                     let selectedQuiz = null;
                     
@@ -1063,36 +1095,36 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     }
 
                     if (selectedQuiz && selectedQuiz.questions) {
-                        console.log(`[v0] Found quiz "${title}" with ${selectedQuiz.questions.length} questions`);
-                        console.log('[v0] === SELECTED QUIZ DEBUG ===');
-                        console.log('[v0] Selected quiz object:', selectedQuiz);
-                        console.log('[v0] Questions array:', selectedQuiz.questions);
+                        console.log(`[v1] Found quiz "${title}" with ${selectedQuiz.questions.length} questions`);
+                        console.log('[v1] === SELECTED QUIZ DEBUG ===');
+                        console.log('[v1] Selected quiz object:', selectedQuiz);
+                        console.log('[v1] Questions array:', selectedQuiz.questions);
                         
                         // Log first few questions in detail
                         selectedQuiz.questions.slice(0, 3).forEach((q, index) => {
-                            console.log(`[v0] Question ${index + 1} structure:`, q);
-                            console.log(`[v0] Question ${index + 1} keys:`, Object.keys(q));
-                            console.log(`[v0] Question ${index + 1} ImageUrl:`, q.ImageUrl);
-                            console.log(`[v0] Question ${index + 1} imageUrl:`, q.imageUrl);
-                            console.log(`[v0] Question ${index + 1} image:`, q.image);
+                            console.log(`[v1] Question ${index + 1} structure:`, q);
+                            console.log(`[v1] Question ${index + 1} keys:`, Object.keys(q));
+                            console.log(`[v1] Question ${index + 1} ImageUrl:`, q.ImageUrl);
+                            console.log(`[v1] Question ${index + 1} imageUrl:`, q.imageUrl);
+                            console.log(`[v1] Question ${index + 1} image:`, q.image);
                         });
-                        console.log('[v0] === END SELECTED QUIZ DEBUG ===');
+                        console.log('[v1] === END SELECTED QUIZ DEBUG ===');
                         
                         this.setupQuiz(selectedQuiz.questions);
                     } else {
-                        console.error('[v0] Quiz not found in available titles:', data);
+                        console.error('[v1] Quiz not found in available titles:', data);
                         throw new Error(`Quiz "${title}" not found in course ${this.courseId}`);
                     }
 
                 } catch (error) {
-                    console.error('[v0] Error fetching quiz questions:', error);
+                    console.error('[v1] Error fetching quiz questions:', error);
                     this.displayError(`Unable to load quiz: ${error.message}`);
                 }
             }
 
             setupQuiz(questions) {
-                console.log('[v0] === SETUP QUIZ DEBUG ===');
-                console.log('[v0] Raw questions received:', questions);
+                console.log('[v1] === SETUP QUIZ DEBUG ===');
+                console.log('[v1] Raw questions received:', questions);
                 
                 this.questions = questions.map((q, index) => {
                     let options = q.options || q.choices || [];
@@ -1100,16 +1132,16 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     // Debug image URL processing - prioritize ImageUrl field as per API structure
                     const rawImageUrl = q.ImageUrl || q.imageUrl || q.image || null;
                     const processedImageUrl = this.extractImageUrl(rawImageUrl);
-                    console.log(`[v0] Question ${index + 1} image processing:`);
-                    console.log(`[v0]   - Raw ImageUrl: ${q.ImageUrl}`);
-                    console.log(`[v0]   - Raw imageUrl: ${q.imageUrl}`);
-                    console.log(`[v0]   - Raw image: ${q.image}`);
-                    console.log(`[v0]   - Selected raw: ${rawImageUrl}`);
-                    console.log(`[v0]   - Processed: ${processedImageUrl}`);
+                    console.log(`[v1] Question ${index + 1} image processing:`);
+                    console.log(`[v1]   - Raw ImageUrl: ${q.ImageUrl}`);
+                    console.log(`[v1]   - Raw imageUrl: ${q.imageUrl}`);
+                    console.log(`[v1]   - Raw image: ${q.image}`);
+                    console.log(`[v1]   - Selected raw: ${rawImageUrl}`);
+                    console.log(`[v1]   - Processed: ${processedImageUrl}`);
                     
                     // Ensure options is always an array - more robust handling
                     if (!Array.isArray(options)) {
-                        console.log(`[v0] Options is not an array for question ${index + 1}:`, options);
+                        console.log(`[v1] Options is not an array for question ${index + 1}:`, options);
                         // Try to convert to array if it's an object
                         if (typeof options === 'object' && options !== null) {
                             // If it's an object, try to get values or convert to array
@@ -1123,7 +1155,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                         }
                     }
                     
-                    console.log(`[v0] Final options array for question ${index + 1}:`, options);
+                    console.log(`[v1] Final options array for question ${index + 1}:`, options);
                     
                     // --- PREVIOUS FIX FOR 500 ERROR: Prioritize MongoDB _id or questionId string ---
                     const questionId = q._id || q.questionId || q.id;
@@ -1139,8 +1171,8 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     };
                 });
                 
-                console.log('[v0] Final processed questions:', this.questions);
-                console.log('[v0] === END SETUP DEBUG ===');
+                console.log('[v1] Final processed questions:', this.questions);
+                console.log('[v1] === END SETUP DEBUG ===');
 
                 this.totalQuestions = this.questions.length;
                 this.answers = new Array(this.totalQuestions).fill(null);
@@ -1197,87 +1229,98 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                 `;
                 this.errorDisplayed = false; // Reset error flag when interface is rendered
             }
+            
+            // New function to handle MathJax rendering
+            renderMath() {
+                if (window.MathJax) {
+                    window.MathJax.typesetPromise().then(() => {
+                        console.log('[v1] MathJax typesetting complete for current view.');
+                    }).catch(err => console.error('[v1] MathJax typesetting error:', err));
+                }
+            }
 
             loadQuestion() {
                 const question = this.questions[this.currentQuestion - 1];
                 
                 // Debug: Log the complete question data
-                console.log('[v0] === QUESTION DEBUG ===');
-                console.log('[v0] Current question index:', this.currentQuestion - 1);
-                console.log('[v0] Question ID:', question.id); // Log the ID being used
-                console.log('[v0] Total questions:', this.questions.length);
-                console.log('[v0] Complete question data:', question);
-                console.log('[v0] === END DEBUG ===');
+                console.log('[v1] === QUESTION DEBUG ===');
+                console.log('[v1] Current question index:', this.currentQuestion - 1);
+                console.log('[v1] Question ID:', question.id); // Log the ID being used
+                console.log('[v1] Total questions:', this.questions.length);
+                console.log('[v1] Complete question data:', question);
+                console.log('[v1] === END DEBUG ===');
                 
                 this.currentQuestionEl.textContent = this.currentQuestion;
                 document.getElementById('question-number').textContent = this.currentQuestion;
                 document.getElementById('solution-question-number').textContent = this.currentQuestion;
-                document.getElementById('question-text').textContent = question.text;
-                document.getElementById('solution-text').textContent = question.solution;
+                
+                // Use innerHTML for question text to allow MathJax to process LaTeX markup
+                document.getElementById('question-text').innerHTML = question.text;
+                document.getElementById('solution-text').innerHTML = question.solution;
                 
                 const questionImage = document.getElementById('question-image');
                 
                 // Enhanced image logging and handling
-                console.log('[v0] === IMAGE PROCESSING DEBUG ===');
-                console.log('[v0] Raw question.ImageUrl:', question.ImageUrl);
-                console.log('[v0] Raw question.imageUrl:', question.imageUrl);
-                console.log('[v0] Raw question.image:', question.image);
+                console.log('[v1] === IMAGE PROCESSING DEBUG ===');
+                console.log('[v1] Raw question.ImageUrl:', question.ImageUrl);
+                console.log('[v1] Raw question.imageUrl:', question.imageUrl);
+                console.log('[v1] Raw question.image:', question.image);
                 
                 // Use the processed imageUrl from setupQuiz
                 const imageUrl = question.imageUrl;
                 
                 if (imageUrl && imageUrl.trim() !== '') {
-                    console.log('[v0] ✅ IMAGE FOUND - Processing image URL:', imageUrl);
+                    console.log('[v1] ✅ IMAGE FOUND - Processing image URL:', imageUrl);
                     
                     // Clean up the imageUrl - remove any backticks and extra spaces
                     const cleanImageUrl = imageUrl.replace(/`/g, '').trim();
-                    console.log('[v0] 🔧 Cleaned image URL:', cleanImageUrl);
+                    console.log('[v1] 🔧 Cleaned image URL:', cleanImageUrl);
                     
                     // Validate URL format
                     try {
                         new URL(cleanImageUrl);
-                        console.log('[v0] ✅ Valid URL format confirmed');
+                        console.log('[v1] ✅ Valid URL format confirmed');
                     } catch (e) {
-                        console.log('[v0] ❌ Invalid URL format:', cleanImageUrl);
+                        console.log('[v1] ❌ Invalid URL format:', cleanImageUrl);
                         questionImage.classList.remove('visible', 'loading');
                         questionImage.src = '';
-                        console.log('[v0] === END IMAGE PROCESSING DEBUG ===');
+                        console.log('[v1] === END IMAGE PROCESSING DEBUG ===');
                         return;
                     }
                     
                     // Show loading state
                     questionImage.classList.add('loading', 'visible');
                     questionImage.src = '';
-                    console.log('[v0] 🔄 Loading image...');
+                    console.log('[v1] 🔄 Loading image...');
                     
                     // Create a new image to preload
                     const img = new Image();
                     img.onload = function() {
                         questionImage.src = cleanImageUrl;
                         questionImage.classList.remove('loading');
-                        console.log('[v0] ✅ IMAGE LOADED SUCCESSFULLY:', cleanImageUrl);
+                        console.log('[v1] ✅ IMAGE LOADED SUCCESSFULLY:', cleanImageUrl);
                     };
                     img.onerror = function() {
-                        console.log('[v0] ❌ FAILED TO LOAD IMAGE:', cleanImageUrl);
+                        console.log('[v1] ❌ FAILED TO LOAD IMAGE:', cleanImageUrl);
                         questionImage.classList.remove('visible', 'loading');
                         questionImage.src = '';
                     };
                     img.src = cleanImageUrl;
                 } else {
-                    console.log('[v0] ❌ NO IMAGE FOUND - No image URL available for this question');
+                    console.log('[v1] ❌ NO IMAGE FOUND - No image URL available for this question');
                     questionImage.classList.remove('visible', 'loading');
                     questionImage.src = '';
                 }
-                console.log('[v0] === END IMAGE PROCESSING DEBUG ===');
+                console.log('[v1] === END IMAGE PROCESSING DEBUG ===');
                 
                 const answersContainer = document.getElementById('answers-container');
                 answersContainer.innerHTML = '';
                 
                 const options = question.options || question.choices || [];
-                console.log('[v0] Question options:', options); // Debug log
+                console.log('[v1] Question options:', options); // Debug log
                 
                 if (options.length === 0) {
-                    console.log('[v0] No options found for question:', question);
+                    console.log('[v1] No options found for question:', question);
                     answersContainer.innerHTML = '<div class="no-options">No options available for this question</div>';
                     return;
                 }
@@ -1300,6 +1343,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                         optionText = `Option ${index + 1}`;
                     }
                     
+                    // Use innerHTML for option text to allow MathJax to process LaTeX markup
                     optionDiv.innerHTML = `
                         <span class="option-letter">${String.fromCharCode(65 + index)}</span>
                         <span class="option-text">${optionText}</span>
@@ -1326,6 +1370,9 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                 this.updateCheckButton();
                 this.isAnswered = this.answers[this.currentQuestion - 1] !== null;
                 this.isChecked = this.isAnswered;
+                
+                // Trigger MathJax rendering after all content is loaded
+                this.renderMath();
             }
 
             updateProgressBar() {
@@ -1355,15 +1402,24 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
 
             updateCheckButton() {
                 const checkBtn = document.getElementById('check-btn');
+                
+                // Reset button text unless it is currently being used for checking feedback
+                if (checkBtn.textContent !== 'CHECKING...') {
+                    checkBtn.textContent = 'CHECK';
+                }
+                
                 if (this.selectedAnswer !== null && !this.isChecked) {
                     checkBtn.classList.add('active');
+                    checkBtn.disabled = false;
                 } else {
+                    // Only disable if not answered or already checked
                     checkBtn.classList.remove('active');
+                    checkBtn.disabled = this.selectedAnswer === null || this.isChecked;
                 }
             }
 
             selectAnswer(optionIndex) {
-                console.log('[v0] Selecting answer:', optionIndex);
+                console.log('[v1] Selecting answer:', optionIndex);
                 
                 // Remove previous selection
                 document.querySelectorAll('.answer-option').forEach(option => {
@@ -1391,17 +1447,13 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                 const answerOptions = document.querySelectorAll('.answer-option');
                 const selectedOptionEl = answerOptions[userSelectedAnswer];
                 const currentQuestionData = this.questions[questionIndex];
+                const checkBtn = document.getElementById('check-btn');
 
-                // Get the option text element safely
-                const optionTextEl = selectedOptionEl.querySelector('.option-text');
-                const originalOptionText = optionTextEl ? optionTextEl.textContent : 'Option';
-                
-                if (optionTextEl) {
-                    optionTextEl.textContent = "Checking..."; // Give user feedback
-                } else {
-                    console.error('[v0] Failed to find option text element during check.');
-                }
-                
+                // 1. Show checking state
+                checkBtn.textContent = "CHECKING..."; 
+                checkBtn.classList.remove('active');
+                checkBtn.disabled = true;
+
                 // --- FINAL FIX: Send the option letter (A, B, C, D) instead of the full text ---
                 const userSelectedAnswerKey = String.fromCharCode(65 + userSelectedAnswer);
 
@@ -1414,7 +1466,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                         answerProvided: userSelectedAnswerKey, // Now sending "A", "B", etc.
                     };
                     
-                    console.log('[v0] Submitting answer to API with Correct Payload:', bodyData);
+                    console.log('[v1] Submitting answer to API with Correct Payload:', bodyData);
                     
                     const response = await fetch(`${API_BASE}/questions/submit-answer`, {
                         method: 'POST',
@@ -1445,7 +1497,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     } else {
                         // Fallback to local index if API response is inconsistent
                         correctOptionIndex = this.correctAnswers[questionIndex];
-                        console.warn('[v0] API did not return correct answer key, falling back to local index.');
+                        console.warn('[v1] API did not return correct answer key, falling back to local index.');
                     }
 
 
@@ -1453,11 +1505,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     
                     answerOptions.forEach(option => option.classList.add('disabled'));
                     
-                    // Restore original option text after check
-                    if (optionTextEl) {
-                        optionTextEl.textContent = originalOptionText;
-                    }
-                    
+                    // Apply visual feedback
                     if (isCorrect) {
                         selectedOptionEl.classList.add('correct');
                     } else {
@@ -1468,10 +1516,9 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     }
                     
                     this.updateProgressBar();
-                    this.updateCheckButton();
                     
                 } catch (error) {
-                    console.error('[v0] Error during answer submission:', error);
+                    console.error('[v1] Error during answer submission:', error);
                     this.errorDisplayed = true; // Set flag to prevent navigation
 
                     // --- FALLBACK (in case of API failure) ---
@@ -1481,11 +1528,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     
                     answerOptions.forEach(option => option.classList.add('disabled'));
                     
-                    // Restore option text SAFELY
-                    if (optionTextEl) {
-                         optionTextEl.textContent = originalOptionText; 
-                    }
-
+                    // Apply visual feedback
                     if (isCorrect) {
                         selectedOptionEl.classList.add('correct');
                     } else {
@@ -1496,7 +1539,6 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     }
                     
                     this.updateProgressBar();
-                    this.updateCheckButton();
 
                     // Determine error message for display
                     let errorMessage = 'Unknown Error';
@@ -1511,11 +1553,14 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     // --- END OF FALLBACK ---
 
                 } finally {
+                    // Reset button text
+                    checkBtn.textContent = 'CHECK'; 
+                    
                     // Check if an error screen is being displayed before navigating
                     setTimeout(() => {
                         if (this.errorDisplayed) {
                             // Do nothing, let the user stay on the error screen
-                            console.log('[v0] Error screen displayed, stopping automatic navigation.');
+                            console.log('[v1] Error screen displayed, stopping automatic navigation.');
                         } else if (this.currentQuestion === this.totalQuestions) {
                             this.endQuiz();
                         } else {
@@ -1540,11 +1585,13 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     solutionTab.classList.add('active');
                     questionContent.classList.add('hidden');
                     solutionContent.classList.add('active');
+                    this.renderMath(); // Re-render math when switching to solution
                 } else {
                     solutionTab.classList.remove('active');
                     questionTab.classList.add('active');
                     solutionContent.classList.remove('active');
                     questionContent.classList.remove('hidden');
+                    this.renderMath(); // Re-render math when switching to question
                 }
             }
 
@@ -1608,7 +1655,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                 
                 this.modalOverlay.classList.add('active');
                 
-                console.log('[v0] 🎯 Quiz completed! Calling updateStreak...');
+                console.log('[v1] 🎯 Quiz completed! Calling updateStreak...');
                 // Update streak after completing quiz
                 this.updateStreak();
             }
@@ -1711,20 +1758,20 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
             }
 
             async updateStreak() {
-                console.log('[v0] === STREAK UPDATE START (API + LOCAL STORAGE) ===');
+                console.log('[v1] === STREAK UPDATE START (API + LOCAL STORAGE) ===');
                 
                 try {
                     // Get user token from localStorage
                     const userToken = localStorage.getItem('token');
-                    console.log('[v0] Token status:', userToken ? `Present (${userToken.substring(0, 10)}...)` : 'MISSING');
+                    console.log('[v1] Token status:', userToken ? `Present (${userToken.substring(0, 10)}...)` : 'MISSING');
                     
                     if (!userToken) {
-                        console.error('[v0] ❌ No user token found - user needs to sign in');
+                        console.error('[v1] ❌ No user token found - user needs to sign in');
                         return;
                     }
 
                     // Fetch updated streak data from API (backend should have updated it when quiz was completed)
-                    console.log('[v0] 🔄 Fetching updated streak data from API...');
+                    console.log('[v1] 🔄 Fetching updated streak data from API...');
                     
                     try {
                         const response = await fetch('https://my-easy-school-api.onrender.com/api/users/streak', {
@@ -1737,7 +1784,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
 
                         if (response.ok) {
                             const apiResponse = await response.json();
-                            console.log('[v0] ✅ Streak updated via API:', apiResponse);
+                            console.log('[v1] ✅ Streak updated via API:', apiResponse);
                             
                             // Update localStorage with API response
                             const streakResult = apiResponse.result || {};
@@ -1751,7 +1798,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                                 localStorage.setItem('lastQuizDate', lastQuizDate);
                             }
                             
-                            console.log('[v0] ✅ Streak updated successfully via API! New streak:', newStreak);
+                            console.log('[v1] ✅ Streak updated successfully via API! New streak:', newStreak);
                             
                             // Dispatch event to notify dashboard to refresh
                             window.dispatchEvent(new CustomEvent('streakUpdated', { 
@@ -1765,12 +1812,12 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                             
                             return;
                         } else {
-                            console.warn('[v0] ⚠️ API streak update failed, falling back to localStorage');
+                            console.warn('[v1] ⚠️ API streak update failed, falling back to localStorage');
                             throw new Error(`API responded with status: ${response.status}`);
                         }
                     } catch (apiError) {
-                        console.warn('[v0] ⚠️ API streak update failed:', apiError.message);
-                        console.log('[v0] 🔄 Falling back to localStorage method...');
+                        console.warn('[v1] ⚠️ API streak update failed:', apiError.message);
+                        console.log('[v1] 🔄 Falling back to localStorage method...');
                     }
 
                     // Fallback to localStorage method
@@ -1778,29 +1825,29 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                     const lastQuizDate = localStorage.getItem('lastQuizDate');
                     const today = new Date().toDateString();
                     
-                    console.log('[v0] Current streak from localStorage:', currentStreak);
-                    console.log('[v0] Last quiz date:', lastQuizDate);
-                    console.log('[v0] Today:', today);
+                    console.log('[v1] Current streak from localStorage:', currentStreak);
+                    console.log('[v1] Last quiz date:', lastQuizDate);
+                    console.log('[v1] Today:', today);
                     
                     let newStreak;
                     
                     if (lastQuizDate === today) {
                         // Already completed a quiz today, don't increment
                         newStreak = currentStreak;
-                        console.log('[v0] ⚠️ Quiz already completed today, streak remains:', newStreak);
+                        console.log('[v1] ⚠️ Quiz already completed today, streak remains:', newStreak);
                     } else {
                         // Increment streak only if this is a valid first completion or continuation
                         if (!lastQuizDate && currentStreak === 0) {
                             // First-ever quiz completion starts streak at 1
                             newStreak = 1;
-                            console.log('[v0] ✅ Starting new streak at:', newStreak);
+                            console.log('[v1] ✅ Starting new streak at:', newStreak);
                         } else if (lastQuizDate && lastQuizDate !== today) {
                             newStreak = currentStreak + 1;
-                            console.log('[v0] ✅ Incrementing streak to:', newStreak);
+                            console.log('[v1] ✅ Incrementing streak to:', newStreak);
                         } else {
                             // No valid condition to increment, keep at current
                             newStreak = currentStreak;
-                            console.log('[v0] ⚠️ No increment condition met, streak remains:', newStreak);
+                            console.log('[v1] ⚠️ No increment condition met, streak remains:', newStreak);
                         }
                         
                         // Update localStorage
@@ -1808,7 +1855,7 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                         localStorage.setItem('lastQuizDate', today);
                     }
                     
-                    console.log('[v0] ✅ Streak updated successfully via localStorage! New streak:', newStreak);
+                    console.log('[v1] ✅ Streak updated successfully via localStorage! New streak:', newStreak);
                     
                     // Dispatch event to notify dashboard to refresh
                     window.dispatchEvent(new CustomEvent('streakUpdated', { 
@@ -1819,13 +1866,13 @@ const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
                         } 
                     }));
                     
-                    console.log('[v0] ✅ Dispatched streakUpdated event to dashboard');
+                    console.log('[v1] ✅ Dispatched streakUpdated event to dashboard');
 
                 } catch (error) {
-                    console.error('[v0] ❌ Error updating streak:', error);
+                    console.error('[v1] ❌ Error updating streak:', error);
                 }
                 
-                console.log('[v0] === STREAK UPDATE END ===');
+                console.log('[v1] === STREAK UPDATE END ===');
             }
         }
 
