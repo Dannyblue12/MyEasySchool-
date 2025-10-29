@@ -157,22 +157,28 @@
         }
 
         #answers-list {
+            list-style: none;
             text-align: left;
             margin-top: 20px;
+            padding: 0; /* Important: remove default ul padding */
         }
 
         #answers-list li {
             margin-bottom: 10px;
             padding: 10px;
             border-bottom: 1px solid #e0e0e0;
+            background-color: #f9f9f9;
+            border-radius: 4px;
         }
 
         #answers-list .correct {
-            color: #4CAF50;
+            color: #1E1E4D;
+            background-color: #e6ffe6; /* Light green background */
         }
 
         #answers-list .incorrect {
-            color: #FF4444;
+            color: #1E1E4D;
+            background-color: #ffe6e6; /* Light red background */
         }
 
         .loader-container {
@@ -329,11 +335,11 @@
     </div>
 
     <main class="hidden">
-        <div id="unauthorized-message" class="unauthorized-message hidden">
+        <section id="unauthorized-message" class="unauthorized-message hidden">
             <h2>Access Required</h2>
             <p>Please sign in to access the exam mode.</p>
             <a href="sign-in.html" class="activate-btn">Sign In</a>
-        </div>
+        </section>
 
         <section id="quiz-container" class="hidden">
             <p id="question"></p>
@@ -492,9 +498,8 @@
                         return;
                     }
                     const universities = await response.json();
-                    const userUniversity = universities.find(u => u._id === currentUser.university);
+                    const userUniversity = universities.data.find(u => u._id === currentUser.university);
                     
-                    // *** FIX: Corrected element ID to universityHeader and formatted text ***
                     if (userUniversity) {
                         const uniName = userUniversity.name || userUniversity.universityName || 'University';
                         elements.universityHeader.textContent = `${uniName.toUpperCase()} EXAMS SIMULATION`;
@@ -591,16 +596,15 @@
                 displayQuestion();
                 startTimer();
                 
-                // Add event listeners
-                elements.prevButton.addEventListener('click', previousQuestion);
-                elements.nextButton.addEventListener('click', nextQuestion);
-                elements.confirmSubmitButton.addEventListener('click', submitQuiz);
-                elements.cancelSubmitButton.addEventListener('click', hideConfirmationDialog);
-                elements.showAnswersButton.addEventListener('click', showAnswers);
-                elements.restartButton.addEventListener('click', restartQuiz);
+                // Add event listeners (ensure they are only added once)
+                elements.prevButton.onclick = previousQuestion;
+                elements.nextButton.onclick = nextQuestion;
+                elements.confirmSubmitButton.onclick = submitQuiz;
+                elements.cancelSubmitButton.onclick = hideConfirmationDialog;
+                elements.showAnswersButton.onclick = showAnswers; // Added to handle the toggle
+                elements.restartButton.onclick = restartQuiz;
             }
 
-            // *** FIX: Rewritten displayQuestion function for robust choice handling ***
             // Display current question
             function displayQuestion() {
                 const questionData = state.quizData[state.currentQuestionIndex];
@@ -618,48 +622,39 @@
                 let formattedChoices = [];
                 const choices = questionData.choices || questionData.options;
 
-                console.log('[v0] Initial choices/options:', choices);
-
                 if (Array.isArray(choices)) {
                     // Case 1: It's an array
-                    console.log('[v0] Choices is an array.');
                     formattedChoices = choices.map((choice, index) => {
                         const defaultLetter = String.fromCharCode(65 + index); // A, B, C...
                         if (typeof choice === 'string') {
-                            // Array of strings
                             return { text: choice, value: defaultLetter };
                         }
                         if (typeof choice === 'object' && choice !== null) {
-                            // Array of objects
-                            const text = choice.text || choice.option || choice.choice || choice.value; // Common property names
-                            const value = choice.value || choice.key || defaultLetter; // Common property names, fallback to letter
+                            const text = choice.text || choice.option || choice.choice || choice.value;
+                            const value = choice.value || choice.key || defaultLetter;
                             return { text: text, value: value };
                         }
-                        // Fallback for other data types
                         return { text: String(choice), value: defaultLetter };
                     });
 
                 } else if (typeof choices === 'object' && choices !== null) {
                     // Case 2: It's an object { "A": "Text", "B": "Text" }
-                    console.log('[v0] Choices is an object.');
                     formattedChoices = Object.keys(choices).map(key => {
                         return { text: choices[key], value: key };
                     });
 
                 } else {
                     // Case 3: No 'choices' or 'options', try A, B, C, D properties
-                    console.log('[v0] No choices/options. Trying A, B, C, D properties.');
                     const potentialChoices = [
                         { text: questionData.A, value: 'A' },
                         { text: questionData.B, value: 'B' },
                         { text: questionData.C, value: 'C' },
                         { text: questionData.D, value: 'D' },
-                        { text: questionData.E, value: 'E' } // Added 'E'
+                        { text: questionData.E, value: 'E' }
                     ];
                     
                     formattedChoices = potentialChoices.filter(choice => {
                         const text = choice.text;
-                        // Robust filter
                         return text !== null && 
                                text !== undefined && 
                                String(text).trim() !== '' &&
@@ -668,11 +663,8 @@
                     });
                 }
 
-                console.log('[v0] Final formatted choices:', formattedChoices);
-
                 // If still no choices, show the error
                 if (formattedChoices.length === 0) {
-                    console.error('[v0] No valid choices found for question:', questionData);
                     elements.choicesElement.innerHTML = '<li style="color: red;">Error: No choices available for this question.</li>';
                 } else {
                     // Render the choices
@@ -683,11 +675,12 @@
                         
                         input.type = 'radio';
                         input.name = 'answer';
-                        input.value = String(choice.value); // Ensure value is a string
+                        input.value = String(choice.value);
                         input.id = `choice-${index}`;
                         
-                        // Check if this choice was previously selected
+                        // Use a consistent ID key for state lookup (e.g., MongoDB ID, or fallback to index)
                         const questionId = questionData._id || questionData.id || state.currentQuestionIndex;
+                        
                         if (state.selectedAnswers[questionId] === input.value) {
                             input.checked = true;
                         }
@@ -698,21 +691,19 @@
                         
                         label.appendChild(input);
                         
-                        let choiceTextContent = String(choice.text); // Ensure text is a string
+                        let choiceTextContent = String(choice.text);
                         const choiceValue = String(choice.value);
 
                         // Prepend letter if text doesn't already start with it
                         if (!choiceTextContent.trim().startsWith(choiceValue + '.') && 
                             !choiceTextContent.trim().startsWith(choiceValue + ')') &&
-                            /^[A-Z]$/.test(choiceValue)) { // Only prepend if value is a single capital letter
+                            /^[A-Z]$/.test(choiceValue)) {
                              choiceTextContent = `${choiceValue}. ${choiceTextContent}`;
                         }
 
-                        label.appendChild(document.createTextNode(" " + choiceTextContent)); // Add a space for alignment
+                        label.appendChild(document.createTextNode(" " + choiceTextContent));
                         li.appendChild(label);
                         elements.choicesElement.appendChild(li);
-                        
-                        console.log('[v0] Added choice:', { value: choice.value, text: choiceTextContent });
                     });
                 }
 
@@ -782,9 +773,6 @@
                     showLoader('Submitting exam...');
                     
                     const userToken = getUserToken();
-                    console.log('[v0] Token check - Present:', !!userToken);
-                    console.log('[v0] Token length:', userToken ? userToken.length : 0);
-                    console.log('[v0] Token preview:', userToken ? userToken.substring(0, 20) + '...' : 'NONE');
                     
                     if (!userToken) {
                         throw new Error('No authentication token found. Please sign in again.');
@@ -795,10 +783,7 @@
                     const tokenValidation = await validateToken(userToken);
                     
                     if (!tokenValidation.valid) {
-                        console.error('[v0] Token validation failed:', tokenValidation);
-                        
                         if (tokenValidation.status === 401) {
-                            // Token expired or invalid
                             localStorage.removeItem('token');
                             localStorage.removeItem('user');
                             localStorage.removeItem('currentUserData');
@@ -816,6 +801,8 @@
                     state.quizData.forEach((question, index) => {
                         const questionId = question._id || question.id || index;
                         const answer = state.selectedAnswers[questionId];
+                        
+                        // The answer should be the letter (A, B, C...) which is the radio input value
                         if (answer) {
                             answers.push({
                                 questionId: questionId,
@@ -842,15 +829,11 @@
                         })
                     });
 
-                    console.log('[v0] Submit response status:', response.status);
-                    console.log('[v0] Submit response headers:', Object.fromEntries(response.headers.entries()));
-
                     if (!response.ok) {
                         const errorText = await response.text();
                         console.log('[v0] Submit error response:', errorText);
                         
                         if (response.status === 401) {
-                            // Handle authentication error specifically
                             localStorage.removeItem('token');
                             localStorage.removeItem('user');
                             localStorage.removeItem('currentUserData');
@@ -871,7 +854,6 @@
                     console.error('[v0] Error submitting CBT:', error);
                     hideLoader();
                     
-                    // Enhanced error handling
                     if (error.message.includes('sign in again')) {
                         showError(`${error.message}<br><br><a href="sign-in.html" class="btn" style="margin-top: 15px;">Sign In</a>`);
                     } else {
@@ -893,6 +875,56 @@
                 const percentage = Math.round((score / totalQuestions) * 100);
                 
                 elements.scoreElement.textContent = `Your Score: ${score}/${totalQuestions} (${percentage}%)`;
+
+                // --- FIX: Populate the Answers List with detailed results ---
+                const results = data.data?.results || data.results || [];
+                
+                // Map original questions by ID for easy lookup
+                const quizMap = new Map(state.quizData.map(q => [q._id || q.id || state.quizData.indexOf(q), q]));
+
+                elements.answersListElement.innerHTML = '';
+                
+                if (results.length > 0) {
+                    results.forEach((result, index) => {
+                        // Use the index for questions without IDs, or the provided ID
+                        const questionIdentifier = result.questionId || state.quizData[index]?._id || state.quizData[index]?.id || index;
+                        let originalQuestion = quizMap.get(questionIdentifier);
+                        
+                        // Fallback to direct array access if map lookup fails
+                        if (!originalQuestion && state.quizData[index]) {
+                            originalQuestion = state.quizData[index];
+                        }
+                        
+                        if (!originalQuestion) return; // Skip if question not found
+
+                        const li = document.createElement('li');
+                        
+                        // Determine correctness
+                        const isCorrect = result.isCorrect !== undefined ? result.isCorrect : (result.submittedAnswer === result.correctAnswer);
+                        
+                        li.classList.add(isCorrect ? 'correct' : 'incorrect');
+                        
+                        const questionText = originalQuestion.question || originalQuestion.Q;
+                        const submittedAnswer = state.selectedAnswers[questionIdentifier] || 'N/A'; // Use selectedAnswers state
+                        const correctAnswer = result.correctAnswer || 'N/A';
+                        
+                        li.innerHTML = `
+                            <strong>Q${index + 1}: ${questionText}</strong><br>
+                            Your Answer: <span style="font-weight: bold;">${submittedAnswer}</span> 
+                            (Correct: ${correctAnswer})
+                        `;
+                        
+                        elements.answersListElement.appendChild(li);
+                    });
+                    
+                    // Initially hide the answers list, user clicks button to reveal
+                    elements.answersListElement.classList.add('hidden');
+                    elements.showAnswersButton.classList.remove('hidden');
+                } else {
+                    // If no detailed results from server, show simple message
+                    elements.answersListElement.innerHTML = `<li style="list-style: none;">Detailed answers are unavailable from the server.</li>`;
+                    elements.showAnswersButton.classList.add('hidden');
+                }
             }
 
             // Start timer
@@ -925,10 +957,12 @@
                 }
             }
 
+            // --- FIX: Implement the missing showAnswers toggle logic ---
             // Show answers
             function showAnswers() {
-                // Implementation for showing detailed answers
-                console.log('[v0] Show answers clicked');
+                // Toggle the visibility of the detailed answers list
+                const isHidden = elements.answersListElement.classList.toggle('hidden');
+                elements.showAnswersButton.textContent = isHidden ? 'Show Answers' : 'Hide Answers';
             }
 
             // Restart quiz
@@ -946,44 +980,19 @@
                 const testQuestions = [];
                 const sampleQuestions = [
                     {
-                        Q: "What is the chemical symbol for water?",
-                        A: "H2O",
-                        B: "CO2", 
-                        C: "NaCl",
-                        D: "O2",
-                        Ans: "H2O"
+                        _id: "test1", Q: "What is the chemical symbol for water?", A: "H2O", B: "CO2", C: "NaCl", D: "O2", Ans: "A"
                     },
                     {
-                        Q: "Which element has the atomic number 1?",
-                        A: "Helium",
-                        B: "Hydrogen",
-                        C: "Lithium", 
-                        D: "Carbon",
-                        Ans: "Hydrogen"
+                        _id: "test2", Q: "Which element has the atomic number 1?", A: "Helium", B: "Hydrogen", C: "Lithium", D: "Carbon", Ans: "B"
                     },
                     {
-                        Q: "What is the pH of pure water at 25°C?",
-                        A: "6",
-                        B: "7",
-                        C: "8",
-                        D: "9",
-                        Ans: "7"
+                        _id: "test3", Q: "What is the pH of pure water at 25°C?", A: "6", B: "7", C: "8", D: "9", Ans: "B"
                     },
                     {
-                        Q: "Which gas makes up about 78% of Earth's atmosphere?",
-                        A: "Oxygen",
-                        B: "Carbon dioxide",
-                        C: "Nitrogen",
-                        D: "Argon",
-                        Ans: "Nitrogen"
+                        _id: "test4", Q: "Which gas makes up about 78% of Earth's atmosphere?", A: "Oxygen", B: "Carbon dioxide", C: "Nitrogen", D: "Argon", Ans: "C"
                     },
                     {
-                        Q: "What is the molecular formula for methane?",
-                        A: "CH4",
-                        B: "C2H6",
-                        C: "C3H8",
-                        D: "C4H10",
-                        Ans: "CH4"
+                        _id: "test5", Q: "What is the molecular formula for methane?", A: "CH4", B: "C2H6", C: "C3H8", D: "C4H10", Ans: "A"
                     }
                 ];
                 
@@ -992,15 +1001,41 @@
                     const baseQuestion = sampleQuestions[i % sampleQuestions.length];
                     testQuestions.push({
                         ...baseQuestion,
-                        Q: `${i + 1}. ${baseQuestion.Q}`
+                        // Ensure unique ID for map lookups and use the correct answer key
+                        _id: `test-${i}`,
+                        Ans: baseQuestion.Ans // Keep the answer key (A, B, C...)
                     });
                 }
                 
                 state.quizData = testQuestions;
                 state.cbtId = 'test-exam-' + Date.now();
                 
+                // Pre-calculate dummy results structure for test mode to simulate API return
+                const dummyResults = state.quizData.map(q => {
+                    // Simulate a mixed result set for test purposes
+                    const isCorrect = (parseInt(q._id.split('-')[1]) % 3 !== 0); // Correct for 2/3 of questions
+                    const submittedAnswer = isCorrect ? q.Ans : (q.Ans === 'A' ? 'B' : 'A');
+                    
+                    return {
+                        questionId: q._id,
+                        isCorrect: isCorrect,
+                        correctAnswer: q.Ans,
+                        submittedAnswer: submittedAnswer
+                    };
+                });
+                
+                // Simulate successful submission and show results directly
+                const score = dummyResults.filter(r => r.isCorrect).length;
+
                 hideLoader();
-                startQuiz();
+                stopTimer();
+                showResults({ 
+                    success: true, 
+                    data: { 
+                        score: score,
+                        results: dummyResults
+                    }
+                });
             }
 
             // Show error
@@ -1015,12 +1050,15 @@
                         
                         <div style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 8px;">
                             <h4 style="color: #fff; margin-bottom: 15px;">Test Mode Available</h4>
-                            <p style="color: #eee; margin-bottom: 15px;">Since the API is unavailable, you can test the exam functionality with sample data (35 questions):</p>
-                            <button onclick="loadTestExamData()" class="btn" style="background-color: #28a745;">Load Test Exam</button>
+                            <p style="color: #eee; margin-bottom: 15px;">If the API is giving errors, you can test the exam functionality with sample data (35 questions):</p>
+                            <button onclick="window.loadTestExamData()" class="btn" style="background-color: #28a745;">Load Test Exam</button>
                         </div>
                     </div>
                 `;
             }
+            
+            // Make loadTestExamData globally accessible for the button in showError
+            window.loadTestExamData = loadTestExamData;
 
             // Initialize the application
             async function initApp() {
