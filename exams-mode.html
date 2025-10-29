@@ -816,20 +816,11 @@
                         throw new Error('No authentication token found. Please sign in again.');
                     }
 
-                    // Validate token before submission
-                    showLoader('Validating authentication...');
-                    const tokenValidation = await validateToken(userToken);
+                    // *** FIX 1: Removed redundant validateToken() call to prevent blocking on network timeout/failure ***
+                    // showLoader('Validating authentication...');
+                    // const tokenValidation = await validateToken(userToken);
                     
-                    if (!tokenValidation.valid) {
-                        if (tokenValidation.status === 401) {
-                            localStorage.removeItem('token');
-                            localStorage.removeItem('user');
-                            localStorage.removeItem('currentUserData');
-                            throw new Error('Your session has expired. Please sign in again.');
-                        } else {
-                            throw new Error(`Authentication failed (${tokenValidation.status || 'Unknown error'}). Please try again.`);
-                        }
-                    }
+                    // if (!tokenValidation.valid) { ... }
 
                     showLoader('Submitting exam...');
 
@@ -944,10 +935,11 @@
                         const questionText = originalQuestion.question || originalQuestion.Q;
                         const submittedAnswer = state.selectedAnswers[questionIdentifier] || 'N/A'; // Use selectedAnswers state
                         
-                        // FIX: Use a descriptive message if the correct answer is N/A/unknown
                         let correctAnswer = result.correctAnswer || 'N/A';
+                        
+                        // FIX 2: Show descriptive message if the correct answer is N/A/unknown
                         if (correctAnswer === 'N/A') {
-                            correctAnswer = '<span style="color: red;">Unknown (API Failure)</span>';
+                            correctAnswer = '<span style="color: red;">Unknown (API Failed)</span>';
                         }
                         
                         li.innerHTML = `
