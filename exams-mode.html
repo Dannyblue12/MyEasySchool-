@@ -497,8 +497,10 @@
                         console.log('[v0] Universities endpoint failed, using default name');
                         return;
                     }
-                    const universities = await response.json();
-                    const userUniversity = universities.data.find(u => u._id === currentUser.university);
+                    const data = await response.json();
+                    const universities = data.data || data;
+
+                    const userUniversity = universities.find(u => u._id === currentUser.university);
                     
                     if (userUniversity) {
                         const uniName = userUniversity.name || userUniversity.universityName || 'University';
@@ -612,8 +614,6 @@
                     console.error('[v0] No question data at index:', state.currentQuestionIndex);
                     return;
                 }
-
-                console.log('[v0] Current question data:', questionData);
 
                 elements.questionElement.textContent = `${state.currentQuestionIndex + 1}. ${questionData.question || questionData.Q}`;
                 
@@ -754,17 +754,53 @@
 
                     if (response.ok) {
                         const userData = await response.json();
-                        console.log('[v0] Token validation successful:', userData);
                         return { valid: true, userData };
                     } else {
-                        console.log('[v0] Token validation failed:', response.status);
                         return { valid: false, status: response.status };
                     }
                 } catch (error) {
-                    console.error('[v0] Token validation error:', error);
                     return { valid: false, error: error.message };
                 }
             }
+
+            // --- NEW FUNCTION: Generate local results on API failure ---
+            function generateLocalResultsAndShow() {
+                console.warn('[v0] API Submission Failed (500). Generating local results for display.');
+                
+                let score = 0;
+                const localResults = [];
+
+                state.quizData.forEach((question, index) => {
+                    const questionId = question._id || question.id || index;
+                    const submittedAnswer = state.selectedAnswers[questionId];
+                    const correctAnswer = question.Ans; // Assuming 'Ans' holds the correct key (A, B, C, D)
+                    
+                    const isCorrect = submittedAnswer === correctAnswer;
+                    if (isCorrect) {
+                        score++;
+                    }
+
+                    localResults.push({
+                        questionId: questionId,
+                        isCorrect: isCorrect,
+                        correctAnswer: correctAnswer,
+                        submittedAnswer: submittedAnswer || 'N/A'
+                    });
+                });
+
+                // Present results using the existing showResults function structure
+                const localData = {
+                    data: {
+                        score: score,
+                        results: localResults
+                    }
+                };
+
+                hideLoader();
+                stopTimer();
+                showResults(localData);
+            }
+            // --- END NEW FUNCTION ---
 
             // Submit quiz
             async function submitQuiz() {
@@ -793,7 +829,6 @@
                         }
                     }
 
-                    console.log('[v0] Token validation successful, proceeding with submission');
                     showLoader('Submitting exam...');
 
                     // Prepare answers array
@@ -802,19 +837,12 @@
                         const questionId = question._id || question.id || index;
                         const answer = state.selectedAnswers[questionId];
                         
-                        // The answer should be the letter (A, B, C...) which is the radio input value
                         if (answer) {
                             answers.push({
                                 questionId: questionId,
                                 answer: answer
                             });
                         }
-                    });
-
-                    console.log('[v0] Submitting CBT with:', {
-                        cbtId: state.cbtId,
-                        answers: answers,
-                        answersCount: answers.length
                     });
 
                     const response = await fetch(`${API_BASE}/cbt/submit`, {
@@ -831,8 +859,15 @@
 
                     if (!response.ok) {
                         const errorText = await response.text();
-                        console.log('[v0] Submit error response:', errorText);
                         
+                        // --- CHECK FOR 500/BAD REQUEST ERROR ---
+                        if (response.status >= 500 || response.status === 400) {
+                            console.error('[v0] Fatal API error, triggering local fallback.', { status: response.status, body: errorText });
+                            generateLocalResultsAndShow();
+                            return; // STOP execution after local processing
+                        }
+                        // --- END CHECK ---
+
                         if (response.status === 401) {
                             localStorage.removeItem('token');
                             localStorage.removeItem('user');
@@ -844,7 +879,6 @@
                     }
 
                     const data = await response.json();
-                    console.log('[v0] Submit response data:', data);
 
                     hideLoader();
                     stopTimer();
@@ -1010,32 +1044,16 @@
                 state.quizData = testQuestions;
                 state.cbtId = 'test-exam-' + Date.now();
                 
-                // Pre-calculate dummy results structure for test mode to simulate API return
-                const dummyResults = state.quizData.map(q => {
-                    // Simulate a mixed result set for test purposes
-                    const isCorrect = (parseInt(q._id.split('-')[1]) % 3 !== 0); // Correct for 2/3 of questions
-                    const submittedAnswer = isCorrect ? q.Ans : (q.Ans === 'A' ? 'B' : 'A');
-                    
-                    return {
-                        questionId: q._id,
-                        isCorrect: isCorrect,
-                        correctAnswer: q.Ans,
-                        submittedAnswer: submittedAnswer
-                    };
+                // --- Set placeholder answers for test mode ---
+                state.quizData.forEach(q => {
+                    const questionId = q._id;
+                    const submittedAnswer = (parseInt(questionId.split('-')[1]) % 3 === 0) ? q.Ans : (q.Ans === 'A' ? 'B' : 'A'); // Set 1/3 incorrect
+                    state.selectedAnswers[questionId] = submittedAnswer;
                 });
+                // --- End placeholder answers ---
                 
                 // Simulate successful submission and show results directly
-                const score = dummyResults.filter(r => r.isCorrect).length;
-
-                hideLoader();
-                stopTimer();
-                showResults({ 
-                    success: true, 
-                    data: { 
-                        score: score,
-                        results: dummyResults
-                    }
-                });
+                generateLocalResultsAndShow();
             }
 
             // Show error
