@@ -763,9 +763,9 @@
                 }
             }
 
-            // --- NEW FUNCTION: Generate local results on API failure ---
+            // --- NEW FUNCTION: Generate local results on API failure or for Test Mode ---
             function generateLocalResultsAndShow() {
-                console.warn('[v0] API Submission Failed (500). Generating local results for display.');
+                console.warn('[v0] Generating local results for display/fallback.');
                 
                 let score = 0;
                 const localResults = [];
@@ -773,8 +773,9 @@
                 state.quizData.forEach((question, index) => {
                     const questionId = question._id || question.id || index;
                     const submittedAnswer = state.selectedAnswers[questionId];
-                    const correctAnswer = question.Ans; // Assuming 'Ans' holds the correct key (A, B, C, D)
-                    
+                    // FIX: Ensure 'Ans' is used as the source of truth for the local key
+                    const correctAnswer = question.Ans; 
+
                     const isCorrect = submittedAnswer === correctAnswer;
                     if (isCorrect) {
                         score++;
@@ -783,7 +784,8 @@
                     localResults.push({
                         questionId: questionId,
                         isCorrect: isCorrect,
-                        correctAnswer: correctAnswer,
+                        // Set the correct answer key only if it exists in the local data
+                        correctAnswer: correctAnswer || 'N/A', 
                         submittedAnswer: submittedAnswer || 'N/A'
                     });
                 });
@@ -860,9 +862,10 @@
                     if (!response.ok) {
                         const errorText = await response.text();
                         
-                        // --- CHECK FOR 500/BAD REQUEST ERROR ---
+                        // --- CHECK FOR 500/BAD REQUEST ERROR (Live API Submission Failed) ---
                         if (response.status >= 500 || response.status === 400) {
                             console.error('[v0] Fatal API error, triggering local fallback.', { status: response.status, body: errorText });
+                            // The live questions won't have the answer key, so the fallback will correctly show N/A for live mode.
                             generateLocalResultsAndShow();
                             return; // STOP execution after local processing
                         }
@@ -940,7 +943,12 @@
                         
                         const questionText = originalQuestion.question || originalQuestion.Q;
                         const submittedAnswer = state.selectedAnswers[questionIdentifier] || 'N/A'; // Use selectedAnswers state
-                        const correctAnswer = result.correctAnswer || 'N/A';
+                        
+                        // FIX: Use a descriptive message if the correct answer is N/A/unknown
+                        let correctAnswer = result.correctAnswer || 'N/A';
+                        if (correctAnswer === 'N/A') {
+                            correctAnswer = '<span style="color: red;">Unknown (API Failure)</span>';
+                        }
                         
                         li.innerHTML = `
                             <strong>Q${index + 1}: ${questionText}</strong><br>
@@ -1014,10 +1022,10 @@
                 const testQuestions = [];
                 const sampleQuestions = [
                     {
-                        _id: "test1", Q: "What is the chemical symbol for water?", A: "H2O", B: "CO2", C: "NaCl", D: "O2", Ans: "A"
+                        _id: "test1", Q: "The Yoruba believe that life started in?", A: "Ile-Ife", B: "Oyo", C: "Benin", D: "Lagos", Ans: "A"
                     },
                     {
-                        _id: "test2", Q: "Which element has the atomic number 1?", A: "Helium", B: "Hydrogen", C: "Lithium", D: "Carbon", Ans: "B"
+                        _id: "test2", Q: "___ is the practice of resolving differences in a manner prescribed by society as opposed to creating conflict.", A: "Negotiation", B: "Conflict Resolution", C: "Mediation", D: "Arbitration", Ans: "B"
                     },
                     {
                         _id: "test3", Q: "What is the pH of pure water at 25°C?", A: "6", B: "7", C: "8", D: "9", Ans: "B"
@@ -1047,7 +1055,8 @@
                 // --- Set placeholder answers for test mode ---
                 state.quizData.forEach(q => {
                     const questionId = q._id;
-                    const submittedAnswer = (parseInt(questionId.split('-')[1]) % 3 === 0) ? q.Ans : (q.Ans === 'A' ? 'B' : 'A'); // Set 1/3 incorrect
+                    // Set 1/3 incorrect, 2/3 correct
+                    const submittedAnswer = (parseInt(questionId.split('-')[1]) % 3 === 0) ? (q.Ans === 'A' ? 'B' : 'A') : q.Ans;
                     state.selectedAnswers[questionId] = submittedAnswer;
                 });
                 // --- End placeholder answers ---
