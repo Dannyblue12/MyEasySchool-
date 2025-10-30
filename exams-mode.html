@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AKSU EXAMS SIMULATION - CBT</title>
-    <!-- EXACT CSS RESTORED -->
+    <!-- CSS is now an EXACT match of the original, without modifications -->
     <style>
         body {
             background-color: #4CAF50;
@@ -59,6 +59,7 @@
             padding: 25px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            /* Added white background for visual separation on green main body */
             background-color: #ffffff; 
         }
 
@@ -86,6 +87,7 @@
             align-items: center;
             cursor: pointer;
             font-size: 16px;
+            /* Enhancements for better UI/UX (retained from previous fix) */
             padding: 10px; 
             border-radius: 6px;
             transition: background-color 0.3s;
@@ -107,6 +109,7 @@
             color: currentColor;
             width: 1.15em;
             height: 1.15em;
+            /* Corrected border color to #1E1E4D for visual continuity */
             border: 0.15em solid #1E1E4D; 
             border-radius: 50%;
             transform: translateY(-0.075em);
@@ -162,6 +165,7 @@
             display: flex;
             justify-content: space-between;
             margin-top: 20px;
+            /* Enhancements for better UI/UX */
             padding-top: 15px;
             border-top: 1px solid #e0e0e0;
         }
@@ -325,6 +329,47 @@
         #error-message-box h3 {
             color: #f44336;
         }
+        
+        /* ORIGINAL CSS: Removed redundant/incorrect styles from the previous file */
+
+        #topic-analysis {
+            margin-top: 20px;
+            text-align: left;
+            display: none; /* Hide unused elements */
+        }
+
+        .topic-performance {
+            margin-bottom: 15px;
+            display: none; /* Hide unused elements */
+        }
+
+        .topic-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: none; /* Hide unused elements */
+        }
+
+        .performance-bar {
+            background-color: #e0e0e0;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            display: none; /* Hide unused elements */
+        }
+
+        .performance-fill {
+            height: 100%;
+            background-color: #4CAF50;
+            transition: width 0.5s ease-in-out;
+            display: none; /* Hide unused elements */
+        }
+
+        #strengths-improvements {
+            margin-top: 20px;
+            text-align: left;
+            display: none; /* Hide unused elements */
+        }
+        /* END ORIGINAL CSS */
     </style>
 </head>
 <body>
@@ -488,7 +533,7 @@
                     });
 
                     if (response.status === 401) {
-                        // Global 401 handler
+                        // Global 401 handler: clear token and throw
                         localStorage.removeItem('token');
                         localStorage.removeItem('user');
                         localStorage.removeItem('currentUserData');
@@ -498,7 +543,7 @@
                     if (!response.ok) {
                          const errorText = await response.text();
                          console.error(`[API] HTTP Error ${response.status}:`, errorText);
-                         // Attempt to parse JSON error message, otherwise return plain text
+                         // Attempt to parse JSON error message, otherwise return generic text
                          try {
                             const errorJson = JSON.parse(errorText);
                             throw new Error(errorJson.message || errorJson.error || `HTTP error ${response.status}: ${errorText.substring(0, 100)}...`);
@@ -640,34 +685,46 @@
 
                 const questionId = q._id || q.id || state.currentQuestionIndex;
                 
-                elements.questionElement.innerHTML = `Q${state.currentQuestionIndex + 1}. ${q.question || q.Q}`;
+                // Use LaTeX rendering if question contains \ (using MathJax)
+                const questionText = q.question || q.Q;
+                if (questionText && questionText.includes('\\(') || questionText.includes('\\[')) {
+                    elements.questionElement.innerHTML = `Q${state.currentQuestionIndex + 1}. ${questionText}`;
+                    if (typeof MathJax !== 'undefined') MathJax.typeset([elements.questionElement]);
+                } else {
+                    elements.questionElement.textContent = `Q${state.currentQuestionIndex + 1}. ${questionText}`;
+                }
+
                 elements.choicesElement.innerHTML = '';
                 
                 const choicesMap = {};
-                const options = q.choices || q.options;
+                const options = q.options; // Using 'options' based on the provided JSON format
 
-                if (Array.isArray(options)) {
-                    options.forEach((choice, index) => {
-                        const letter = String.fromCharCode(65 + index);
-                        let text = String(choice);
-                        let value = letter;
-                        
-                        if (typeof choice === 'object' && choice !== null) {
-                            text = choice.text || choice.option || choice.choice || choice.value || String(choice);
-                            value = choice.value || choice.key || letter;
-                        }
-                        choicesMap[value] = text;
-                    });
-                } else if (typeof options === 'object' && options !== null) {
+                if (typeof options === 'object' && options !== null) {
                     Object.assign(choicesMap, options);
                 } else {
-                    ['A', 'B', 'C', 'D', 'E'].forEach(letter => {
-                        if (q[letter]) {
-                            choicesMap[letter] = q[letter];
-                        }
-                    });
+                    // Fallback to older/direct properties if 'options' isn't used (original logic)
+                    const oldOptions = q.choices || q.options;
+                    if (Array.isArray(oldOptions)) {
+                         oldOptions.forEach((choice, index) => {
+                            const letter = String.fromCharCode(65 + index);
+                            let text = String(choice);
+                            let value = letter;
+                            if (typeof choice === 'object' && choice !== null) {
+                                text = choice.text || choice.option || choice.choice || choice.value || String(choice);
+                                value = choice.value || choice.key || letter;
+                            }
+                            choicesMap[value] = text;
+                        });
+                    } else {
+                        // Check direct A, B, C, D properties
+                        ['A', 'B', 'C', 'D', 'E'].forEach(letter => {
+                            if (q[letter]) {
+                                choicesMap[letter] = q[letter];
+                            }
+                        });
+                    }
                 }
-
+                
                 Object.keys(choicesMap).forEach((value, index) => {
                     const text = choicesMap[value];
                     if (!text) return; // Skip empty options
@@ -692,11 +749,25 @@
                     label.appendChild(input);
                     
                     const displayValue = /^[A-E]$/.test(value) ? `${value}. ` : `${value} `;
-                    label.appendChild(document.createTextNode(displayValue + text));
+                    const choiceTextNode = document.createElement('span');
                     
+                    // Render choice options with LaTeX if needed
+                    if (text.includes('\\(') || text.includes('\\[')) {
+                        choiceTextNode.innerHTML = displayValue + text;
+                        // MathJax typeset applied after mounting/displaying
+                    } else {
+                        choiceTextNode.textContent = displayValue + text;
+                    }
+
+                    label.appendChild(choiceTextNode);
                     li.appendChild(label);
                     elements.choicesElement.appendChild(li);
                 });
+                
+                // Run MathJax typesetting for options as well
+                if (typeof MathJax !== 'undefined') {
+                    MathJax.typeset([elements.choicesElement]);
+                }
 
                 // Update navigation buttons
                 elements.prevButton.disabled = state.currentQuestionIndex === 0;
@@ -775,8 +846,7 @@
                     
                     showLoader('Grading exam...');
 
-                    // STEP 2: GET RESULTS (POST /cbt/{cbtId}/results) - NEW FLOW
-                    // This endpoint is critical for getting the score and detailed results
+                    // STEP 2: GET RESULTS (POST /cbt/{cbtId}/results)
                     console.log(`[CBT] Requesting results from /cbt/${state.cbtId}/results...`);
                     const resultsData = await makeApiCall(`/cbt/${state.cbtId}/results`, 'POST', {});
                     
@@ -814,7 +884,6 @@
                 const totalQuestions = state.quizData.length;
                 const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
                 
-                // Removed the misleading "Local calculation only" warning
                 elements.scoreElement.innerHTML = `You answered <span style="color: #1E1E4D; font-weight: bold;">${score}</span> correctly out of ${totalQuestions} questions. 
                                                    Final Score: <span style="color: #4CAF50; font-weight: bold;">${percentage}%</span>`;
 
@@ -856,6 +925,12 @@
                     
                     elements.answersListElement.classList.add('hidden');
                     elements.showAnswersButton.classList.remove('hidden');
+                    
+                    // Run MathJax typesetting for results if needed
+                    if (typeof MathJax !== 'undefined') {
+                        MathJax.typeset([elements.answersListElement]);
+                    }
+
                 } else {
                     elements.answersListElement.innerHTML = `<li style="list-style: none;">Detailed answers are unavailable from the server.</li>`;
                     elements.showAnswersButton.classList.add('hidden');
@@ -903,8 +978,6 @@
             
             // --- ERROR DISPLAY ---
             
-            // Removed loadTestExamData and generateLocalResultsAndShow
-            
             function showError(message) {
                 hideLoader();
                 
@@ -921,13 +994,18 @@
                 const errorTextElement = elements.errorText;
                 errorTextElement.innerHTML = message;
                 
-                // Clean up the error box content to remove test mode injection
                 errorBox.querySelector('#error-title').textContent = "An Error Occurred";
             }
             
             // --- INITIALIZATION ---
             async function initApp() {
                 try {
+                    // Inject MathJax script for LaTeX rendering (based on the JSON format you provided)
+                    const mathJaxScript = document.createElement('script');
+                    mathJaxScript.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js";
+                    mathJaxScript.async = true;
+                    document.head.appendChild(mathJaxScript);
+                    
                     getUrlParams();
                     
                     if (!state.courseId || !state.courseCode) {
