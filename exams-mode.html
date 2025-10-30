@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AKSU EXAMS SIMULATION - CBT</title>
-    <!-- CSS is now an EXACT match of the original structure -->
     <style>
         body {
             background-color: #4CAF50;
@@ -59,8 +58,6 @@
             padding: 25px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            /* --- FIXED: Removed explicit background-color: #ffffff; --- */
-            /* It now inherits the body's green background (#4CAF50) */
         }
 
         #quiz-container {
@@ -87,15 +84,6 @@
             align-items: center;
             cursor: pointer;
             font-size: 16px;
-            /* Enhancements for better UI/UX (retained) */
-            padding: 10px; 
-            border-radius: 6px;
-            transition: background-color 0.3s;
-            background-color: #f5f5f5; /* Use a light background for option clarity on the green main background */
-        }
-        
-        #choices label:hover {
-            background-color: #eeeeee;
         }
 
         input[type="radio"] {
@@ -109,8 +97,7 @@
             color: currentColor;
             width: 1.15em;
             height: 1.15em;
-            /* Corrected border color to #1E1E4D for visual continuity */
-            border: 0.15em solid #1E1E4D; 
+            border: 0.15em solid currentColor;
             border-radius: 50%;
             transform: translateY(-0.075em);
             display: grid;
@@ -143,16 +130,8 @@
             font-size: 16px;
             font-weight: 500;
         }
-        
-        .btn.submit-btn {
-            background-color: #f44336; /* Red for submit */
-        }
-        
-        .btn.submit-btn:hover {
-            background-color: #d32f2f;
-        }
 
-        .btn:hover:not(:disabled) {
+        .btn:hover {
             background-color: #2a2a6a;
         }
 
@@ -165,9 +144,6 @@
             display: flex;
             justify-content: space-between;
             margin-top: 20px;
-            /* Enhancements for better UI/UX (retained) */
-            padding-top: 15px;
-            border-top: 1px solid #e0e0e0;
         }
 
         #result-container {
@@ -179,49 +155,39 @@
             font-weight: bold;
             margin-bottom: 20px;
         }
-        
-        .result-actions {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
 
         #answers-list {
             list-style: none;
             text-align: left;
             margin-top: 20px;
-            padding: 0; 
+            padding: 0; /* Important: remove default ul padding */
         }
 
         #answers-list li {
             margin-bottom: 10px;
-            padding: 15px;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+            background-color: #f9f9f9;
+            border-radius: 4px;
         }
 
         #answers-list .correct {
-            border-left: 5px solid #4CAF50;
-            background-color: #e6ffe6; 
+            color: #1E1E4D;
+            background-color: #e6ffe6; /* Light green background */
         }
 
         #answers-list .incorrect {
-            border-left: 5px solid #f44336;
-            background-color: #ffe6e6; 
+            color: #1E1E4D;
+            background-color: #ffe6e6; /* Light red background */
         }
 
         .loader-container {
-            position: fixed;
-            inset: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
             background-color: #4CAF50;
-            z-index: 100;
         }
 
         .loader {
@@ -248,32 +214,30 @@
         .unauthorized-message {
             text-align: center;
             padding: 40px 20px;
-            background-color: #ffffff;
         }
 
         .unauthorized-message h2 {
-            color: #f44336;
+            color: #fff;
             margin-bottom: 20px;
         }
 
         .unauthorized-message p {
-            color: #333;
+            color: #eee;
             margin-bottom: 30px;
         }
 
         .activate-btn {
-            background-color: #1E1E4D;
+            background-color: #00C853;
             color: white;
             padding: 12px 24px;
             border-radius: 4px;
             text-decoration: none;
             font-weight: 500;
             transition: background-color 0.3s ease;
-            display: inline-block;
         }
 
         .activate-btn:hover {
-            background-color: #2a2a6a;
+            background-color: #00B34A;
         }
 
         .confirmation-dialog {
@@ -320,33 +284,18 @@
             color: white;
         }
 
-        #error-message-box {
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 8px;
-        }
-
-        #error-message-box h3 {
-            color: #f44336;
-        }
-        
-        /* ORIGINAL CSS: Hidden elements */
-
         #topic-analysis {
             margin-top: 20px;
             text-align: left;
-            display: none; 
         }
 
         .topic-performance {
             margin-bottom: 15px;
-            display: none; 
         }
 
         .topic-name {
             font-weight: bold;
             margin-bottom: 5px;
-            display: none; 
         }
 
         .performance-bar {
@@ -354,55 +303,44 @@
             height: 20px;
             border-radius: 10px;
             overflow: hidden;
-            display: none; 
         }
 
         .performance-fill {
             height: 100%;
             background-color: #4CAF50;
             transition: width 0.5s ease-in-out;
-            display: none; 
         }
 
         #strengths-improvements {
             margin-top: 20px;
             text-align: left;
-            display: none; 
         }
-        /* END ORIGINAL CSS */
     </style>
 </head>
 <body>
-    <!-- Loader Screen -->
     <div id="loader" class="loader-container">
         <div class="loader"></div>
         <p class="loader-text">Checking authorization...</p>
     </div>
 
-    <!-- Header -->
     <header>
         <h1 id="universityHeader">AKSU EXAMS SIMULATION</h1>
         <h3 id="courseHeader">CBT</h3>
     </header>
 
-    <!-- Timer -->
     <div class="timer hidden">
         <span id="countdownHours">00</span>:
         <span id="countdownMinutes">00</span>:
         <span id="countdownSeconds">00</span>
     </div>
 
-    <!-- Main Content Area -->
     <main class="hidden">
-        
-        <!-- Unauthorized Message -->
         <section id="unauthorized-message" class="unauthorized-message hidden">
             <h2>Access Required</h2>
             <p>Please sign in to access the exam mode.</p>
             <a href="sign-in.html" class="activate-btn">Sign In</a>
         </section>
 
-        <!-- Quiz Container -->
         <section id="quiz-container" class="hidden">
             <p id="question"></p>
             <ul id="choices"></ul>
@@ -412,57 +350,29 @@
             </div>
         </section>
 
-        <!-- Result Container -->
         <div id="result-container" class="hidden">
-            <h2 style="font-size: 28px; color: #1E1E4D; margin-bottom: 15px;">Exam Complete!</h2>
             <p id="score"></p>
-            <div class="result-actions">
-                <button id="show-answers-btn" class="btn">Show Answers</button>
-                <button id="restart-btn" class="btn" style="background-color: #cccccc;">Restart</button>
-            </div>
-            
-            <div id="review-section" style="margin-top: 30px;">
-                <h3 style="font-size: 20px; border-bottom: 1px solid #e0e0e0; padding-bottom: 10px; margin-bottom: 15px;">Detailed Review</h3>
-                <ul id="answers-list"></ul>
-            </div>
-        </div>
-        
-        <!-- Error Message Container (Custom Modal/In-page) -->
-        <div id="error-message-box" class="hidden" style="text-align: center; padding: 40px;">
-            <h3 id="error-title" style="color: #f44336; margin-bottom: 20px;">An Error Occurred</h3>
-            <p id="error-text" style="color: #333; margin-bottom: 30px;"></p>
-            <button onclick="location.reload()" class="btn">Try Reloading</button>
+            <button id="show-answers-btn" class="btn">Show Answers</button>
+            <button id="restart-btn" class="btn">Restart</button>
+            <div id="topic-analysis"></div>
+            <div id="strengths-improvements"></div>
+            <ul id="answers-list"></ul>
         </div>
     </main>
 
-    <!-- Confirmation Dialog (Modal) -->
     <div id="confirmation-dialog" class="confirmation-dialog hidden">
         <p>Are you sure you want to submit?</p>
-        <div style="display: flex; justify-content: center;">
-            <button id="confirm-submit" class="btn">Yes</button>
-            <button id="cancel-submit" class="btn">No</button>
-        </div>
+        <button id="confirm-submit" class="btn">Yes</button>
+        <button id="cancel-submit" class="btn">No</button>
     </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // --- CONSTANTS & STATE ---
+            // Constants
             const API_BASE = "https://my-easy-school-api.onrender.com/api";
             const EXAM_DURATION = 900; // 15 minutes in seconds
 
-            const state = {
-                quizData: [],
-                currentQuestionIndex: 0,
-                selectedAnswers: {}, // { questionId: "A", ... }
-                timeLeft: EXAM_DURATION,
-                timerInterval: null,
-                isQuizActive: false,
-                courseId: null,
-                courseCode: null,
-                cbtId: null
-            };
-            
-            // --- DOM ELEMENTS MAPPING ---
+            // DOM Elements
             const elements = {
                 loader: document.getElementById('loader'),
                 mainContent: document.querySelector('main'),
@@ -481,22 +391,48 @@
                 confirmationDialog: document.getElementById('confirmation-dialog'),
                 confirmSubmitButton: document.getElementById('confirm-submit'),
                 cancelSubmitButton: document.getElementById('cancel-submit'),
+                topicAnalysisElement: document.getElementById('topic-analysis'),
+                strengthsImprovementsElement: document.getElementById('strengths-improvements'),
                 countdownHours: document.getElementById('countdownHours'),
                 countdownMinutes: document.getElementById('countdownMinutes'),
                 countdownSeconds: document.getElementById('countdownSeconds'),
                 courseHeader: document.getElementById('courseHeader'),
-                universityHeader: document.getElementById('universityHeader'),
-                errorMessageBox: document.getElementById('error-message-box'),
-                errorText: document.getElementById('error-text')
+                universityHeader: document.getElementById('universityHeader')
             };
 
-            // --- API HELPER FUNCTIONS ---
-            
+            // Quiz State
+            const state = {
+                quizData: [],
+                currentQuestionIndex: 0,
+                selectedAnswers: {}, // Stores answers locally: { questionId: "A", questionId2: "B", ... }
+                timeLeft: EXAM_DURATION,
+                timerInterval: null,
+                isQuizActive: false,
+                courseId: null,
+                courseCode: null,
+                cbtId: null
+            };
+
+            // Get URL parameters
+            function getUrlParams() {
+                const urlParams = new URLSearchParams(window.location.search);
+                state.courseId = urlParams.get('courseId');
+                state.courseCode = urlParams.get('courseCode');
+                
+                console.log('[v0] Course ID:', state.courseId);
+                console.log('[v0] Course Code:', state.courseCode);
+                
+                if (state.courseCode) {
+                    elements.courseHeader.textContent = `${state.courseCode} CBT`;
+                }
+            }
+
+            // Get user token from localStorage
             function getUserToken() {
                 return localStorage.getItem('token');
             }
-            
-            // Shuffle array utility function (for question limit randomization)
+
+            // Shuffle array utility function
             function shuffleArray(array) {
                 const shuffled = [...array];
                 for (let i = shuffled.length - 1; i > 0; i--) {
@@ -506,97 +442,50 @@
                 return shuffled;
             }
 
-            /**
-             * Centralized function for API calls, handling auth and error logging.
-             */
-            async function makeApiCall(endpoint, method = 'GET', body = null) {
+            // Check user authentication
+            function checkAuthentication() {
                 const userToken = getUserToken();
-                const url = `${API_BASE}${endpoint}`;
-
-                if (endpoint.startsWith('/cbt') && !userToken) {
-                    throw new Error('Authentication token missing.');
+                console.log('[v0] Token status:', userToken ? `Present (${userToken.substring(0, 10)}...)` : 'MISSING');
+                
+                if (!userToken) {
+                    console.error('[v0] ❌ No user token found - user needs to sign in');
+                    return false;
                 }
-
-                const headers = {
-                    'Content-Type': 'application/json',
-                };
-                if (userToken) {
-                    headers['Authorization'] = `Bearer ${userToken}`;
-                }
-
-                try {
-                    console.log(`[API] Making ${method} request to: ${endpoint}`);
-                    const response = await fetch(url, {
-                        method: method,
-                        headers: headers,
-                        body: body ? JSON.stringify(body) : null
-                    });
-
-                    if (response.status === 401) {
-                        // Global 401 handler: clear token and throw
-                        localStorage.removeItem('token');
-                        localStorage.removeItem('user');
-                        localStorage.removeItem('currentUserData');
-                        throw new Error('Unauthorized. Session expired. Please sign in again.');
-                    }
-                    
-                    if (!response.ok) {
-                         const errorText = await response.text();
-                         console.error(`[API] HTTP Error ${response.status}:`, errorText);
-                         // Attempt to parse JSON error message, otherwise return generic text
-                         try {
-                            const errorJson = JSON.parse(errorText);
-                            throw new Error(errorJson.message || errorJson.error || `HTTP error ${response.status}: ${errorText.substring(0, 100)}...`);
-                         } catch {
-                            throw new Error(`HTTP error ${response.status}: ${errorText.substring(0, 100)}...`);
-                         }
-                    }
-
-                    const data = await response.json();
-                    console.log(`[API] Success response from ${endpoint}:`, data);
-                    return data;
-
-                } catch (error) {
-                    console.error(`[API] Call to ${endpoint} failed:`, error);
-                    throw error; // Re-throw the handled error for the caller to process
-                }
+                
+                return true;
             }
-            
-            // --- UI/STATE HANDLERS ---
-            
+
+            // Show loader
             function showLoader(message = 'Loading...') {
                 elements.loader.querySelector('.loader-text').textContent = message;
                 elements.loader.classList.remove('hidden');
                 elements.mainContent.classList.add('hidden');
             }
 
+            // Hide loader
             function hideLoader() {
                 elements.loader.classList.add('hidden');
                 elements.mainContent.classList.remove('hidden');
             }
 
+            // Show unauthorized message
             function showUnauthorized() {
                 elements.unauthorizedMessage.classList.remove('hidden');
-            }
-            
-            function getUrlParams() {
-                const urlParams = new URLSearchParams(window.location.search);
-                state.courseId = urlParams.get('courseId');
-                state.courseCode = urlParams.get('courseCode');
-                
-                if (state.courseCode) {
-                    elements.courseHeader.textContent = `${state.courseCode} CBT`;
-                }
+                elements.quizContainer.classList.add('hidden');
+                elements.resultContainer.classList.add('hidden');
             }
 
+            // Fetch university name
             async function fetchUniversityName() {
                 try {
                     const currentUserData = JSON.parse(localStorage.getItem('currentUserData') || '{}');
                     const currentUser = currentUserData.user;
                     if (!currentUser || !currentUser.university) return;
                     
-                    const data = await makeApiCall('/universities/all', 'GET');
-                    
+                    const response = await fetch(`${API_BASE}/universities/all`);
+                    if (!response.ok) return;
+
+                    const data = await response.json();
                     const universities = data.data || data;
 
                     const userUniversity = universities.find(u => u._id === currentUser.university);
@@ -607,70 +496,93 @@
                     }
                 } catch (error) {
                     console.error('[v0] Error fetching university name:', error);
-                    // Do not fail initialization over this minor display error
                 }
             }
-            
-            // --- QUIZ FLOW LOGIC ---
 
+            // Start CBT exam - Fetches questions and sets up state
             async function startCBTExam() {
                 try {
-                    showLoader('Starting exam and fetching questions...');
+                    showLoader('Starting exam...');
+                    
+                    const userToken = getUserToken();
+                    if (!userToken) {
+                        throw new Error('No authentication token found');
+                    }
+
+                    console.log('[v0] Starting CBT exam with POST request to:', `${API_BASE}/cbt/start`);
                     
                     const requestBody = {
-                        courseId: state.courseId,
+                        courseId: state.courseId
                     };
                     
-                    // Endpoint: POST /cbt/start
-                    const data = await makeApiCall('/cbt/start', 'POST', requestBody);
-                    
-                    // The API response is expected to be { success: true, data: { cbtId, questions } }
+                    const response = await fetch(`${API_BASE}/cbt/start`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${userToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+
+                    console.log('[v0] Response status:', response.status);
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.log('[v0] Error response body:', errorText);
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    console.log('[v0] CBT start response:', data);
+
+                    // Extract CBT ID and questions from response
                     if (data.success && data.data) {
                         state.cbtId = data.data.cbtId || data.data._id;
                         let allQuestions = data.data.questions || [];
                         
-                        // Client-side question limit (Max 35)
-                        const MAX_QUESTIONS = 35; 
+                        // Limit to 35 questions maximum
+                        const MAX_QUESTIONS = 35;
                         if (allQuestions.length > MAX_QUESTIONS) {
-                            console.log(`[CBT] Limiting questions from ${allQuestions.length} to ${MAX_QUESTIONS}`);
-                            // Randomize and slice
-                            const shuffled = shuffleArray(allQuestions);
-                            state.quizData = shuffled.slice(0, MAX_QUESTIONS);
-                        } else {
-                            state.quizData = allQuestions;
+                            console.log(`[v0] Limiting questions from ${allQuestions.length} to ${MAX_QUESTIONS}`);
+                            allQuestions = shuffleArray(allQuestions).slice(0, MAX_QUESTIONS);
                         }
-
+                        
+                        state.quizData = allQuestions;
+                        
                         if (state.quizData.length === 0) {
-                            throw new Error('No questions available for this course.');
+                            throw new Error('No questions received from server');
                         }
                         
-                        console.log(`[CBT] Exam ID: ${state.cbtId}. Questions loaded: ${state.quizData.length}`);
+                        console.log('[v0] CBT ID:', state.cbtId);
+                        console.log('[v0] Questions loaded:', state.quizData.length);
                         
-                        startQuiz();
                         hideLoader();
+                        startQuiz();
                     } else {
-                        throw new Error('Invalid response format when starting exam.');
+                        throw new Error('Invalid response format from server');
                     }
 
                 } catch (error) {
-                    console.error('[CBT] Error starting CBT exam:', error);
-                    showError(`Failed to start exam: ${error.message}`);
+                    console.error('[v0] Error starting CBT exam:', error);
+                    hideLoader();
+                    showError(`Error starting exam: ${error.message}`);
                 }
             }
 
+            // Start the quiz
             function startQuiz() {
                 state.isQuizActive = true;
                 state.currentQuestionIndex = 0;
+                state.selectedAnswers = {};
                 
                 elements.unauthorizedMessage.classList.add('hidden');
                 elements.quizContainer.classList.remove('hidden');
                 elements.resultContainer.classList.add('hidden');
-                elements.errorMessageBox.classList.add('hidden');
                 
                 displayQuestion();
                 startTimer();
                 
-                // Set up event listeners (once)
+                // Add event listeners (ensure they are only added once)
                 elements.prevButton.onclick = previousQuestion;
                 elements.nextButton.onclick = nextQuestion;
                 elements.confirmSubmitButton.onclick = submitQuiz;
@@ -679,109 +591,89 @@
                 elements.restartButton.onclick = restartQuiz;
             }
 
+            // Display current question
             function displayQuestion() {
-                const q = state.quizData[state.currentQuestionIndex];
-                if (!q) return;
+                const questionData = state.quizData[state.currentQuestionIndex];
+                if (!questionData) return;
 
-                const questionId = q._id || q.id || state.currentQuestionIndex;
+                elements.questionElement.textContent = `${state.currentQuestionIndex + 1}. ${questionData.question || questionData.Q}`;
                 
-                // Use LaTeX rendering if question contains \ (using MathJax)
-                const questionText = q.question || q.Q;
-                if (questionText && questionText.includes('\\(') || questionText.includes('\\[')) {
-                    elements.questionElement.innerHTML = `Q${state.currentQuestionIndex + 1}. ${questionText}`;
-                    if (typeof MathJax !== 'undefined') MathJax.typeset([elements.questionElement]);
-                } else {
-                    elements.questionElement.textContent = `Q${state.currentQuestionIndex + 1}. ${questionText}`;
-                }
-
                 elements.choicesElement.innerHTML = '';
                 
-                const choicesMap = {};
-                const options = q.options; // Using 'options' based on the provided JSON format
+                let formattedChoices = [];
+                const choices = questionData.choices || questionData.options;
 
-                if (typeof options === 'object' && options !== null) {
-                    Object.assign(choicesMap, options);
-                } else {
-                    // Fallback to older/direct properties if 'options' isn't used (original logic)
-                    const oldOptions = q.choices || q.options;
-                    if (Array.isArray(oldOptions)) {
-                         oldOptions.forEach((choice, index) => {
-                            const letter = String.fromCharCode(65 + index);
-                            let text = String(choice);
-                            let value = letter;
-                            if (typeof choice === 'object' && choice !== null) {
-                                text = choice.text || choice.option || choice.choice || choice.value || String(choice);
-                                value = choice.value || choice.key || letter;
-                            }
-                            choicesMap[value] = text;
-                        });
-                    } else {
-                        // Check direct A, B, C, D properties
-                        ['A', 'B', 'C', 'D', 'E'].forEach(letter => {
-                            if (q[letter]) {
-                                choicesMap[letter] = q[letter];
-                            }
-                        });
-                    }
-                }
-                
-                Object.keys(choicesMap).forEach((value, index) => {
-                    const text = choicesMap[value];
-                    if (!text) return; // Skip empty options
-                    
-                    const li = document.createElement('li');
-                    const label = document.createElement('label');
+                // --- Logic to handle A-E options ---
+                if (Array.isArray(choices)) {
+                    formattedChoices = choices.map((choice, index) => {
+                        const defaultLetter = String.fromCharCode(65 + index);
+                        let text = String(choice);
+                        let value = defaultLetter;
 
-                    const input = document.createElement('input');
-                    input.type = 'radio';
-                    input.name = 'answer';
-                    input.value = value;
-                    input.id = `choice-${index}`;
-                    
-                    if (state.selectedAnswers[questionId] === value) {
-                        input.checked = true;
-                    }
-                    
-                    input.addEventListener('change', () => {
-                        state.selectedAnswers[questionId] = value;
+                        if (typeof choice === 'object' && choice !== null) {
+                            text = choice.text || choice.option || choice.choice || choice.value || String(choice);
+                            value = choice.value || choice.key || defaultLetter;
+                        }
+                        return { text, value };
+                    }).filter(c => c.text !== 'undefined');
+                } else if (typeof choices === 'object' && choices !== null) {
+                    formattedChoices = Object.keys(choices).map(key => {
+                        return { text: choices[key], value: key };
                     });
-                    
-                    label.appendChild(input);
-                    
-                    const displayValue = /^[A-E]$/.test(value) ? `${value}. ` : `${value} `;
-                    const choiceTextNode = document.createElement('span');
-                    
-                    // Render choice options with LaTeX if needed
-                    if (text.includes('\\(') || text.includes('\\[')) {
-                        choiceTextNode.innerHTML = displayValue + text;
-                        // MathJax typeset applied after mounting/displaying
-                    } else {
-                        choiceTextNode.textContent = displayValue + text;
-                    }
+                } else {
+                    const letters = ['A', 'B', 'C', 'D', 'E']; // Supports up to E
+                    formattedChoices = letters.map(letter => {
+                        return { text: questionData[letter], value: letter };
+                    }).filter(choice => choice.text);
+                }
+                // --- End A-E Logic ---
 
-                    label.appendChild(choiceTextNode);
-                    li.appendChild(label);
-                    elements.choicesElement.appendChild(li);
-                });
-                
-                // Run MathJax typesetting for options as well
-                if (typeof MathJax !== 'undefined') {
-                    MathJax.typeset([elements.choicesElement]);
+                if (formattedChoices.length === 0) {
+                    elements.choicesElement.innerHTML = '<li style="color: red;">Error: No choices available for this question.</li>';
+                } else {
+                    formattedChoices.forEach((choice, index) => {
+                        const li = document.createElement('li');
+                        const label = document.createElement('label');
+                        const input = document.createElement('input');
+                        
+                        input.type = 'radio';
+                        input.name = 'answer';
+                        input.value = String(choice.value);
+                        input.id = `choice-${index}`;
+                        
+                        const questionId = questionData._id || questionData.id || state.currentQuestionIndex;
+                        
+                        if (state.selectedAnswers[questionId] === input.value) {
+                            input.checked = true;
+                        }
+                        
+                        input.addEventListener('change', () => {
+                            state.selectedAnswers[questionId] = input.value;
+                        });
+                        
+                        label.appendChild(input);
+                        
+                        let choiceTextContent = String(choice.text);
+                        const choiceValue = String(choice.value);
+
+                        if (!choiceTextContent.trim().startsWith(choiceValue + '.') && 
+                            !choiceTextContent.trim().startsWith(choiceValue + ')') &&
+                            /^[A-E]$/.test(choiceValue)) {
+                             choiceTextContent = `${choiceValue}. ${choiceTextContent}`;
+                        }
+
+                        label.appendChild(document.createTextNode(" " + choiceTextContent));
+                        li.appendChild(label);
+                        elements.choicesElement.appendChild(li);
+                    });
                 }
 
                 // Update navigation buttons
                 elements.prevButton.disabled = state.currentQuestionIndex === 0;
                 elements.nextButton.textContent = state.currentQuestionIndex === state.quizData.length - 1 ? 'Submit' : 'Next';
-                
-                // Change button style for Submit
-                if (state.currentQuestionIndex === state.quizData.length - 1) {
-                    elements.nextButton.classList.add('submit-btn');
-                    elements.nextButton.classList.remove('btn:hover');
-                } else {
-                    elements.nextButton.classList.remove('submit-btn');
-                }
             }
 
+            // Previous question
             function previousQuestion() {
                 if (state.currentQuestionIndex > 0) {
                     state.currentQuestionIndex--;
@@ -789,6 +681,7 @@
                 }
             }
 
+            // Next question or submit
             function nextQuestion() {
                 if (state.currentQuestionIndex < state.quizData.length - 1) {
                     state.currentQuestionIndex++;
@@ -798,95 +691,161 @@
                 }
             }
 
+            // Show confirmation dialog
             function showConfirmationDialog() {
                 elements.confirmationDialog.classList.remove('hidden');
             }
 
+            // Hide confirmation dialog
             function hideConfirmationDialog() {
                 elements.confirmationDialog.classList.add('hidden');
             }
-            
+
+            // --- LOCAL RESULT FALLBACK ---
+            function generateLocalResultsAndShow() {
+                console.warn('[v0] Generating local results for display/fallback.');
+                
+                let score = 0;
+                const localResults = [];
+
+                state.quizData.forEach((question, index) => {
+                    const questionId = question._id || question.id || index;
+                    const submittedAnswer = state.selectedAnswers[questionId];
+                    
+                    // The correct answer is ONLY present in the local data if test mode was loaded.
+                    const correctAnswer = question.Ans; 
+
+                    const isCorrect = submittedAnswer === correctAnswer;
+                    if (isCorrect) {
+                        score++;
+                    }
+
+                    localResults.push({
+                        questionId: questionId,
+                        isCorrect: isCorrect,
+                        // Correct answer is provided if it exists, otherwise 'N/A'
+                        correctAnswer: correctAnswer || 'N/A', 
+                        submittedAnswer: submittedAnswer || 'N/A'
+                    });
+                });
+
+                // Present results using the existing showResults function structure
+                const localData = {
+                    data: {
+                        score: score,
+                        results: localResults
+                    }
+                };
+
+                hideLoader();
+                stopTimer();
+                showResults(localData);
+            }
+            // --- END LOCAL RESULT FALLBACK ---
+
+            // Submit quiz
             async function submitQuiz() {
                 try {
                     hideConfirmationDialog();
-                    stopTimer();
-                    showLoader('Submitting answers...');
+                    showLoader('Submitting exam...');
                     
                     const userToken = getUserToken();
-                    if (!userToken) throw new Error('No authentication token found.');
+                    
+                    if (!userToken) {
+                        throw new Error('No authentication token found. Please sign in again.');
+                    }
 
-                    // Prepare answers array
+                    showLoader('Submitting exam...');
+
+                    // Prepare answers array in the strict JSON format expected by the API
                     const answers = [];
                     state.quizData.forEach((question, index) => {
                         const questionId = question._id || question.id || index;
                         const answer = state.selectedAnswers[questionId];
                         
+                        // Only submit answers that were actually selected
                         if (answer) {
                             answers.push({
                                 questionId: questionId,
-                                answer: answer
+                                answer: answer // This is the single letter key (A, B, C, D, E)
                             });
                         }
                     });
-                    
-                    // STEP 1: SUBMIT ANSWERS (POST /cbt/submit)
-                    const submissionBody = {
+
+                    console.log('[v0] Final Submission Payload:', {
                         cbtId: state.cbtId,
                         answers: answers
-                    };
+                    });
 
-                    console.log("[CBT] Submitting answers to /cbt/submit...");
-                    
-                    const submissionResponse = await makeApiCall('/cbt/submit', 'POST', submissionBody);
+                    const response = await fetch(`${API_BASE}/cbt/submit`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${userToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            cbtId: state.cbtId,
+                            answers: answers
+                        })
+                    });
 
-                    if (submissionResponse.success === false) {
-                        // The server acknowledged the request but indicated a failure
-                        throw new Error(submissionResponse.message || "Submission failed server-side after acknowledgement.");
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        
+                        // --- API Submission Failed (500, 400, etc.) ---
+                        if (response.status >= 500 || response.status === 400) {
+                            console.error('[v0] Fatal API error, triggering local fallback.', { status: response.status, body: errorText });
+                            // The live questions won't have the answer key, so the fallback will correctly show N/A for live mode.
+                            generateLocalResultsAndShow();
+                            return; 
+                        }
+                        // --- END API Submission Failed ---
+
+                        if (response.status === 401) {
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('user');
+                            localStorage.removeItem('currentUserData');
+                            throw new Error('Authentication failed during submission. Please sign in again.');
+                        } else {
+                            throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+                        }
                     }
-                    
-                    showLoader('Grading exam...');
 
-                    // STEP 2: GET RESULTS (POST /cbt/{cbtId}/results)
-                    console.log(`[CBT] Requesting results from /cbt/${state.cbtId}/results...`);
-                    const resultsData = await makeApiCall(`/cbt/${state.cbtId}/results`, 'POST', {});
-                    
-                    // Expected results format: { success: true, data: { score, results } }
-                    if (resultsData.success && resultsData.data) {
-                        hideLoader();
-                        showResults(resultsData.data);
-                    } else {
-                        throw new Error("Submission acknowledged, but failed to retrieve grade data in expected format.");
-                    }
+                    const data = await response.json();
+                    console.log('[v0] SUCCESSFUL API GRADE RESPONSE:', data);
+
+                    hideLoader();
+                    stopTimer();
+                    showResults(data);
 
                 } catch (error) {
-                    console.error('[CBT] Error during submission/grading:', error);
+                    console.error('[v0] Error submitting CBT:', error);
                     hideLoader();
                     
                     if (error.message.includes('sign in again')) {
-                        showError(`${error.message}<br><br><a href="sign-in.html" class="activate-btn" style="margin-top: 15px;">Sign In</a>`);
+                        showError(`${error.message}<br><br><a href="sign-in.html" class="btn" style="margin-top: 15px;">Sign In</a>`);
                     } else {
-                        // Display a generic error without the misleading local score warning
-                        showError(`Error during submission: ${error.message}. Please try again.`);
+                        showError(`Error submitting exam: ${error.message}`);
                     }
                 }
             }
 
+            // Show results
             function showResults(data) {
                 state.isQuizActive = false;
                 elements.quizContainer.classList.add('hidden');
                 elements.resultContainer.classList.remove('hidden');
                 elements.timerElement.classList.add('hidden');
-                elements.errorMessageBox.classList.add('hidden');
 
-                // Data format expected: { score: number, results: [{ questionId, isCorrect, correctAnswer, submittedAnswer }] }
-                const score = data.score || 0;
-                const results = data.results || [];
+                // Display score
+                const score = data.data?.score || data.score || 0;
                 const totalQuestions = state.quizData.length;
-                const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+                const percentage = Math.round((score / totalQuestions) * 100);
                 
-                elements.scoreElement.innerHTML = `You answered <span style="color: #1E1E4D; font-weight: bold;">${score}</span> correctly out of ${totalQuestions} questions. 
-                                                   Final Score: <span style="color: #4CAF50; font-weight: bold;">${percentage}%</span>`;
+                elements.scoreElement.textContent = `Your Score: ${score}/${totalQuestions} (${percentage}%)`;
 
+                const results = data.data?.results || data.results || [];
+                
                 // Map original questions by ID for easy lookup
                 const quizMap = new Map(state.quizData.map(q => [q._id || q.id || state.quizData.indexOf(q), q]));
 
@@ -897,27 +856,33 @@
                         const questionIdentifier = result.questionId || state.quizData[index]?._id || state.quizData[index]?.id || index;
                         let originalQuestion = quizMap.get(questionIdentifier);
                         
+                        if (!originalQuestion) {
+                            originalQuestion = state.quizData[index];
+                        }
+                        
                         if (!originalQuestion) return;
 
                         const li = document.createElement('li');
                         
+                        // Determine correctness
                         const isCorrect = result.isCorrect !== undefined ? result.isCorrect : (result.submittedAnswer === result.correctAnswer);
                         
                         li.classList.add(isCorrect ? 'correct' : 'incorrect');
                         
                         const questionText = originalQuestion.question || originalQuestion.Q;
-                        const submittedAnswer = result.submittedAnswer || state.selectedAnswers[questionIdentifier] || 'Not Answered';
+                        const submittedAnswer = state.selectedAnswers[questionIdentifier] || 'N/A';
+                        
                         let correctAnswer = result.correctAnswer || 'N/A';
                         
-                        // If correct answer is missing, give a warning
-                        if (correctAnswer === 'N/A' && result.isCorrect === undefined) {
-                            correctAnswer = '<span style="color: #f44336; font-weight: bold;">[Grading Data Missing]</span>';
+                        // Show descriptive message if the correct answer is N/A/unknown (usually from live mode fallback)
+                        if (correctAnswer === 'N/A') {
+                            correctAnswer = '<span style="color: red;">Unknown (API Failed to Grade)</span>';
                         }
                         
                         li.innerHTML = `
                             <strong>Q${index + 1}: ${questionText}</strong><br>
-                            Your Answer: <span style="font-weight: bold; color: ${isCorrect ? '#4CAF50' : '#f44336'};">${submittedAnswer}</span> 
-                            (Correct Answer: <span style="font-weight: bold;">${correctAnswer}</span>)
+                            Your Answer: <span style="font-weight: bold;">${submittedAnswer}</span> 
+                            (Correct: ${correctAnswer})
                         `;
                         
                         elements.answersListElement.appendChild(li);
@@ -925,20 +890,13 @@
                     
                     elements.answersListElement.classList.add('hidden');
                     elements.showAnswersButton.classList.remove('hidden');
-                    
-                    // Run MathJax typesetting for results if needed
-                    if (typeof MathJax !== 'undefined') {
-                        MathJax.typeset([elements.answersListElement]);
-                    }
-
                 } else {
                     elements.answersListElement.innerHTML = `<li style="list-style: none;">Detailed answers are unavailable from the server.</li>`;
                     elements.showAnswersButton.classList.add('hidden');
                 }
             }
 
-            // --- TIMER LOGIC ---
-            
+            // Start timer
             function startTimer() {
                 elements.timerElement.classList.remove('hidden');
                 
@@ -960,6 +918,7 @@
                 }, 1000);
             }
 
+            // Stop timer
             function stopTimer() {
                 if (state.timerInterval) {
                     clearInterval(state.timerInterval);
@@ -967,56 +926,99 @@
                 }
             }
 
+            // Show answers
             function showAnswers() {
                 const isHidden = elements.answersListElement.classList.toggle('hidden');
                 elements.showAnswersButton.textContent = isHidden ? 'Show Answers' : 'Hide Answers';
             }
 
+            // Restart quiz
             function restartQuiz() {
-                showError('To restart the exam, please click the button below to reload the page and start a new attempt.');
+                if (confirm('Are you sure you want to restart the exam?')) {
+                    location.reload();
+                }
             }
-            
-            // --- ERROR DISPLAY ---
-            
+
+            // Load test data for exams mode
+            function loadTestExamData() {
+                console.log('[v0] Loading test exam data...');
+                
+                const testQuestions = [];
+                const sampleQuestions = [
+                    {
+                        _id: "test1", Q: "The Yoruba believe that life started in?", A: "Ile-Ife", B: "Oyo", C: "Benin", D: "Lagos", E: "Kaduna", Ans: "A"
+                    },
+                    {
+                        _id: "test2", Q: "___ is the practice of resolving differences in a manner prescribed by society as opposed to creating conflict.", A: "Negotiation", B: "Conflict Resolution", C: "Mediation", D: "Arbitration", E: "Debate", Ans: "B"
+                    },
+                    {
+                        _id: "test3", Q: "What is the pH of pure water at 25°C?", A: "6", B: "7", C: "8", D: "9", Ans: "B"
+                    },
+                    {
+                        _id: "test4", Q: "Which gas makes up about 78% of Earth's atmosphere?", A: "Oxygen", B: "Carbon dioxide", C: "Nitrogen", D: "Argon", Ans: "C"
+                    },
+                    {
+                        _id: "test5", Q: "What is the molecular formula for methane?", A: "CH4", B: "C2H6", C: "C3H8", D: "C4H10", Ans: "A"
+                    }
+                ];
+                
+                for (let i = 0; i < 35; i++) {
+                    const baseQuestion = sampleQuestions[i % sampleQuestions.length];
+                    testQuestions.push({
+                        ...baseQuestion,
+                        _id: `test-${i}`,
+                        Ans: baseQuestion.Ans
+                    });
+                }
+                
+                state.quizData = testQuestions;
+                state.cbtId = 'test-exam-' + Date.now();
+                
+                state.quizData.forEach(q => {
+                    const questionId = q._id;
+                    const submittedAnswer = (parseInt(questionId.split('-')[1]) % 3 === 0) ? (q.Ans === 'A' ? 'B' : 'A') : q.Ans;
+                    state.selectedAnswers[questionId] = submittedAnswer;
+                });
+                
+                generateLocalResultsAndShow();
+            }
+
+            // Show error
             function showError(message) {
                 hideLoader();
-                
-                // Hide all main content sections
-                elements.quizContainer.classList.add('hidden');
-                elements.resultContainer.classList.add('hidden');
-                elements.unauthorizedMessage.classList.add('hidden');
-                elements.timerElement.classList.add('hidden');
-                
-                // Show dedicated error box
-                const errorBox = elements.errorMessageBox;
-                errorBox.classList.remove('hidden');
-                
-                const errorTextElement = elements.errorText;
-                errorTextElement.innerHTML = message;
-                
-                errorBox.querySelector('#error-title').textContent = "An Error Occurred";
+                elements.mainContent.innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <h3 style="color: #fff; margin-bottom: 20px;">Error</h3>
+                        <p style="color: #eee; margin-bottom: 30px;">${message}</p>
+                        <button onclick="location.reload()" class="btn">Try Again</button>
+                        <button onclick="window.location.href='quiz.html?courseId=${state.courseId}&courseCode=${state.courseCode}'" class="btn" style="margin-left: 10px;">Back to Quiz</button>
+                        
+                        <div style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                            <h4 style="color: #fff; margin-bottom: 15px;">Test Mode Available</h4>
+                            <p style="color: #eee; margin-bottom: 15px;">If the API is giving errors, you can test the exam functionality with sample data (35 questions):</p>
+                            <button onclick="window.loadTestExamData()" class="btn" style="background-color: #28a745;">Load Test Exam</button>
+                        </div>
+                    </div>
+                `;
             }
             
-            // --- INITIALIZATION ---
+            // Make loadTestExamData globally accessible for the button in showError
+            window.loadTestExamData = loadTestExamData;
+
+            // Initialize the application
             async function initApp() {
                 try {
-                    // Inject MathJax script for LaTeX rendering (based on the JSON format you provided)
-                    const mathJaxScript = document.createElement('script');
-                    mathJaxScript.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js";
-                    mathJaxScript.async = true;
-                    document.head.appendChild(mathJaxScript);
-                    
                     getUrlParams();
                     
                     if (!state.courseId || !state.courseCode) {
-                        throw new Error('Missing course information. Please select a course.');
+                        throw new Error('Missing course information. Please select a course from the quiz page.');
                     }
 
                     showLoader('Checking authorization...');
                     
                     fetchUniversityName();
                     
-                    if (!getUserToken()) {
+                    if (!checkAuthentication()) {
                         hideLoader();
                         showUnauthorized();
                         return;
@@ -1025,7 +1027,7 @@
                     await startCBTExam();
 
                 } catch (error) {
-                    console.error('[CBT] Initialization error:', error);
+                    console.error('[v0] Initialization error:', error);
                     showError(error.message);
                 }
             }
