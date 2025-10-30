@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AKSU EXAMS SIMULATION - CBT</title>
-    <!-- CSS is now an EXACT match of the original, without modifications -->
+    <!-- CSS is now an EXACT match of the original structure -->
     <style>
         body {
             background-color: #4CAF50;
@@ -59,8 +59,8 @@
             padding: 25px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            /* Added white background for visual separation on green main body */
-            background-color: #ffffff; 
+            /* --- FIXED: Removed explicit background-color: #ffffff; --- */
+            /* It now inherits the body's green background (#4CAF50) */
         }
 
         #quiz-container {
@@ -87,11 +87,11 @@
             align-items: center;
             cursor: pointer;
             font-size: 16px;
-            /* Enhancements for better UI/UX (retained from previous fix) */
+            /* Enhancements for better UI/UX (retained) */
             padding: 10px; 
             border-radius: 6px;
             transition: background-color 0.3s;
-            background-color: #f5f5f5; 
+            background-color: #f5f5f5; /* Use a light background for option clarity on the green main background */
         }
         
         #choices label:hover {
@@ -165,7 +165,7 @@
             display: flex;
             justify-content: space-between;
             margin-top: 20px;
-            /* Enhancements for better UI/UX */
+            /* Enhancements for better UI/UX (retained) */
             padding-top: 15px;
             border-top: 1px solid #e0e0e0;
         }
@@ -330,23 +330,23 @@
             color: #f44336;
         }
         
-        /* ORIGINAL CSS: Removed redundant/incorrect styles from the previous file */
+        /* ORIGINAL CSS: Hidden elements */
 
         #topic-analysis {
             margin-top: 20px;
             text-align: left;
-            display: none; /* Hide unused elements */
+            display: none; 
         }
 
         .topic-performance {
             margin-bottom: 15px;
-            display: none; /* Hide unused elements */
+            display: none; 
         }
 
         .topic-name {
             font-weight: bold;
             margin-bottom: 5px;
-            display: none; /* Hide unused elements */
+            display: none; 
         }
 
         .performance-bar {
@@ -354,20 +354,20 @@
             height: 20px;
             border-radius: 10px;
             overflow: hidden;
-            display: none; /* Hide unused elements */
+            display: none; 
         }
 
         .performance-fill {
             height: 100%;
             background-color: #4CAF50;
             transition: width 0.5s ease-in-out;
-            display: none; /* Hide unused elements */
+            display: none; 
         }
 
         #strengths-improvements {
             margin-top: 20px;
             text-align: left;
-            display: none; /* Hide unused elements */
+            display: none; 
         }
         /* END ORIGINAL CSS */
     </style>
