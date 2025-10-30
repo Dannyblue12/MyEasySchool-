@@ -7,7 +7,7 @@
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom styles for appearance */
+        /* Custom styles for appearance (Maintained from your original file) */
         body {
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
@@ -240,6 +240,7 @@
                         localStorage.removeItem('token');
                         localStorage.removeItem('user');
                         localStorage.removeItem('currentUserData');
+                        // Do not rely on 'sign-in.html' existing; throw and let handler suggest sign-in link.
                         throw new Error('Unauthorized. Session expired. Please sign in again.');
                     }
                     
@@ -249,7 +250,7 @@
                          // Attempt to parse JSON error message, otherwise return plain text
                          try {
                             const errorJson = JSON.parse(errorText);
-                            throw new Error(errorJson.message || errorJson.error || `HTTP error ${response.status}`);
+                            throw new Error(errorJson.message || errorJson.error || `HTTP error ${response.status}: ${errorText.substring(0, 100)}...`);
                          } catch {
                             throw new Error(`HTTP error ${response.status}: ${errorText.substring(0, 100)}...`);
                          }
@@ -269,7 +270,7 @@
             
             function showLoader(message = 'Loading...') {
                 elements.loader.querySelector('.loader-text').textContent = message;
-                elements.loader.classList.remove('opacity-0', 'pointer-events-none', 'hidden');
+                elements.loader.classList.remove('hidden');
             }
 
             function hideLoader() {
@@ -296,7 +297,8 @@
                     const currentUser = currentUserData.user;
                     if (!currentUser || !currentUser.university) return;
                     
-                    const data = await makeApiCall('/universities/all');
+                    // Note: This API call assumes '/universities/all' does not require a token or is handled by an open API key.
+                    const data = await makeApiCall('/universities/all', 'GET');
                     
                     const universities = data.data || data;
 
@@ -320,9 +322,9 @@
                     
                     const requestBody = {
                         courseId: state.courseId,
-                        // No need for numberOfQuestions, server defaults to MAX or all
                     };
                     
+                    // STEP 1: START THE EXAM (Using POST /cbt/start)
                     const data = await makeApiCall('/cbt/start', 'POST', requestBody);
                     
                     // The API response is expected to be { success: true, data: { cbtId, questions } }
@@ -446,7 +448,9 @@
                     label.appendChild(input);
                     
                     const textNode = document.createElement('span');
-                    textNode.textContent = `${value}. ${text}`;
+                    // Prefix with value if it's a standard letter
+                    const displayValue = /^[A-E]$/.test(value) ? `${value}. ` : `${value} `;
+                    textNode.textContent = `${displayValue}${text}`;
                     textNode.className = 'text-gray-700 font-medium';
                     
                     label.appendChild(textNode);
@@ -496,7 +500,7 @@
                 try {
                     hideConfirmationDialog();
                     stopTimer();
-                    showLoader('Submitting exam and grading...');
+                    showLoader('Submitting answers...');
                     
                     // Prepare answers array
                     const answers = state.quizData.map(q => {
@@ -509,32 +513,46 @@
                         };
                     });
                     
-                    const requestBody = {
+                    // STEP 1: SUBMIT ANSWERS (POST /cbt/submit)
+                    const submissionBody = {
                         cbtId: state.cbtId,
                         answers: answers
                     };
 
-                    const data = await makeApiCall('/cbt/submit', 'POST', requestBody);
+                    console.log("[CBT] Submitting answers to /cbt/submit...");
+                    // The server might return a simple success status here
+                    const submissionResponse = await makeApiCall('/cbt/submit', 'POST', submissionBody);
+
+                    if (submissionResponse.success === false) {
+                        throw new Error(submissionResponse.message || "Submission acknowledged but failed server-side.");
+                    }
+                    
+                    showLoader('Grading exam...');
+
+                    // STEP 2: GET RESULTS (POST /cbt/{cbtId}/results)
+                    // This endpoint is used to trigger grading and fetch results
+                    console.log(`[CBT] Requesting results from /cbt/${state.cbtId}/results...`);
+                    const resultsData = await makeApiCall(`/cbt/${state.cbtId}/results`, 'POST', {});
                     
                     // The successful response is expected to contain the score and results array
-                    if (data.success && data.data) {
+                    if (resultsData.success && resultsData.data) {
                         hideLoader();
-                        showResults(data.data);
+                        showResults(resultsData.data);
                     } else {
                         // Handle cases where the submission was successful but data format is unexpected
-                        throw new Error("Submission successful, but unable to read grade data. Check console for raw response.");
+                        throw new Error("Submission acknowledged, but failed to retrieve grade data.");
                     }
 
                 } catch (error) {
-                    console.error('[CBT] Error submitting CBT:', error);
+                    console.error('[CBT] Error during submission/grading:', error);
                     hideLoader();
                     
                     if (error.message.includes('sign in again')) {
                         // Redirect if unauthorized
-                        showError(`${error.message} <br><a href="sign-in.html" class="btn-primary mt-4 inline-block px-4 py-2 rounded-lg">Sign In</a>`);
+                        showError(`${error.message} <br><a href="sign-in.html" class="btn-primary mt-4 inline-block px-4 py-2 rounded-lg shadow-md">Sign In</a>`);
                     } else {
                         // Provide option to reload or retry
-                        showError(`Error submitting exam: ${error.message}`);
+                        showError(`Error during submission: ${error.message}`);
                     }
                 }
             }
@@ -632,10 +650,9 @@
             }
 
             function restartQuiz() {
-                // Using custom modal logic, but for simplicity here, using native confirm as a last resort
-                if (confirm('Are you sure you want to restart the exam? Your current progress will be lost.')) {
-                    location.reload();
-                }
+                // Since alert/confirm is forbidden, this is replaced by a safe redirect prompt
+                showError('To restart the exam, please click the button below to reload the page and start a new attempt.');
+                // Note: The showError function already provides a Try Reloading button.
             }
             
             function showError(message) {
