@@ -4,54 +4,115 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AKSU EXAMS SIMULATION - CBT</title>
-    <!-- Load Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- RESTORED: Custom CSS structure and colors -->
     <style>
-        /* Custom styles for appearance (Maintained from your original file) */
         body {
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
+            background-color: #4CAF50;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            line-height: 1.6;
+            color: #000;
+            transition: opacity 0.5s ease;
+        }
+
+        body.loaded {
+            opacity: 1;
+        }
+
+        .timer {
+            text-align: right;
+            font-size: 1.4em;
+            color: #FF4444;
+            font-weight: 600;
+            font-family: 'Arial', sans-serif;
+            margin-right: 20px;
+            margin-top: 10px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        header {
+            background-color: #1E1E4D;
+            color: #fff;
+            text-align: center;
+            padding: 20px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 28px;
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+
+        h3 {
+            margin: 10px 0 0;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        main {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff; /* Added white background for main content area */
+        }
+
+        #quiz-container {
+            margin-bottom: 20px;
+        }
+
+        #question {
+            font-size: 20px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        #choices {
+            list-style: none;
+            padding: 0;
+        }
+
+        #choices li {
+            margin-bottom: 12px;
+        }
+
+        #choices label {
             display: flex;
-            flex-direction: column;
-            background-color: #f0fdf4; /* Light Green/White background */
-        }
-        .main-bg {
-            background-color: #059669; /* Emerald 600 - Primary Green */
-            color: white;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-        }
-        .text-primary {
-            color: #059669; /* Emerald 600 */
-        }
-        .btn-primary {
-            background-color: #1E1E4D; /* Deep Blue from original */
-            color: white;
+            align-items: center;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 10px; /* Added padding for better hit area */
+            border-radius: 6px;
             transition: background-color 0.3s;
+            background-color: #f5f5f5; /* Light grey background for choices */
         }
-        .btn-primary:hover:not(:disabled) {
-            background-color: #2a2a6a;
+        
+        #choices label:hover {
+            background-color: #eeeeee;
         }
-        .btn-submit {
-            background-color: #dc2626; /* Red for Submit/Danger */
-        }
-        .btn-submit:hover:not(:disabled) {
-            background-color: #b91c1c;
-        }
-        /* Custom Radio Button Styling */
+
         input[type="radio"] {
+            margin-right: 10px;
+            /* Modern, larger radio buttons */
             -webkit-appearance: none;
             appearance: none;
+            background-color: #fff;
             margin: 0;
             font: inherit;
+            color: currentColor;
             width: 1.15em;
             height: 1.15em;
-            border: 0.15em solid #059669;
+            border: 0.15em solid #1E1E4D; /* Use header color for border */
             border-radius: 50%;
             transform: translateY(-0.075em);
             display: grid;
             place-content: center;
-            cursor: pointer;
-            flex-shrink: 0; /* Prevents shrinking in flex layout */
+            margin-right: 10px;
         }
 
         input[type="radio"]::before {
@@ -67,91 +128,274 @@
         input[type="radio"]:checked::before {
             transform: scale(1);
         }
+
+        .btn {
+            background-color: #1E1E4D;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        .btn.submit-btn {
+            background-color: #f44336; /* Red for submit */
+        }
+        
+        .btn.submit-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        .btn:hover:not(:disabled) {
+            background-color: #2a2a6a;
+        }
+
+        .btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        #result-container {
+            text-align: center;
+        }
+
+        #score {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .result-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        #answers-list {
+            list-style: none;
+            text-align: left;
+            margin-top: 20px;
+            padding: 0; /* Important: remove default ul padding */
+        }
+
+        #answers-list li {
+            margin-bottom: 10px;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        #answers-list .correct {
+            border-left: 5px solid #4CAF50;
+            background-color: #e6ffe6; /* Light green background */
+        }
+
+        #answers-list .incorrect {
+            border-left: 5px solid #f44336;
+            background-color: #ffe6e6; /* Light red background */
+        }
+
+        .loader-container {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #4CAF50;
+            z-index: 100;
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #fff;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            animation: rotation 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .loader-text {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .unauthorized-message {
+            text-align: center;
+            padding: 40px 20px;
+            background-color: #ffffff;
+        }
+
+        .unauthorized-message h2 {
+            color: #f44336;
+            margin-bottom: 20px;
+        }
+
+        .unauthorized-message p {
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .activate-btn {
+            background-color: #1E1E4D;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+            display: inline-block;
+        }
+
+        .activate-btn:hover {
+            background-color: #2a2a6a;
+        }
+
+        .confirmation-dialog {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            max-width: 90%;
+            width: 400px;
+        }
+
+        .confirmation-dialog p {
+            margin-bottom: 25px;
+            font-size: 20px;
+            color: #333;
+        }
+
+        .confirmation-dialog button {
+            margin: 0 10px;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .confirmation-dialog button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        #confirm-submit {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #cancel-submit {
+            background-color: #f44336;
+            color: white;
+        }
+
+        #error-message-box {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        #error-message-box h3 {
+            color: #f44336;
+        }
     </style>
 </head>
-<body class="flex flex-col min-h-screen">
+<body>
     <!-- Loader Screen -->
-    <div id="loader" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-emerald-600 transition-opacity duration-500">
-        <div class="loader ease-linear rounded-full border-4 border-t-4 border-white h-12 w-12 mb-4 animate-spin"></div>
-        <p class="loader-text text-white text-xl font-semibold">Checking authorization...</p>
+    <div id="loader" class="loader-container">
+        <div class="loader"></div>
+        <p class="loader-text">Checking authorization...</p>
     </div>
 
     <!-- Header -->
-    <header class="main-bg text-white p-4 text-center">
-        <h1 id="universityHeader" class="text-2xl sm:text-3xl font-extrabold tracking-wider">AKSU EXAMS SIMULATION</h1>
-        <h3 id="courseHeader" class="text-xl font-light opacity-90 mt-1">CBT</h3>
+    <header>
+        <h1 id="universityHeader">AKSU EXAMS SIMULATION</h1>
+        <h3 id="courseHeader">CBT</h3>
     </header>
 
-    <!-- Timer (Hidden until quiz starts) -->
-    <div id="timer" class="hidden text-right p-2 pr-4 bg-yellow-50 text-red-600 font-extrabold text-xl shadow-md">
-        Time Left:
+    <!-- Timer -->
+    <div class="timer hidden">
         <span id="countdownHours">00</span>:
         <span id="countdownMinutes">00</span>:
         <span id="countdownSeconds">00</span>
     </div>
 
     <!-- Main Content Area -->
-    <main id="main-content" class="flex-grow p-4 sm:p-6 lg:p-8">
-        <div class="max-w-4xl mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-lg">
+    <main class="hidden">
+        
+        <!-- Unauthorized Message -->
+        <section id="unauthorized-message" class="unauthorized-message hidden">
+            <h2>Access Required</h2>
+            <p>Please sign in to access the exam mode.</p>
+            <a href="sign-in.html" class="activate-btn">Sign In</a>
+        </section>
 
-            <!-- Unauthorized Message -->
-            <section id="unauthorized-message" class="hidden text-center py-12">
-                <h2 class="text-3xl font-bold text-red-600 mb-4">Access Required</h2>
-                <p class="text-gray-600 mb-6">You must be signed in to access the exam mode.</p>
-                <a href="sign-in.html" class="btn-primary inline-block px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg">Sign In Now</a>
-            </section>
+        <!-- Quiz Container -->
+        <section id="quiz-container" class="hidden">
+            <p id="question"></p>
+            <ul id="choices"></ul>
+            <div class="navigation-buttons">
+                <button id="prev-btn" class="btn">Previous</button>
+                <button id="next-btn" class="btn">Next</button>
+            </div>
+        </section>
 
-            <!-- Quiz Container -->
-            <section id="quiz-container" class="hidden">
-                <p class="text-sm text-gray-500 mb-2">Question <span id="current-q-num">1</span> of <span id="total-q-num">0</span></p>
-                <div class="border-b border-gray-200 pb-4 mb-6">
-                    <p id="question" class="text-xl font-medium text-gray-800"></p>
-                </div>
-                
-                <ul id="choices" class="space-y-4">
-                    <!-- Choices will be injected here -->
-                </ul>
-                
-                <div class="navigation-buttons flex justify-between mt-8 pt-4 border-t border-gray-100">
-                    <button id="prev-btn" class="btn-primary px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
-                    <button id="next-btn" class="btn-primary px-6 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
-                </div>
-            </section>
-
-            <!-- Result Container -->
-            <div id="result-container" class="hidden text-center">
-                <h2 class="text-4xl font-extrabold text-primary mb-6">Exam Complete!</h2>
-                <p id="score" class="text-3xl font-bold text-gray-800 mb-4"></p>
-                <div class="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4 mb-8">
-                    <button id="show-answers-btn" class="btn-primary px-6 py-3 rounded-lg shadow-md">Show Detailed Review</button>
-                    <button id="restart-btn" class="btn-primary bg-gray-500 hover:bg-gray-600 px-6 py-3 rounded-lg shadow-md">Restart Exam</button>
-                </div>
-
-                <div id="review-section" class="mt-8">
-                    <h3 class="text-2xl font-semibold text-gray-700 mb-4 border-b pb-2">Review Answers</h3>
-                    <ul id="answers-list" class="hidden text-left space-y-3">
-                        <!-- Detailed answers injected here -->
-                    </ul>
-                </div>
+        <!-- Result Container -->
+        <div id="result-container" class="hidden">
+            <h2 style="font-size: 28px; color: #1E1E4D; margin-bottom: 15px;">Exam Complete!</h2>
+            <p id="score"></p>
+            <div class="result-actions">
+                <button id="show-answers-btn" class="btn">Show Answers</button>
+                <button id="restart-btn" class="btn" style="background-color: #cccccc;">Restart</button>
             </div>
             
-            <!-- Error Message Container (Custom Modal/In-page) -->
-            <div id="error-message-box" class="hidden text-center py-12">
-                <h3 class="text-3xl font-bold text-red-600 mb-4">An Error Occurred</h3>
-                <p id="error-text" class="text-gray-600 mb-6"></p>
-                <button onclick="window.location.reload()" class="btn-primary px-6 py-3 rounded-lg shadow-md">Try Reloading</button>
+            <div id="review-section" style="margin-top: 30px;">
+                <h3 style="font-size: 20px; border-bottom: 1px solid #e0e0e0; padding-bottom: 10px; margin-bottom: 15px;">Detailed Review</h3>
+                <ul id="answers-list"></ul>
             </div>
         </div>
+        
+        <!-- Error Message Container (Custom Modal/In-page) -->
+        <div id="error-message-box" class="hidden" style="text-align: center; padding: 40px;">
+            <h3 id="error-title" style="color: #f44336; margin-bottom: 20px;">An Error Occurred</h3>
+            <p id="error-text" style="color: #333; margin-bottom: 30px;"></p>
+            <button onclick="location.reload()" class="btn">Try Reloading</button>
+        </div>
     </main>
-    
+
     <!-- Confirmation Dialog (Modal) -->
-    <div id="confirmation-dialog" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white p-8 rounded-xl shadow-2xl text-center max-w-sm w-full">
-            <p class="text-xl font-semibold text-gray-800 mb-6">Are you sure you want to submit the exam?</p>
-            <div class="flex justify-center space-x-4">
-                <button id="confirm-submit" class="btn-primary bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg">Yes, Submit</button>
-                <button id="cancel-submit" class="btn-primary bg-gray-500 hover:bg-gray-600 px-6 py-2 rounded-lg">Cancel</button>
-            </div>
+    <div id="confirmation-dialog" class="confirmation-dialog hidden">
+        <p>Are you sure you want to submit?</p>
+        <div style="display: flex; justify-content: center;">
+            <button id="confirm-submit" class="btn">Yes</button>
+            <button id="cancel-submit" class="btn">No</button>
         </div>
     </div>
 
@@ -176,7 +420,7 @@
             // --- DOM ELEMENTS MAPPING ---
             const elements = {
                 loader: document.getElementById('loader'),
-                mainContent: document.getElementById('main-content'),
+                mainContent: document.querySelector('main'),
                 unauthorizedMessage: document.getElementById('unauthorized-message'),
                 quizContainer: document.getElementById('quiz-container'),
                 resultContainer: document.getElementById('result-container'),
@@ -187,7 +431,7 @@
                 scoreElement: document.getElementById('score'),
                 showAnswersButton: document.getElementById('show-answers-btn'),
                 restartButton: document.getElementById('restart-btn'),
-                timerElement: document.getElementById('timer'),
+                timerElement: document.querySelector('.timer'),
                 answersListElement: document.getElementById('answers-list'),
                 confirmationDialog: document.getElementById('confirmation-dialog'),
                 confirmSubmitButton: document.getElementById('confirm-submit'),
@@ -197,8 +441,6 @@
                 countdownSeconds: document.getElementById('countdownSeconds'),
                 courseHeader: document.getElementById('courseHeader'),
                 universityHeader: document.getElementById('universityHeader'),
-                currentQNum: document.getElementById('current-q-num'),
-                totalQNum: document.getElementById('total-q-num'),
                 errorMessageBox: document.getElementById('error-message-box'),
                 errorText: document.getElementById('error-text')
             };
@@ -207,6 +449,16 @@
             
             function getUserToken() {
                 return localStorage.getItem('token');
+            }
+            
+            // Shuffle array utility function (for question limit randomization)
+            function shuffleArray(array) {
+                const shuffled = [...array];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                return shuffled;
             }
 
             /**
@@ -240,7 +492,6 @@
                         localStorage.removeItem('token');
                         localStorage.removeItem('user');
                         localStorage.removeItem('currentUserData');
-                        // Do not rely on 'sign-in.html' existing; throw and let handler suggest sign-in link.
                         throw new Error('Unauthorized. Session expired. Please sign in again.');
                     }
                     
@@ -271,10 +522,12 @@
             function showLoader(message = 'Loading...') {
                 elements.loader.querySelector('.loader-text').textContent = message;
                 elements.loader.classList.remove('hidden');
+                elements.mainContent.classList.add('hidden');
             }
 
             function hideLoader() {
                 elements.loader.classList.add('hidden');
+                elements.mainContent.classList.remove('hidden');
             }
 
             function showUnauthorized() {
@@ -297,7 +550,6 @@
                     const currentUser = currentUserData.user;
                     if (!currentUser || !currentUser.university) return;
                     
-                    // Note: This API call assumes '/universities/all' does not require a token or is handled by an open API key.
                     const data = await makeApiCall('/universities/all', 'GET');
                     
                     const universities = data.data || data;
@@ -324,7 +576,7 @@
                         courseId: state.courseId,
                     };
                     
-                    // STEP 1: START THE EXAM (Using POST /cbt/start)
+                    // Endpoint: POST /cbt/start
                     const data = await makeApiCall('/cbt/start', 'POST', requestBody);
                     
                     // The API response is expected to be { success: true, data: { cbtId, questions } }
@@ -332,12 +584,12 @@
                         state.cbtId = data.data.cbtId || data.data._id;
                         let allQuestions = data.data.questions || [];
                         
-                        // Client-side question limit (matching the old logic)
+                        // Client-side question limit (Max 35)
                         const MAX_QUESTIONS = 35; 
                         if (allQuestions.length > MAX_QUESTIONS) {
                             console.log(`[CBT] Limiting questions from ${allQuestions.length} to ${MAX_QUESTIONS}`);
                             // Randomize and slice
-                            const shuffled = allQuestions.sort(() => 0.5 - Math.random());
+                            const shuffled = shuffleArray(allQuestions);
                             state.quizData = shuffled.slice(0, MAX_QUESTIONS);
                         } else {
                             state.quizData = allQuestions;
@@ -357,6 +609,7 @@
 
                 } catch (error) {
                     console.error('[CBT] Error starting CBT exam:', error);
+                    // Provide the option to load test data if the server fails to start the exam
                     showError(`Failed to start exam: ${error.message}`);
                 }
             }
@@ -379,28 +632,23 @@
                 elements.confirmSubmitButton.onclick = submitQuiz;
                 elements.cancelSubmitButton.onclick = hideConfirmationDialog;
                 elements.showAnswersButton.onclick = showAnswers;
+                // Note: restartQuiz calls showError, which itself has a reload button
                 elements.restartButton.onclick = restartQuiz;
-
-                elements.totalQNum.textContent = state.quizData.length;
             }
 
             function displayQuestion() {
                 const q = state.quizData[state.currentQuestionIndex];
                 if (!q) return;
 
-                const questionId = q._id || q.id;
+                const questionId = q._id || q.id || state.currentQuestionIndex;
                 
-                elements.currentQNum.textContent = state.currentQuestionIndex + 1;
-
-                elements.questionElement.textContent = `${state.currentQuestionIndex + 1}. ${q.question || q.Q}`;
+                elements.questionElement.innerHTML = `Q${state.currentQuestionIndex + 1}. ${q.question || q.Q}`;
                 elements.choicesElement.innerHTML = '';
                 
                 const choicesMap = {};
-                // The API can return options as a simple array or an object (A, B, C...)
                 const options = q.choices || q.options;
 
                 if (Array.isArray(options)) {
-                    // Handle array of strings/objects
                     options.forEach((choice, index) => {
                         const letter = String.fromCharCode(65 + index);
                         let text = String(choice);
@@ -413,10 +661,8 @@
                         choicesMap[value] = text;
                     });
                 } else if (typeof options === 'object' && options !== null) {
-                    // Handle object of key-value pairs
                     Object.assign(choicesMap, options);
                 } else {
-                    // Fallback to checking A, B, C, D properties directly
                     ['A', 'B', 'C', 'D', 'E'].forEach(letter => {
                         if (q[letter]) {
                             choicesMap[letter] = q[letter];
@@ -426,16 +672,16 @@
 
                 Object.keys(choicesMap).forEach((value, index) => {
                     const text = choicesMap[value];
+                    if (!text) return; // Skip empty options
+                    
                     const li = document.createElement('li');
                     const label = document.createElement('label');
-                    label.className = 'flex items-start p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition duration-150';
 
                     const input = document.createElement('input');
                     input.type = 'radio';
                     input.name = 'answer';
                     input.value = value;
                     input.id = `choice-${index}`;
-                    input.className = 'mt-1 mr-3';
                     
                     if (state.selectedAnswers[questionId] === value) {
                         input.checked = true;
@@ -447,13 +693,9 @@
                     
                     label.appendChild(input);
                     
-                    const textNode = document.createElement('span');
-                    // Prefix with value if it's a standard letter
                     const displayValue = /^[A-E]$/.test(value) ? `${value}. ` : `${value} `;
-                    textNode.textContent = `${displayValue}${text}`;
-                    textNode.className = 'text-gray-700 font-medium';
+                    label.appendChild(document.createTextNode(displayValue + text));
                     
-                    label.appendChild(textNode);
                     li.appendChild(label);
                     elements.choicesElement.appendChild(li);
                 });
@@ -464,11 +706,10 @@
                 
                 // Change button style for Submit
                 if (state.currentQuestionIndex === state.quizData.length - 1) {
-                    elements.nextButton.classList.add('btn-submit');
-                    elements.nextButton.classList.remove('btn-primary');
+                    elements.nextButton.classList.add('submit-btn');
+                    elements.nextButton.classList.remove('btn:hover');
                 } else {
-                    elements.nextButton.classList.add('btn-primary');
-                    elements.nextButton.classList.remove('btn-submit');
+                    elements.nextButton.classList.remove('submit-btn');
                 }
             }
 
@@ -495,6 +736,50 @@
             function hideConfirmationDialog() {
                 elements.confirmationDialog.classList.add('hidden');
             }
+            
+            // --- LOCAL RESULT FALLBACK ---
+            function generateLocalResultsAndShow() {
+                console.warn('[v0] Generating local results for display/fallback.');
+                
+                let score = 0;
+                const localResults = [];
+
+                state.quizData.forEach((question, index) => {
+                    const questionId = question._id || question.id || index;
+                    const submittedAnswer = state.selectedAnswers[questionId];
+                    
+                    // The correct answer is ONLY present in the local data if test mode was loaded.
+                    const correctAnswer = question.Ans; 
+
+                    // In a live environment, we assume everything is incorrect if we can't submit/grade
+                    const isCorrect = submittedAnswer === correctAnswer; 
+                    if (isCorrect) {
+                        score++;
+                    }
+
+                    localResults.push({
+                        questionId: questionId,
+                        isCorrect: isCorrect,
+                        correctAnswer: correctAnswer || 'N/A', 
+                        submittedAnswer: submittedAnswer || 'N/A'
+                    });
+                });
+
+                const localData = {
+                    data: {
+                        score: score,
+                        results: localResults
+                    }
+                };
+                
+                // Display the results with a warning
+                hideLoader();
+                stopTimer();
+                showResults(localData);
+                elements.scoreElement.textContent += " (WARNING: Local calculation only)";
+            }
+            // --- END LOCAL RESULT FALLBACK ---
+
 
             async function submitQuiz() {
                 try {
@@ -502,15 +787,21 @@
                     stopTimer();
                     showLoader('Submitting answers...');
                     
+                    const userToken = getUserToken();
+                    if (!userToken) throw new Error('No authentication token found.');
+
                     // Prepare answers array
-                    const answers = state.quizData.map(q => {
-                        const questionId = q._id || q.id;
+                    const answers = [];
+                    state.quizData.forEach((question, index) => {
+                        const questionId = question._id || question.id || index;
                         const answer = state.selectedAnswers[questionId];
                         
-                        return {
-                            questionId: questionId,
-                            answer: answer || '' // Send empty string if no answer provided
-                        };
+                        if (answer) {
+                            answers.push({
+                                questionId: questionId,
+                                answer: answer
+                            });
+                        }
                     });
                     
                     // STEP 1: SUBMIT ANSWERS (POST /cbt/submit)
@@ -520,38 +811,45 @@
                     };
 
                     console.log("[CBT] Submitting answers to /cbt/submit...");
-                    // The server might return a simple success status here
+                    
+                    // Note: makeApiCall will throw on 401 or network errors
                     const submissionResponse = await makeApiCall('/cbt/submit', 'POST', submissionBody);
 
                     if (submissionResponse.success === false) {
-                        throw new Error(submissionResponse.message || "Submission acknowledged but failed server-side.");
+                        // The server acknowledged the request but indicated a failure
+                        throw new Error(submissionResponse.message || "Submission failed server-side after acknowledgement.");
                     }
                     
                     showLoader('Grading exam...');
 
-                    // STEP 2: GET RESULTS (POST /cbt/{cbtId}/results)
-                    // This endpoint is used to trigger grading and fetch results
+                    // STEP 2: GET RESULTS (POST /cbt/{cbtId}/results) - NEW FLOW
+                    // This endpoint triggers grading and fetches the results
                     console.log(`[CBT] Requesting results from /cbt/${state.cbtId}/results...`);
                     const resultsData = await makeApiCall(`/cbt/${state.cbtId}/results`, 'POST', {});
                     
-                    // The successful response is expected to contain the score and results array
+                    // Expected results format: { success: true, data: { score, results } }
                     if (resultsData.success && resultsData.data) {
                         hideLoader();
                         showResults(resultsData.data);
                     } else {
-                        // Handle cases where the submission was successful but data format is unexpected
-                        throw new Error("Submission acknowledged, but failed to retrieve grade data.");
+                        throw new Error("Submission acknowledged, but failed to retrieve grade data in expected format.");
                     }
 
                 } catch (error) {
                     console.error('[CBT] Error during submission/grading:', error);
                     hideLoader();
                     
+                    // Check for network or server errors where grading results might be missing
+                    if (error.message.includes('HTTP error 500') || error.message.includes('HTTP error 400')) {
+                        console.error('[CBT] Server failed to process submission. Falling back to local display.');
+                        // Call local fallback logic instead of failing entirely
+                        generateLocalResultsAndShow(); 
+                        return;
+                    }
+                    
                     if (error.message.includes('sign in again')) {
-                        // Redirect if unauthorized
-                        showError(`${error.message} <br><a href="sign-in.html" class="btn-primary mt-4 inline-block px-4 py-2 rounded-lg shadow-md">Sign In</a>`);
+                        showError(`${error.message}<br><br><a href="sign-in.html" class="activate-btn" style="margin-top: 15px;">Sign In</a>`);
                     } else {
-                        // Provide option to reload or retry
                         showError(`Error during submission: ${error.message}`);
                     }
                 }
@@ -570,40 +868,49 @@
                 const totalQuestions = state.quizData.length;
                 const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
                 
-                elements.scoreElement.innerHTML = `You answered <span class="text-primary">${score}</span> correctly out of ${totalQuestions} questions.<br>
-                                                   Final Score: <span class="text-primary font-extrabold">${percentage}%</span>`;
+                elements.scoreElement.innerHTML = `You answered <span style="color: #1E1E4D; font-weight: bold;">${score}</span> correctly out of ${totalQuestions} questions. 
+                                                   Final Score: <span style="color: #4CAF50; font-weight: bold;">${percentage}%</span>`;
 
                 // Map original questions by ID for easy lookup
-                const quizMap = new Map(state.quizData.map(q => [q._id || q.id, q]));
+                const quizMap = new Map(state.quizData.map(q => [q._id || q.id || state.quizData.indexOf(q), q]));
 
                 elements.answersListElement.innerHTML = '';
                 
                 if (results.length > 0) {
                     results.forEach((result, index) => {
-                        const questionIdentifier = result.questionId;
-                        const originalQuestion = quizMap.get(questionIdentifier);
+                        const questionIdentifier = result.questionId || state.quizData[index]?._id || state.quizData[index]?.id || index;
+                        let originalQuestion = quizMap.get(questionIdentifier);
                         
                         if (!originalQuestion) return;
 
                         const li = document.createElement('li');
-                        li.className = `p-4 rounded-lg shadow-sm transition-all duration-300 ${result.isCorrect ? 'bg-green-50 border-l-4 border-green-500' : 'bg-red-50 border-l-4 border-red-500'}`;
+                        
+                        const isCorrect = result.isCorrect !== undefined ? result.isCorrect : (result.submittedAnswer === result.correctAnswer);
+                        
+                        li.classList.add(isCorrect ? 'correct' : 'incorrect');
                         
                         const questionText = originalQuestion.question || originalQuestion.Q;
                         const submittedAnswer = result.submittedAnswer || state.selectedAnswers[questionIdentifier] || 'Not Answered';
-                        const correctAnswer = result.correctAnswer || 'Unknown';
+                        let correctAnswer = result.correctAnswer || 'N/A';
+                        
+                        // If correct answer is missing, give a warning
+                        if (correctAnswer === 'N/A' && result.isCorrect === undefined) {
+                            correctAnswer = '<span style="color: #f44336; font-weight: bold;">[Grading Data Missing]</span>';
+                        }
                         
                         li.innerHTML = `
-                            <p class="font-bold text-gray-800 mb-2">Q${index + 1}: ${questionText}</p>
-                            <p class="text-sm">Your Answer: <span class="font-semibold">${submittedAnswer}</span></p>
-                            <p class="text-sm">Correct Answer: <span class="font-semibold ${result.isCorrect ? 'text-green-600' : 'text-red-600'}">${correctAnswer}</span></p>
+                            <strong>Q${index + 1}: ${questionText}</strong><br>
+                            Your Answer: <span style="font-weight: bold; color: ${isCorrect ? '#4CAF50' : '#f44336'};">${submittedAnswer}</span> 
+                            (Correct Answer: <span style="font-weight: bold;">${correctAnswer}</span>)
                         `;
                         
                         elements.answersListElement.appendChild(li);
                     });
                     
+                    elements.answersListElement.classList.add('hidden');
                     elements.showAnswersButton.classList.remove('hidden');
                 } else {
-                    elements.answersListElement.innerHTML = `<li class="p-4 text-center text-gray-500">Detailed answers are unavailable from the server.</li>`;
+                    elements.answersListElement.innerHTML = `<li style="list-style: none;">Detailed answers are unavailable from the server.</li>`;
                     elements.showAnswersButton.classList.add('hidden');
                 }
             }
@@ -612,7 +919,6 @@
             
             function startTimer() {
                 elements.timerElement.classList.remove('hidden');
-                elements.timerElement.classList.add('flex');
                 
                 state.timerInterval = setInterval(() => {
                     state.timeLeft--;
@@ -629,11 +935,6 @@
                         stopTimer();
                         submitQuiz();
                     }
-                    
-                    // High alert for last minute
-                    if (state.timeLeft <= 60 && !elements.timerElement.classList.contains('bg-red-100')) {
-                        elements.timerElement.classList.add('bg-red-100');
-                    }
                 }, 1000);
             }
 
@@ -646,35 +947,91 @@
 
             function showAnswers() {
                 const isHidden = elements.answersListElement.classList.toggle('hidden');
-                elements.showAnswersButton.textContent = isHidden ? 'Show Detailed Review' : 'Hide Detailed Review';
+                elements.showAnswersButton.textContent = isHidden ? 'Show Answers' : 'Hide Answers';
             }
 
             function restartQuiz() {
                 // Since alert/confirm is forbidden, this is replaced by a safe redirect prompt
                 showError('To restart the exam, please click the button below to reload the page and start a new attempt.');
-                // Note: The showError function already provides a Try Reloading button.
             }
+            
+            // --- ERROR DISPLAY ---
+            
+            // Temporary function for showing test data (used inside showError)
+            function loadTestExamData() {
+                console.log('[v0] Loading test exam data...');
+                
+                const testQuestions = [];
+                const sampleQuestions = [
+                    {_id: "test1", Q: "The Yoruba believe that life started in?", A: "Ile-Ife", B: "Oyo", C: "Benin", D: "Lagos", Ans: "A"},
+                    {_id: "test2", Q: "___ is the practice of resolving differences in a manner prescribed by society.", A: "Negotiation", B: "Conflict Resolution", C: "Mediation", D: "Arbitration", Ans: "B"},
+                    {_id: "test3", Q: "What is the pH of pure water at 25°C?", A: "6", B: "7", C: "8", D: "9", Ans: "B"},
+                    {_id: "test4", Q: "Which gas makes up about 78% of Earth's atmosphere?", A: "Oxygen", B: "Carbon dioxide", C: "Nitrogen", D: "Argon", Ans: "C"},
+                    {_id: "test5", Q: "What is the molecular formula for methane?", A: "CH4", B: "C2H6", C: "C3H8", D: "C4H10", Ans: "A"}
+                ];
+                
+                for (let i = 0; i < 35; i++) {
+                    const baseQuestion = sampleQuestions[i % sampleQuestions.length];
+                    testQuestions.push({
+                        ...baseQuestion,
+                        _id: `test-${i}`,
+                        Ans: baseQuestion.Ans
+                    });
+                }
+                
+                state.quizData = testQuestions;
+                state.cbtId = 'test-exam-' + Date.now();
+                
+                // Simulate some answers for testing the result screen
+                state.quizData.forEach(q => {
+                    const questionId = q._id;
+                    const isCorrectlyAnswered = (Math.random() > 0.4); // 60% correct rate
+                    state.selectedAnswers[questionId] = isCorrectlyAnswered ? q.Ans : (q.Ans === 'A' ? 'B' : 'A');
+                });
+                
+                // Manually calculate and display results for test data
+                generateLocalResultsAndShow();
+            }
+            
+            window.loadTestExamData = loadTestExamData;
             
             function showError(message) {
                 hideLoader();
+                
+                // Hide all main content sections
                 elements.quizContainer.classList.add('hidden');
                 elements.resultContainer.classList.add('hidden');
                 elements.unauthorizedMessage.classList.add('hidden');
                 elements.timerElement.classList.add('hidden');
-                elements.errorMessageBox.classList.remove('hidden');
-                elements.errorText.innerHTML = message;
+                
+                // Show dedicated error box
+                const errorBox = elements.errorMessageBox;
+                errorBox.classList.remove('hidden');
+                
+                const errorTextElement = elements.errorText;
+                errorTextElement.innerHTML = message;
+                
+                // Inject test mode option into the error box (for debugging convenience)
+                errorBox.innerHTML += `
+                    <div style="margin-top: 30px; padding: 20px; border: 1px dashed #cccccc; border-radius: 8px;">
+                        <h4 style="color: #1E1E4D; margin-bottom: 15px; font-weight: bold;">Debugging Option</h4>
+                        <p style="color: #333; margin-bottom: 15px;">If the live API fails, you can test the application UI with sample data (35 questions):</p>
+                        <button onclick="window.loadTestExamData()" class="btn" style="background-color: #4CAF50;">Load Sample Test Exam</button>
+                    </div>
+                `;
             }
             
             // --- INITIALIZATION ---
             async function initApp() {
                 try {
-                    showLoader('Starting up...');
                     getUrlParams();
                     
                     if (!state.courseId || !state.courseCode) {
-                        throw new Error('Missing course information. Please navigate from the main quiz/course selection page.');
+                        throw new Error('Missing course information. Please select a course.');
                     }
 
+                    showLoader('Checking authorization...');
+                    
                     fetchUniversityName();
                     
                     if (!getUserToken()) {
