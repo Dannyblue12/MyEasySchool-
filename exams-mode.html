@@ -781,6 +781,37 @@
                 elements.cancelSubmitButton.onclick = hideConfirmationDialog;
             }
             
+            // Helper function to get the full option text given the question and option key
+            function getOptionText(question, optionKey) {
+                if (!question || !optionKey) return 'N/A';
+                
+                const key = String(optionKey).toUpperCase();
+                
+                // Case 1: Options are direct properties (A, B, C...)
+                if (question[key]) {
+                    return question[key];
+                }
+
+                // Case 2: Options are in an 'options' object/map
+                if (typeof question.options === 'object' && question.options !== null) {
+                    return question.options[key] || question.options[optionKey] || `${key}: Option text unavailable`;
+                }
+
+                // Case 3: Options are in a 'choices' array (less common for key mapping but check index)
+                if (Array.isArray(question.choices)) {
+                    const index = key.charCodeAt(0) - 'A'.charCodeAt(0);
+                    if (index >= 0 && index < question.choices.length) {
+                        const choice = question.choices[index];
+                        if (typeof choice === 'object' && choice !== null) {
+                            return choice.text || choice.option || choice.choice || `${key}: Option text unavailable`;
+                        }
+                        return choice;
+                    }
+                }
+                
+                return `[${key}] Option text unavailable`;
+            }
+
             // Render detailed answer list
             function renderDetailedResults(results) {
                 // Map original questions by ID for easy lookup
@@ -813,14 +844,16 @@
                     const questionText = originalQuestion.question || originalQuestion.Q || `Question ${index + 1}`;
                     
                     // Look up the answer submitted by the user from local state
-                    const submittedAnswer = state.selectedAnswers[questionIdentifier] || 'N/A (Not Attempted)';
-                    
-                    const correctAnswer = result.correctAnswer || '<span style="color: red;">Unknown</span>';
+                    const submittedOptionKey = state.selectedAnswers[questionIdentifier] || '';
+                    const submittedOptionText = submittedOptionKey ? getOptionText(originalQuestion, submittedOptionKey) : 'N/A (Not Attempted)';
+
+                    const correctOptionKey = result.correctAnswer || '';
+                    const correctOptionText = correctOptionKey ? getOptionText(originalQuestion, correctOptionKey) : '<span style="color: red;">Unknown</span>';
                     
                     li.innerHTML = `
                         <strong>Q${index + 1}: ${questionText}</strong><br>
-                        Your Answer: <span style="font-weight: bold;">${submittedAnswer}</span> 
-                        (Correct: ${correctAnswer})
+                        Your Answer: <span style="font-weight: bold;">(${submittedOptionKey}) ${submittedOptionText}</span> 
+                        (Correct: <span style="font-weight: bold;">(${correctOptionKey}) ${correctOptionText}</span>)
                     `;
                     
                     elements.answersListElement.appendChild(li);
@@ -928,7 +961,7 @@
                         if (answer) {
                             answers.push({
                                 questionId: questionId,
-                                // CRITICAL FIX: Use 'selectedOption' as required by the API
+                                // CRITICAL: Use 'selectedOption' as required by the API
                                 selectedOption: answer 
                             });
                         }
