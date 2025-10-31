@@ -153,38 +153,56 @@
         .tab-content {
             flex: 1;
             position: relative;
-            /* FIX: Ensure children elements are aligned to the start (top) */
-            display: flex; 
-            flex-direction: column;
+            /* FIX: Removed flex properties to fix vertical centering issue. */
         }
 
         .question-content {
             opacity: 1;
             transition: opacity 0.2s ease;
+            /* Added absolute positioning to match solution's default state */
+            position: relative; 
+            top: 0;
+            left: 0;
+            right: 0;
         }
+        
+        /* The content shown when the tab is active needs to occupy space */
+        .question-content.active {
+            position: relative;
+            opacity: 1;
+        }
+
 
         .solution-content {
             opacity: 0;
-            position: absolute;
+            /* Positioning for hidden state */
+            position: absolute; 
             top: 0;
             left: 0;
             right: 0;
             pointer-events: none;
             transition: opacity 0.2s ease;
-            /* FIX: Ensure solution content starts at the top */
+
+            /* Content alignment for solution */
             display: flex;
             flex-direction: column;
-            justify-content: flex-start; /* FIX APPLIED HERE */
+            justify-content: flex-start; /* Ensures content starts from the top */
         }
 
         .solution-content.active {
             opacity: 1;
+            /* Positioning for active state to take up space */
             position: relative;
             pointer-events: all;
         }
 
         .question-content.hidden {
             opacity: 0;
+            /* Positioning for hidden state */
+            position: absolute; 
+            top: 0;
+            left: 0;
+            right: 0;
             pointer-events: none;
         }
 
