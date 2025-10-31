@@ -836,14 +836,14 @@
                         throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
                     }
 
-                    const data = await response.json();
-                    console.log('[v0] Detailed results response:', data);
+                    const apiResponse = await response.json();
+                    console.log('[v0] Detailed results response:', apiResponse);
 
-                    const results = data.data?.results || data.results || [];
+                    const results = apiResponse.data?.results || apiResponse.results || [];
                     
                     if (results.length === 0) {
                         // Display error message directly if data is empty on first fetch attempt
-                        elements.answersListElement.innerHTML = `<li style="list-style: none; color: orange;">Detailed answers are currently unavailable. The server returned no results.</li>`;
+                        elements.answersListElement.innerHTML = `<li style="list-style: none; color: orange;">Detailed answers are currently unavailable. The server returned no results in the 'data.results' or 'results' field.</li>`;
                         elements.answersListElement.classList.remove('hidden');
                         
                         elements.showAnswersButton.disabled = false;
@@ -958,9 +958,9 @@
 
                 // Display score - CORRECTED LOGIC: Use quizData.length as the canonical total
                 const score = data.data?.score || data.score || 0;
-                // Fallback to state.quizData.length (35) if totalQuestions is not correctly returned or is 0
-                const totalQuestions = state.quizData.length || 35; 
-                const percentage = Math.round((score / totalQuestions) * 100);
+                // Use state.quizData.length, which is confirmed to be 35 based on initial load log
+                const totalQuestions = state.quizData.length; 
+                const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
                 
                 elements.scoreElement.textContent = `Your Score: ${score}/${totalQuestions} (${percentage}%)`;
                 
