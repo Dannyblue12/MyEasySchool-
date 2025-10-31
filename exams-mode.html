@@ -832,6 +832,7 @@
 
                     if (!response.ok) {
                         const errorText = await response.text();
+                        console.error('[v0] Error fetching detailed results response body:', errorText);
                         throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
                     }
 
@@ -877,6 +878,7 @@
                         const answer = state.selectedAnswers[questionId];
                         
                         // Only submit answers that were actually selected (handles unselected/null)
+                        // The server should handle null/missing answers as wrong/unanswered.
                         if (answer) {
                             answers.push({
                                 questionId: questionId,
@@ -944,9 +946,9 @@
                 elements.answersListElement.innerHTML = ''; // Clear list content
                 elements.answersListElement.classList.add('hidden'); // Ensure hidden by default
 
-                // Display score
+                // Display score - Use score/totalQuestions from the API response
                 const score = data.data?.score || data.score || 0;
-                const totalQuestions = state.quizData.length;
+                const totalQuestions = data.data?.totalQuestions || state.quizData.length;
                 const percentage = Math.round((score / totalQuestions) * 100);
                 
                 elements.scoreElement.textContent = `Your Score: ${score}/${totalQuestions} (${percentage}%)`;
@@ -1010,6 +1012,7 @@
                 state.quizData.forEach(q => {
                     // Simulate some answers for testing display
                     const questionId = q._id;
+                    // Simulate some correct/incorrect answers for testing
                     const submittedAnswer = (parseInt(questionId.split('-')[1]) % 3 === 0) ? (q.Ans === 'A' ? 'B' : 'A') : q.Ans;
                     state.selectedAnswers[questionId] = submittedAnswer;
                 });
@@ -1017,7 +1020,9 @@
                 // Show test results manually (simulating a submission response)
                 const mockSubmissionResponse = {
                     data: {
+                        // Calculate score locally for the mock response
                         score: state.quizData.filter(q => state.selectedAnswers[q._id] === q.Ans).length,
+                        totalQuestions: state.quizData.length,
                         results: [] // No results in submit, so the button will call /results
                     }
                 };
