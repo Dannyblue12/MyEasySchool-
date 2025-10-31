@@ -153,6 +153,9 @@
         .tab-content {
             flex: 1;
             position: relative;
+            /* FIX: Ensure children elements are aligned to the start (top) */
+            display: flex; 
+            flex-direction: column;
         }
 
         .question-content {
@@ -168,6 +171,9 @@
             right: 0;
             pointer-events: none;
             transition: opacity 0.2s ease;
+            /* FIX: Ensure solution content starts at the top */
+            display: flex;
+            flex-direction: column;
         }
 
         .solution-content.active {
