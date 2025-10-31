@@ -413,7 +413,6 @@
                 detailedResults: null // Added to store detailed results from API
             };
 
-
             // Get URL parameters
             function getUrlParams() {
                 const urlParams = new URLSearchParams(window.location.search);
@@ -785,10 +784,16 @@
                 elements.resultContainer.classList.remove('hidden');
                 elements.timerElement.classList.add('hidden');
 
-                // Display score
                 const score = data.data?.score || data.score || 0;
-                const totalQuestions = state.quizData.length;
+                const totalQuestions = state.quizData.length; // Always use local quiz data length (35)
                 const percentage = Math.round((score / totalQuestions) * 100);
+                
+                console.log('[v0] Results Debug:', {
+                    scoreFromAPI: data.data?.score || data.score,
+                    totalQuestions: totalQuestions,
+                    calculatedPercentage: percentage,
+                    fullResponse: data
+                });
                 
                 elements.scoreElement.textContent = `Your Score: ${score}/${totalQuestions} (${percentage}%)`;
 
@@ -796,7 +801,6 @@
                 elements.showAnswersButton.classList.remove('hidden');
             }
 
-            // Fetch detailed results from API
             async function fetchDetailedResults() {
                 try {
                     showLoader('Loading detailed results...');
@@ -817,6 +821,8 @@
                         }
                     });
 
+                    console.log('[v0] API Response Status:', response.status);
+
                     if (!response.ok) {
                         const errorText = await response.text();
                         console.error('[v0] Error fetching results:', { status: response.status, body: errorText });
@@ -824,45 +830,72 @@
                     }
 
                     const data = await response.json();
-                    console.log('[v0] Detailed results response:', data);
+                    console.log('[v0] Detailed results API response:', data);
 
-                    state.detailedResults = data.data || data;
+                    // Store the full response
+                    state.detailedResults = data;
+                    
                     hideLoader();
                     displayDetailedResults();
 
                 } catch (error) {
                     console.error('[v0] Error fetching detailed results:', error);
                     hideLoader();
-                    showError(`Error loading detailed results: ${error.message}`);
+                    elements.answersListElement.innerHTML = `<li style="list-style: none; color: red;">Error loading results: ${error.message}</li>`;
                 }
             }
 
-            // Display detailed results
             function displayDetailedResults() {
                 elements.answersListElement.innerHTML = '';
                 
-                if (!state.detailedResults || !state.detailedResults.results) {
-                    elements.answersListElement.innerHTML = '<li style="list-style: none;">Results data not available.</li>';
+                console.log('[v0] displayDetailedResults - state.detailedResults:', state.detailedResults);
+                
+                // Handle different possible API response formats
+                let results = [];
+                
+                if (state.detailedResults) {
+                    // Try different possible response structures
+                    if (state.detailedResults.data && Array.isArray(state.detailedResults.data)) {
+                        results = state.detailedResults.data;
+                    } else if (state.detailedResults.data && state.detailedResults.data.results) {
+                        results = state.detailedResults.data.results;
+                    } else if (Array.isArray(state.detailedResults)) {
+                        results = state.detailedResults;
+                    } else if (state.detailedResults.results && Array.isArray(state.detailedResults.results)) {
+                        results = state.detailedResults.results;
+                    }
+                }
+                
+                console.log('[v0] Parsed results array:', results);
+                
+                if (!results || results.length === 0) {
+                    elements.answersListElement.innerHTML = '<li style="list-style: none; color: red;">No results data available. Please try again.</li>';
                     return;
                 }
 
-                const results = state.detailedResults.results || [];
-                
                 results.forEach((result, index) => {
                     const li = document.createElement('li');
                     
-                    const isCorrect = result.isCorrect === true;
+                    // Determine if answer is correct
+                    const isCorrect = result.isCorrect === true || result.correct === true;
                     li.classList.add(isCorrect ? 'correct' : 'incorrect');
                     
-                    const questionText = result.question || `Question ${index + 1}`;
-                    const submittedAnswer = result.userAnswer || result.selectedAnswer || 'Not Answered';
-                    const correctAnswer = result.correctAnswer || 'N/A';
+                    // Extract question text from various possible field names
+                    const questionText = result.question || result.Q || result.questionText || `Question ${index + 1}`;
+                    
+                    // Extract user's answer from various possible field names
+                    const submittedAnswer = result.userAnswer || result.selectedAnswer || result.userSelectedAnswer || 'Not Answered';
+                    
+                    // Extract correct answer from various possible field names
+                    const correctAnswer = result.correctAnswer || result.Ans || 'N/A';
+                    
+                    console.log(`[v0] Question ${index + 1} debug:`, { questionText, submittedAnswer, correctAnswer, isCorrect });
                     
                     li.innerHTML = `
                         <strong>Q${index + 1}: ${questionText}</strong><br>
-                        Your Answer: <span style="font-weight: bold;">${submittedAnswer}</span><br>
-                        Correct Answer: <span style="font-weight: bold;">${correctAnswer}</span>
-                        ${isCorrect ? '<br><span style="color: #4CAF50;">✓ Correct</span>' : '<br><span style="color: #f44336;">✗ Incorrect</span>'}
+                        Your Answer: <span style="font-weight: bold; color: ${isCorrect ? '#4CAF50' : '#f44336'};">${submittedAnswer}</span><br>
+                        Correct Answer: <span style="font-weight: bold; color: #4CAF50;">${correctAnswer}</span>
+                        <br><span style="font-weight: 600; ${isCorrect ? 'color: #4CAF50;' : 'color: #f44336;'}">${isCorrect ? '✓ Correct' : '✗ Incorrect'}</span>
                     `;
                     
                     elements.answersListElement.appendChild(li);
