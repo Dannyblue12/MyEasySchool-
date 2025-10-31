@@ -4,6 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AKSU EXAMS SIMULATION - CBT</title>
+    
+    <!-- MathJax Integration: Added the configuration and loading script -->
+    <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+    </script>
+    <script>
+        // MathJax configuration to process dollar signs ($...$) for inline math
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <!-- End MathJax Integration -->
+
     <style>
         body {
             background-color: #4CAF50;
@@ -347,7 +365,7 @@
             <div class="navigation-buttons">
                 <button id="prev-btn" class="btn">Previous</button>
                 <button id="next-btn" class="btn">Next</button>
-            </div>
+            </div >
         </section>
 
         <div id="result-container" class="hidden">
@@ -367,6 +385,13 @@
     </div>
 
     <script>
+        // Global function to trigger MathJax rendering
+        function renderMath() {
+            if (typeof MathJax !== 'undefined') {
+                MathJax.typeset();
+            }
+        }
+        
         document.addEventListener("DOMContentLoaded", function() {
             // Constants
             const API_BASE = "https://my-easy-school-api.onrender.com/api";
@@ -713,6 +738,9 @@
                 // Update navigation buttons
                 elements.prevButton.disabled = state.currentQuestionIndex === 0;
                 elements.nextButton.textContent = state.currentQuestionIndex === state.quizData.length - 1 ? 'Submit' : 'Next';
+                
+                // Trigger MathJax rendering after updating content
+                renderMath(); 
             }
 
             // Previous question
@@ -797,6 +825,9 @@
                     
                     elements.answersListElement.appendChild(li);
                 });
+                
+                // Trigger MathJax rendering for the results list
+                renderMath();
             }
 
             // Fetch detailed results (called by Show Answers button)
@@ -1003,7 +1034,7 @@
                         _id: "test1", Q: "The Yoruba believe that life started in?", A: "Ile-Ife", B: "Oyo", C: "Benin", D: "Lagos", E: "Kaduna", Ans: "A"
                     },
                     {
-                        _id: "test2", Q: "___ is the practice of resolving differences in a manner prescribed by society as opposed to creating conflict.", A: "Negotiation", B: "Conflict Resolution", C: "Mediation", D: "Arbitration", E: "Debate", Ans: "B"
+                        _id: "test2", Q: "If a principal of $P$ is invested at an annual interest rate of $r$ compounded $n$ times per year, the amount $A$ after $t$ years is given by the formula $A = P(1 + r/n)^{nt}$. What is the value of $A$ when $P=1000$, $r=0.05$, $n=1$, and $t=10$?", A: "$1628.89$", B: "$1647.01$", C: "$1600.00$", D: "$1650.00$", Ans: "A"
                     },
                     {
                         _id: "test3", Q: "What is the pH of pure water at 25°C?", A: "6", B: "7", C: "8", D: "9", Ans: "B"
@@ -1049,6 +1080,7 @@
                 hideLoader();
                 stopTimer();
                 showResults(mockSubmissionResponse);
+                renderMath(); // Initial render for test mode
             }
 
             // Show error
@@ -1072,6 +1104,7 @@
             
             // Make loadTestExamData globally accessible for the button in showError
             window.loadTestExamData = loadTestExamData;
+            window.renderMath = renderMath; // Make it global for ease of use in console/debugging
 
             // Initialize the application
             async function initApp() {
