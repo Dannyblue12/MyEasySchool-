@@ -499,6 +499,45 @@
                     console.error('[v0] Error fetching university name:', error);
                 }
             }
+            
+            // ====================================================================
+            // Timer Functions (Moved for better scoping)
+            // ====================================================================
+
+            // Start timer
+            function startTimer() {
+                elements.timerElement.classList.remove('hidden');
+                
+                state.timerInterval = setInterval(() => {
+                    state.timeLeft--;
+                    
+                    const hours = Math.floor(state.timeLeft / 3600);
+                    const minutes = Math.floor((state.timeLeft % 3600) / 60);
+                    const seconds = state.timeLeft % 60;
+                    
+                    elements.countdownHours.textContent = hours.toString().padStart(2, '0');
+                    elements.countdownMinutes.textContent = minutes.toString().padStart(2, '0');
+                    elements.countdownSeconds.textContent = seconds.toString().padStart(2, '0');
+                    
+                    if (state.timeLeft <= 0) {
+                        stopTimer();
+                        submitQuiz();
+                    }
+                }, 1000);
+            }
+
+            // Stop timer
+            function stopTimer() {
+                if (state.timerInterval) {
+                    clearInterval(state.timerInterval);
+                    state.timerInterval = null;
+                }
+            }
+
+            // ====================================================================
+            // End Timer Functions
+            // ====================================================================
+
 
             // Start CBT exam - Fetches questions and sets up state
             async function startCBTExam() {
@@ -566,6 +605,7 @@
                 } catch (error) {
                     console.error('[v0] Error starting CBT exam:', error);
                     hideLoader();
+                    // Catch the specific error and re-throw with the message to be displayed
                     showError(`Error starting exam: ${error.message}`);
                 }
             }
@@ -779,7 +819,7 @@
                         throw new Error('CBT ID or authentication token is missing. Please restart.');
                     }
 
-                    // NEW API ENDPOINT CALL
+                    // API ENDPOINT CALL: /cbt/{cbtId}/results (GET)
                     console.log('[v0] Fetching detailed results from GET:', `${API_BASE}/cbt/${cbtId}/results`);
                     
                     const response = await fetch(`${API_BASE}/cbt/${cbtId}/results`, {
@@ -805,6 +845,7 @@
                     
                     elements.showAnswersButton.disabled = false;
                     elements.answersListElement.classList.remove('hidden'); // Show list after fetching
+                    elements.showAnswersButton.textContent = 'Hide Answers';
 
                 } catch (error) {
                     console.error('[v0] Error fetching detailed results:', error);
@@ -849,6 +890,7 @@
                         answers: answers
                     });
 
+                    // API ENDPOINT CALL: /cbt/submit (POST)
                     const response = await fetch(`${API_BASE}/cbt/submit`, {
                         method: 'POST',
                         headers: {
@@ -922,6 +964,7 @@
 
             // Restart quiz (Re-using the submission dialog structure)
             function restartQuiz() {
+                // If the user is viewing results (quiz is inactive), confirm restart
                 if (!state.isQuizActive) {
                     showConfirmationDialog('Are you sure you want to restart the exam?', () => {
                         location.reload();
@@ -929,10 +972,6 @@
                 }
             }
             
-            // --- LOCAL RESULT FALLBACK (Removed to strictly adhere to new API requirements) ---
-            // The original loadTestExamData is kept for testing purposes.
-            // --- END LOCAL RESULT FALLBACK ---
-
             // Load test data for exams mode (kept original for recovery/testing purposes)
             function loadTestExamData() {
                 console.log('[v0] Loading test exam data...');
@@ -1033,7 +1072,8 @@
 
                 } catch (error) {
                     console.error('[v0] Initialization error:', error);
-                    showError(error.message);
+                    // This will now catch "startTimer is not defined" from startCBTExam and display it nicely
+                    showError(error.message); 
                 }
             }
 
