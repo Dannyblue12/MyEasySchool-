@@ -838,12 +838,17 @@
 
                     const apiResponse = await response.json();
                     console.log('[v0] Detailed results response:', apiResponse);
+                    console.log('[v0] API Data Content:', apiResponse.data); // NEW LOG
 
+                    // Robustly extract results from either data.results or results (if flattened)
                     const results = apiResponse.data?.results || apiResponse.results || [];
                     
+                    // Log the final array being used for rendering to diagnose backend issues
+                    console.log('[v0] Final Results Array Size:', results.length);
+                    
                     if (results.length === 0) {
-                        // Display error message directly if data is empty on first fetch attempt
-                        elements.answersListElement.innerHTML = `<li style="list-style: none; color: orange;">Detailed answers are currently unavailable. The server returned no results in the 'data.results' or 'results' field.</li>`;
+                        // The server returned success but an empty or non-existent results array
+                        elements.answersListElement.innerHTML = `<li style="list-style: none; color: orange;">Detailed answers are currently unavailable. The server returned a successful response but the results array was empty.</li>`;
                         elements.answersListElement.classList.remove('hidden');
                         
                         elements.showAnswersButton.disabled = false;
@@ -892,12 +897,13 @@
                         if (answer) {
                             answers.push({
                                 questionId: questionId,
-                                answer: answer // This is the single letter key (A, B, C, D, E)
+                                // CRITICAL FIX: Use 'selectedOption' as required by the API
+                                selectedOption: answer 
                             });
                         }
                     });
 
-                    console.log('[v0] Final Submission Payload:', {
+                    console.log('[v0] Final Submission Payload (Corrected):', {
                         cbtId: state.cbtId,
                         answers: answers
                     });
@@ -957,7 +963,9 @@
                 elements.answersListElement.classList.add('hidden'); // Ensure hidden by default
 
                 // Display score - CORRECTED LOGIC: Use quizData.length as the canonical total
-                const score = data.data?.score || data.score || 0;
+                // Check multiple places for the score value: response.data.data.score or response.data.score
+                const score = data.data?.score !== undefined ? data.data.score : (data.score !== undefined ? data.score : 0);
+
                 // Use state.quizData.length, which is confirmed to be 35 based on initial load log
                 const totalQuestions = state.quizData.length; 
                 const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
