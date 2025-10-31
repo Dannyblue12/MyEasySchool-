@@ -88,7 +88,6 @@
 
         input[type="radio"] {
             margin-right: 10px;
-            /* Modern, larger radio buttons */
             -webkit-appearance: none;
             appearance: none;
             background-color: #fff;
@@ -160,7 +159,7 @@
             list-style: none;
             text-align: left;
             margin-top: 20px;
-            padding: 0; /* Important: remove default ul padding */
+            padding: 0;
         }
 
         #answers-list li {
@@ -173,12 +172,12 @@
 
         #answers-list .correct {
             color: #1E1E4D;
-            background-color: #e6ffe6; /* Light green background */
+            background-color: #e6ffe6;
         }
 
         #answers-list .incorrect {
             color: #1E1E4D;
-            background-color: #ffe6e6; /* Light red background */
+            background-color: #ffe6e6;
         }
 
         .loader-container {
@@ -404,15 +403,16 @@
             const state = {
                 quizData: [],
                 currentQuestionIndex: 0,
-                selectedAnswers: {}, // Stores answers locally: { questionId: "A", questionId2: "B", ... }
+                selectedAnswers: {},
                 timeLeft: EXAM_DURATION,
                 timerInterval: null,
                 isQuizActive: false,
                 courseId: null,
                 courseCode: null,
                 cbtId: null,
-                answersFetched: false // NEW: Track if detailed results have been fetched
+                detailedResults: null // Added to store detailed results from API
             };
+
 
             // Get URL parameters
             function getUrlParams() {
@@ -499,45 +499,6 @@
                     console.error('[v0] Error fetching university name:', error);
                 }
             }
-            
-            // ====================================================================
-            // Timer Functions (Moved for better scoping)
-            // ====================================================================
-
-            // Start timer
-            function startTimer() {
-                elements.timerElement.classList.remove('hidden');
-                
-                state.timerInterval = setInterval(() => {
-                    state.timeLeft--;
-                    
-                    const hours = Math.floor(state.timeLeft / 3600);
-                    const minutes = Math.floor((state.timeLeft % 3600) / 60);
-                    const seconds = state.timeLeft % 60;
-                    
-                    elements.countdownHours.textContent = hours.toString().padStart(2, '0');
-                    elements.countdownMinutes.textContent = minutes.toString().padStart(2, '0');
-                    elements.countdownSeconds.textContent = seconds.toString().padStart(2, '0');
-                    
-                    if (state.timeLeft <= 0) {
-                        stopTimer();
-                        submitQuiz();
-                    }
-                }, 1000);
-            }
-
-            // Stop timer
-            function stopTimer() {
-                if (state.timerInterval) {
-                    clearInterval(state.timerInterval);
-                    state.timerInterval = null;
-                }
-            }
-
-            // ====================================================================
-            // End Timer Functions
-            // ====================================================================
-
 
             // Start CBT exam - Fetches questions and sets up state
             async function startCBTExam() {
@@ -605,7 +566,6 @@
                 } catch (error) {
                     console.error('[v0] Error starting CBT exam:', error);
                     hideLoader();
-                    // Catch the specific error and re-throw with the message to be displayed
                     showError(`Error starting exam: ${error.message}`);
                 }
             }
@@ -626,9 +586,8 @@
                 // Add event listeners (ensure they are only added once)
                 elements.prevButton.onclick = previousQuestion;
                 elements.nextButton.onclick = nextQuestion;
-                // Bind submit/cancel using the dedicated function
-                // elements.confirmSubmitButton.onclick = submitQuiz; // Handled by showConfirmationDialog
-                // elements.cancelSubmitButton.onclick = hideConfirmationDialog; // Handled by showConfirmationDialog
+                elements.confirmSubmitButton.onclick = submitQuiz;
+                elements.cancelSubmitButton.onclick = hideConfirmationDialog;
                 elements.showAnswersButton.onclick = showAnswers;
                 elements.restartButton.onclick = restartQuiz;
             }
@@ -663,7 +622,7 @@
                         return { text: choices[key], value: key };
                     });
                 } else {
-                    const letters = ['A', 'B', 'C', 'D', 'E']; // Supports up to E
+                    const letters = ['A', 'B', 'C', 'D', 'E'];
                     formattedChoices = letters.map(letter => {
                         return { text: questionData[letter], value: letter };
                     }).filter(choice => choice.text);
@@ -729,140 +688,24 @@
                     state.currentQuestionIndex++;
                     displayQuestion();
                 } else {
-                    showConfirmationDialog('Are you sure you want to submit?', submitQuiz);
+                    showConfirmationDialog();
                 }
             }
 
-            // Show confirmation dialog (Generic handler)
-            function showConfirmationDialog(message, confirmCallback) {
-                elements.confirmationDialog.querySelector('p').textContent = message;
-                elements.confirmSubmitButton.onclick = () => {
-                    hideConfirmationDialog();
-                    confirmCallback();
-                };
-                elements.cancelSubmitButton.onclick = hideConfirmationDialog;
+            // Show confirmation dialog
+            function showConfirmationDialog() {
                 elements.confirmationDialog.classList.remove('hidden');
             }
-
 
             // Hide confirmation dialog
             function hideConfirmationDialog() {
                 elements.confirmationDialog.classList.add('hidden');
-                // Rebind submit logic to default state after cancelling a restart, etc.
-                elements.confirmSubmitButton.onclick = submitQuiz; 
-                elements.cancelSubmitButton.onclick = hideConfirmationDialog;
-            }
-            
-            // Render detailed answer list
-            function renderDetailedResults(results) {
-                // Map original questions by ID for easy lookup
-                const quizMap = new Map(state.quizData.map((q, index) => [q._id || q.id || index, q]));
-                
-                elements.answersListElement.innerHTML = '';
-
-                if (results.length === 0) {
-                    elements.answersListElement.innerHTML = `<li style="list-style: none;">Detailed answers are currently unavailable.</li>`;
-                    elements.showAnswersButton.classList.add('hidden');
-                    return;
-                }
-
-                results.forEach((result, index) => {
-                    const questionIdentifier = result.questionId;
-                    // Find original question data (for Q text)
-                    let originalQuestion = quizMap.get(questionIdentifier);
-                    if (!originalQuestion) {
-                        originalQuestion = state.quizData.find(q => q._id === questionIdentifier);
-                    }
-                    if (!originalQuestion) return; // Skip if question data is missing
-
-                    const li = document.createElement('li');
-                    
-                    // Determine correctness
-                    const isCorrect = result.isCorrect;
-                    
-                    li.classList.add(isCorrect ? 'correct' : 'incorrect');
-                    
-                    const questionText = originalQuestion.question || originalQuestion.Q || `Question ${index + 1}`;
-                    
-                    // Look up the answer submitted by the user from local state
-                    const submittedAnswer = state.selectedAnswers[questionIdentifier] || 'N/A (Not Attempted)';
-                    
-                    const correctAnswer = result.correctAnswer || '<span style="color: red;">Unknown</span>';
-                    
-                    li.innerHTML = `
-                        <strong>Q${index + 1}: ${questionText}</strong><br>
-                        Your Answer: <span style="font-weight: bold;">${submittedAnswer}</span> 
-                        (Correct: ${correctAnswer})
-                    `;
-                    
-                    elements.answersListElement.appendChild(li);
-                });
-            }
-
-            // Fetch detailed results (called by Show Answers button)
-            async function fetchAndRenderAnswers() {
-                if (state.answersFetched) {
-                    // If already fetched, just toggle visibility
-                    const isHidden = elements.answersListElement.classList.toggle('hidden');
-                    elements.showAnswersButton.textContent = isHidden ? 'Show Answers' : 'Hide Answers';
-                    return;
-                }
-
-                try {
-                    elements.showAnswersButton.disabled = true;
-                    elements.showAnswersButton.textContent = 'Loading Answers...';
-                    
-                    const userToken = getUserToken();
-                    const cbtId = state.cbtId;
-
-                    if (!userToken || !cbtId) {
-                        throw new Error('CBT ID or authentication token is missing. Please restart.');
-                    }
-
-                    // API ENDPOINT CALL: /cbt/{cbtId}/results (GET)
-                    console.log('[v0] Fetching detailed results from GET:', `${API_BASE}/cbt/${cbtId}/results`);
-                    
-                    const response = await fetch(`${API_BASE}/cbt/${cbtId}/results`, {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${userToken}`,
-                            'Content-Type': 'application/json'
-                        }
-                    });
-
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        console.error('[v0] Error fetching detailed results response body:', errorText);
-                        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
-                    }
-
-                    const data = await response.json();
-                    console.log('[v0] Detailed results response:', data);
-
-                    const results = data.data?.results || data.results || [];
-                    
-                    renderDetailedResults(results);
-                    state.answersFetched = true;
-                    
-                    elements.showAnswersButton.disabled = false;
-                    elements.answersListElement.classList.remove('hidden'); // Show list after fetching
-                    elements.showAnswersButton.textContent = 'Hide Answers';
-
-                } catch (error) {
-                    console.error('[v0] Error fetching detailed results:', error);
-                    elements.showAnswersButton.textContent = 'Error Loading Answers';
-                    elements.showAnswersButton.disabled = false;
-                    // Provide feedback to the user
-                    elements.answersListElement.innerHTML = `<li style="list-style: none; color: red;">Failed to load detailed answers: ${error.message}.</li>`;
-                    elements.answersListElement.classList.remove('hidden');
-                }
             }
 
             // Submit quiz
             async function submitQuiz() {
                 try {
                     hideConfirmationDialog();
-                    stopTimer(); // Stop timer immediately on submit
                     showLoader('Submitting exam...');
                     
                     const userToken = getUserToken();
@@ -871,18 +714,16 @@
                         throw new Error('No authentication token found. Please sign in again.');
                     }
 
-                    // Prepare answers array: ONLY include selected answers.
                     const answers = [];
                     state.quizData.forEach((question, index) => {
                         const questionId = question._id || question.id || index;
-                        const answer = state.selectedAnswers[questionId];
+                        const selectedOption = state.selectedAnswers[questionId] || null;
                         
-                        // Only submit answers that were actually selected (handles unselected/null)
-                        // The server should handle null/missing answers as wrong/unanswered.
-                        if (answer) {
+                        // Only add to answers array if question was answered
+                        if (selectedOption) {
                             answers.push({
                                 questionId: questionId,
-                                answer: answer // This is the single letter key (A, B, C, D, E)
+                                selectedOption: selectedOption
                             });
                         }
                     });
@@ -892,7 +733,6 @@
                         answers: answers
                     });
 
-                    // API ENDPOINT CALL: /cbt/submit (POST)
                     const response = await fetch(`${API_BASE}/cbt/submit`, {
                         method: 'POST',
                         headers: {
@@ -907,8 +747,8 @@
 
                     if (!response.ok) {
                         const errorText = await response.text();
+                        console.error('[v0] Submission error:', { status: response.status, body: errorText });
                         
-                        // Handle critical errors like 401/403 or server errors
                         if (response.status === 401) {
                             localStorage.removeItem('token');
                             localStorage.removeItem('user');
@@ -920,10 +760,11 @@
                     }
 
                     const data = await response.json();
-                    console.log('[v0] SUCCESSFUL API GRADE RESPONSE:', data);
+                    console.log('[v0] SUCCESSFUL CBT SUBMISSION RESPONSE:', data);
 
                     hideLoader();
-                    showResults(data); // Show only the score
+                    stopTimer();
+                    showResults(data);
 
                 } catch (error) {
                     console.error('[v0] Error submitting CBT:', error);
@@ -937,44 +778,120 @@
                 }
             }
 
-            // Show results (Simplified to only show score and prepare the "Show Answers" button)
+            // Show results
             function showResults(data) {
                 state.isQuizActive = false;
                 elements.quizContainer.classList.add('hidden');
                 elements.resultContainer.classList.remove('hidden');
                 elements.timerElement.classList.add('hidden');
-                elements.answersListElement.innerHTML = ''; // Clear list content
-                elements.answersListElement.classList.add('hidden'); // Ensure hidden by default
 
-                // Display score - Use score/totalQuestions from the API response
+                // Display score
                 const score = data.data?.score || data.score || 0;
-                const totalQuestions = data.data?.totalQuestions || state.quizData.length;
+                const totalQuestions = state.quizData.length;
                 const percentage = Math.round((score / totalQuestions) * 100);
                 
                 elements.scoreElement.textContent = `Your Score: ${score}/${totalQuestions} (${percentage}%)`;
-                
-                // Set up the button to trigger the API call on click
+
+                elements.answersListElement.innerHTML = '';
                 elements.showAnswersButton.classList.remove('hidden');
-                elements.showAnswersButton.textContent = 'Show Answers';
-                state.answersFetched = false;
             }
 
-            // Show answers (Now calls the fetch function)
-            function showAnswers() {
-                fetchAndRenderAnswers();
-            }
+            // Fetch detailed results from API
+            async function fetchDetailedResults() {
+                try {
+                    showLoader('Loading detailed results...');
+                    
+                    const userToken = getUserToken();
+                    
+                    if (!userToken) {
+                        throw new Error('No authentication token found');
+                    }
 
-            // Restart quiz (Re-using the submission dialog structure)
-            function restartQuiz() {
-                // If the user is viewing results (quiz is inactive), confirm restart
-                if (!state.isQuizActive) {
-                    showConfirmationDialog('Are you sure you want to restart the exam?', () => {
-                        location.reload();
+                    console.log('[v0] Fetching detailed results from:', `${API_BASE}/cbt/${state.cbtId}/results`);
+
+                    const response = await fetch(`${API_BASE}/cbt/${state.cbtId}/results`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${userToken}`,
+                            'Content-Type': 'application/json'
+                        }
                     });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error('[v0] Error fetching results:', { status: response.status, body: errorText });
+                        throw new Error(`Failed to load results: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    console.log('[v0] Detailed results response:', data);
+
+                    state.detailedResults = data.data || data;
+                    hideLoader();
+                    displayDetailedResults();
+
+                } catch (error) {
+                    console.error('[v0] Error fetching detailed results:', error);
+                    hideLoader();
+                    showError(`Error loading detailed results: ${error.message}`);
                 }
             }
-            
-            // Load test data for exams mode (kept original for recovery/testing purposes)
+
+            // Display detailed results
+            function displayDetailedResults() {
+                elements.answersListElement.innerHTML = '';
+                
+                if (!state.detailedResults || !state.detailedResults.results) {
+                    elements.answersListElement.innerHTML = '<li style="list-style: none;">Results data not available.</li>';
+                    return;
+                }
+
+                const results = state.detailedResults.results || [];
+                
+                results.forEach((result, index) => {
+                    const li = document.createElement('li');
+                    
+                    const isCorrect = result.isCorrect === true;
+                    li.classList.add(isCorrect ? 'correct' : 'incorrect');
+                    
+                    const questionText = result.question || `Question ${index + 1}`;
+                    const submittedAnswer = result.userAnswer || result.selectedAnswer || 'Not Answered';
+                    const correctAnswer = result.correctAnswer || 'N/A';
+                    
+                    li.innerHTML = `
+                        <strong>Q${index + 1}: ${questionText}</strong><br>
+                        Your Answer: <span style="font-weight: bold;">${submittedAnswer}</span><br>
+                        Correct Answer: <span style="font-weight: bold;">${correctAnswer}</span>
+                        ${isCorrect ? '<br><span style="color: #4CAF50;">✓ Correct</span>' : '<br><span style="color: #f44336;">✗ Incorrect</span>'}
+                    `;
+                    
+                    elements.answersListElement.appendChild(li);
+                });
+            }
+
+            // Show answers
+            function showAnswers() {
+                const isCurrentlyHidden = elements.answersListElement.classList.contains('hidden');
+                
+                if (isCurrentlyHidden) {
+                    // Fetch results from API
+                    fetchDetailedResults();
+                    elements.answersListElement.classList.remove('hidden');
+                    elements.showAnswersButton.textContent = 'Hide Answers';
+                } else {
+                    elements.answersListElement.classList.add('hidden');
+                    elements.showAnswersButton.textContent = 'Show Answers';
+                }
+            }
+
+            // Restart quiz
+            function restartQuiz() {
+                if (confirm('Are you sure you want to restart the exam?')) {
+                    location.reload();
+                }
+            }
+
+            // Load test data for exams mode
             function loadTestExamData() {
                 console.log('[v0] Loading test exam data...');
                 
@@ -1010,26 +927,49 @@
                 state.cbtId = 'test-exam-' + Date.now();
                 
                 state.quizData.forEach(q => {
-                    // Simulate some answers for testing display
                     const questionId = q._id;
-                    // Simulate some correct/incorrect answers for testing
                     const submittedAnswer = (parseInt(questionId.split('-')[1]) % 3 === 0) ? (q.Ans === 'A' ? 'B' : 'A') : q.Ans;
                     state.selectedAnswers[questionId] = submittedAnswer;
                 });
                 
-                // Show test results manually (simulating a submission response)
-                const mockSubmissionResponse = {
+                generateLocalResultsAndShow();
+            }
+
+            // Generate local results for fallback
+            function generateLocalResultsAndShow() {
+                console.warn('[v0] Generating local results for display/fallback.');
+                
+                let score = 0;
+                const localResults = [];
+
+                state.quizData.forEach((question, index) => {
+                    const questionId = question._id || question.id || index;
+                    const submittedAnswer = state.selectedAnswers[questionId];
+                    const correctAnswer = question.Ans;
+
+                    const isCorrect = submittedAnswer === correctAnswer;
+                    if (isCorrect) {
+                        score++;
+                    }
+
+                    localResults.push({
+                        questionId: questionId,
+                        isCorrect: isCorrect,
+                        correctAnswer: correctAnswer || 'N/A',
+                        submittedAnswer: submittedAnswer || 'N/A'
+                    });
+                });
+
+                const localData = {
                     data: {
-                        // Calculate score locally for the mock response
-                        score: state.quizData.filter(q => state.selectedAnswers[q._id] === q.Ans).length,
-                        totalQuestions: state.quizData.length,
-                        results: [] // No results in submit, so the button will call /results
+                        score: score,
+                        results: localResults
                     }
                 };
-                
+
                 hideLoader();
                 stopTimer();
-                showResults(mockSubmissionResponse);
+                showResults(localData);
             }
 
             // Show error
@@ -1051,7 +991,7 @@
                 `;
             }
             
-            // Make loadTestExamData globally accessible for the button in showError
+            // Make loadTestExamData globally accessible
             window.loadTestExamData = loadTestExamData;
 
             // Initialize the application
@@ -1077,8 +1017,7 @@
 
                 } catch (error) {
                     console.error('[v0] Initialization error:', error);
-                    // This will now catch "startTimer is not defined" from startCBTExam and display it nicely
-                    showError(error.message); 
+                    showError(error.message);
                 }
             }
 
