@@ -54,11 +54,11 @@
         }
 
         .signup-bg-pattern {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%23d1d5db' stroke-width='1'%3E%3Crect width='40' height='40' x='10' y='10'/%3E%3Ccircle cx='130' cy='30' r='20'/%3E%3Cpath d='M170 100l-20 20 20 20 20-20z'/%3E%3Cpath d='M30 140c0-11 9-20 20-20s20 9 20 20-9 20-20 20-20-9-20-20z'/%3E%3Cpath d='M130 180l-10-10 10-10 10 10-10 10'/%3E%3C/g%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%23d1d5db' stroke-width='1'%3E%3Crect width='40' height='40' x='10' y='10'/%3E%3Ccircle cx='130' cy='30' r='20'/%3E%3Cpath d='M170 100l-20 20 20 20 20-20z'/%3E%3Cpath d='M30 140c0-11 9-20 20-20s20 9 20 20-9 20-20 20-20-9-20-20z'/%E3%83%3Cpath d='M130 180l-10-10 10-10 10 10-10 10'/%E3%83%3C/g%E3%83%3C/svg%E3%83%3E");
         }
 
         .dark .signup-bg-pattern {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%23374151' stroke-width='1'%3E%3Crect width='40' height='40' x='10' y='10'/%3E%3Ccircle cx='130' cy='30' r='20'/%3E%3Cpath d='M170 100l-20 20 20 20 20-20z'/%3E%3Cpath d='M30 140c0-11 9-20 20-20s20 9 20 20-9 20-20 20-20-9-20-20z'/%3E%3Cpath d='M130 180l-10-10 10-10 10 10-10 10'/%3E%3C/g%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%23374151' stroke-width='1'%3E%3Crect width='40' height='40' x='10' y='10'/%3E%3Ccircle cx='130' cy='30' r='20'/%E3%83%3Cpath d='M170 100l-20 20 20 20 20-20z'/%E3%83%3Cpath d='M30 140c0-11 9-20 20-20s20 9 20 20-9 20-20 20-20-9-20-20z'/%E3%83%3Cpath d='M130 180l-10-10 10-10 10 10-10 10'/%E3%83%3C/g%E3%83%3C/svg%E3%83%3E");
         }
 
         .theme-toggle {
@@ -591,7 +591,7 @@
                 </form>
                 
                 <div class="login-prompt">
-                    <p>Already have an account? <a href="Loginobiokpa.html">Sign In</a></p>
+                    <p>Already have an account? <a href="Logineasy.html">Sign In</a></p>
                 </div>
             </div>
         </div>
@@ -609,10 +609,6 @@
                 <p>Your account has been created and your payment has been processed successfully.</p>
                 <p>You now have full access to all CBT Practice features.</p>
             </div>
-            <!-- NOTE: The proceed link needs to be updated by the user to the correct GSS 302 CBT page, 
-                 as the original file used 'GST121-cbt.html' which might not exist. 
-                 Assuming the next page will be 'GSS302-cbt.html' as an example.
-            -->
             <a href="ENT-chapters.html">
                 <button class="signup-button proceed-button">Proceed to your account</button>
             </a>
@@ -641,9 +637,9 @@
         // --- CONSTANTS ---
         const AMOUNT_NGN = 250; // New Price: NGN 250
         const AMOUNT_KOBO = AMOUNT_NGN * 100; // 25000 Kobo for Paystack
-        const CBT_PAGE_URL = "ENT-chapters.html"; // Updated link after successful payment
+        const CBT_PAGE_URL = "ENT-chapters.html"; // Redirect link after successful payment
 
-        // Firebase configuration (Retained from original file)
+        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAf0mERQ9WiocU34BQx4Isr48Hs1VfpbDU",
             authDomain: "database-login-530f7.firebaseapp.com",
@@ -653,7 +649,7 @@
             messagingSenderId: "280997222442",
             appId: "1:280997222442:web:ad80301ccb4337dfb70b53"
         };
-        // Paystack Live Key (Retained from original file - **This should be replaced by a secure server-side transaction for production**)
+        // Paystack Live Key (Retained from original file)
         const PAYSTACK_KEY = 'pk_live_64c23d6d8a53dbf350c549dce4e7e7423f146998'; 
 
         // Initialize Firebase
@@ -691,7 +687,6 @@
                 
                 const combinedFingerprint = visitorId + JSON.stringify(browserInfo);
                 
-                // Create a hash of the combined fingerprint
                 const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(combinedFingerprint));
                 const hashArray = Array.from(new Uint8Array(hashBuffer));
                 const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
@@ -739,6 +734,7 @@
             document.getElementById('signup-loader').style.display = 'none';
             document.getElementById('signup-text').style.display = 'block';
             
+            // Hide page loader
             document.getElementById('page-loader').classList.add('hidden');
             setTimeout(() => {
                 document.getElementById('page-loader').style.display = 'none';
@@ -761,11 +757,41 @@
             document.querySelector('#success-container a').href = CBT_PAGE_URL;
         }
 
+        // Initialize theme
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.classList.toggle("dark", savedTheme === 'dark');
+
+            // Theme toggle button
+            const themeToggle = document.getElementById('themeToggle');
+            themeToggle.addEventListener('click', () => {
+                const isDark = document.body.classList.toggle("dark");
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            });
+
+            // Automatically switch theme based on user's system preference
+            const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+            prefersDarkScheme.addEventListener("change", (e) => {
+                document.body.classList.toggle("dark", e.matches);
+                localStorage.setItem('theme', e.matches ? 'dark' : 'light');
+            });
+        }
+
+        // Hide page loader **FIX: Ensure this runs on load**
+        function hidePageLoader() {
+            const pageLoader = document.getElementById('page-loader');
+            pageLoader.classList.add('hidden');
+            setTimeout(() => {
+                pageLoader.style.display = 'none';
+            }, 500);
+        }
+
         // Check password strength
         function checkPasswordStrength(password) {
             const strengthMeter = document.getElementById('strength-meter');
             const strengthText = document.getElementById('strength-text');
             
+            // Remove all classes
             strengthMeter.classList.remove('strength-weak', 'strength-medium', 'strength-strong');
             
             if (!password) {
@@ -774,14 +800,20 @@
                 return;
             }
             
+            // Check password strength
             let strength = 0;
+            
+            // Length check
             if (password.length >= 8) strength += 1;
             if (password.length >= 12) strength += 1;
+            
+            // Character variety checks
             if (/[A-Z]/.test(password)) strength += 1;
             if (/[a-z]/.test(password)) strength += 1;
             if (/[0-9]/.test(password)) strength += 1;
             if (/[^A-Za-z0-9]/.test(password)) strength += 1;
             
+            // Set strength meter
             if (strength <= 2) {
                 strengthMeter.style.width = '33%';
                 strengthMeter.classList.add('strength-weak');
@@ -800,8 +832,7 @@
             }
         }
 
-        // --- Local Storage Management for Payment Session ---
-
+        // Save payment session to localStorage
         function savePaymentSession(data) {
             localStorage.setItem('paymentSession', JSON.stringify({
                 ...data,
@@ -809,18 +840,21 @@
             }));
         }
 
+        // Get payment session from localStorage
         function getPaymentSession() {
             const session = localStorage.getItem('paymentSession');
             if (!session) return null;
             
             try {
                 const parsedSession = JSON.parse(session);
+                
+                // Check if session is still valid (24 hours)
                 const now = Date.now();
                 const sessionTime = parsedSession.timestamp || 0;
                 const sessionAge = now - sessionTime;
                 
-                // 24-hour expiration check
-                if (sessionAge > 24 * 60 * 60 * 1000) { 
+                if (sessionAge > 24 * 60 * 60 * 1000) {
+                    // Session expired
                     localStorage.removeItem('paymentSession');
                     return null;
                 }
@@ -833,18 +867,20 @@
             }
         }
 
+        // Clear payment session
         function clearPaymentSession() {
             localStorage.removeItem('paymentSession');
             showPaymentStatus('', false);
         }
-        
-        // --- Firebase/Paystack Integration ---
 
         // Create user in Firebase
         async function createFirebaseUser(email, password, userData, paymentRef) {
             try {
+                // Create user with Firebase Authentication
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
+                
+                // Get browser fingerprint
                 const fingerprint = await getBrowserFingerprint();
                 
                 // Store user data in Firestore
@@ -855,7 +891,7 @@
                     paymentReference: paymentRef,
                     fingerprint: fingerprint,
                     lastLogin: serverTimestamp(),
-                    course: "GSS302" // New field for course identification
+                    course: "GSS302"
                 });
                 
                 // Store fingerprint for session management
@@ -870,7 +906,7 @@
                 await setDoc(doc(db, "payments", paymentRef), {
                     userId: user.uid,
                     email: user.email,
-                    amount: AMOUNT_NGN, // Updated Amount
+                    amount: AMOUNT_NGN,
                     currency: 'NGN',
                     status: 'success',
                     reference: paymentRef,
@@ -887,28 +923,29 @@
             } catch (error) {
                 console.error("Error creating user:", error);
                 
+                // If user already exists, try to sign in
                 if (error.code === 'auth/email-already-in-use') {
                     try {
-                        // Sign in existing user (re-auth attempt)
+                        // Sign in existing user
                         const userCredential = await signInWithEmailAndPassword(auth, email, password);
                         const user = userCredential.user;
                         
-                        // Update payment information for the existing user
+                        // Update payment information
                         await setDoc(doc(db, "payments", paymentRef), {
                             userId: user.uid,
                             email: user.email,
-                            amount: AMOUNT_NGN, // Updated Amount
+                            amount: AMOUNT_NGN,
                             currency: 'NGN',
                             status: 'success',
                             reference: paymentRef,
                             timestamp: serverTimestamp()
-                        }, { merge: true }); // Merge to update only payment fields
+                        }, { merge: true });
                         
-                        console.log("Existing user signed in and payment updated:", user.uid);
+                        console.log("Existing user signed in:", user.uid);
                         return user;
                     } catch (signInError) {
                         console.error("Error signing in existing user:", signInError);
-                        throw new Error("This email is already registered, but the password is incorrect. Please use a different email or try to log in.");
+                        throw new Error("This email is already registered but the password is incorrect. Please use a different email or try to log in.");
                     }
                 }
                 
@@ -922,6 +959,7 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
+            // Validate inputs
             if (!name || !email || !password) {
                 showError('Please fill in all fields');
                 return;
@@ -932,23 +970,25 @@
                 return;
             }
 
-            // Check for existing pending payment session (no automatic verification implemented here due to Paystack limitations in a simple client-side setup)
+            // Check if there's an existing payment session (no automatic verification implemented)
             const existingSession = getPaymentSession();
             if (existingSession && existingSession.status === 'pending') {
                 showError('A pending payment session was found. Please complete the previous transaction or clear your browser storage.');
                 return;
             }
 
+            // Show loading state
             showLoading();
             showPaymentStatus('Initializing payment...', true);
 
+            // Save user data for persistence
             const userData = { name };
             
             try {
                 // Generate a unique reference
                 const reference = 'CBT_' + Date.now() + '_' + Math.floor(Math.random() * 1000000);
                 
-                // Save payment session as pending
+                // Save payment session
                 savePaymentSession({
                     name,
                     email,
@@ -956,11 +996,12 @@
                     status: 'pending'
                 });
                 
+                // Paystack payment initialization
                 const paystack = new PaystackPop();
                 paystack.newTransaction({
                     key: PAYSTACK_KEY,
                     email: email,
-                    amount: AMOUNT_KOBO, // Updated Amount in Kobo
+                    amount: AMOUNT_KOBO, // Amount in kobo (250 NGN)
                     currency: 'NGN',
                     ref: reference,
                     metadata: {
@@ -978,20 +1019,26 @@
                         ]
                     },
                     onSuccess: async function(response) {
+                        // Payment was successful
                         showPaymentStatus('Payment successful! Creating your account...', true);
                         
                         try {
+                            // Create user in Firebase
                             await createFirebaseUser(email, password, userData, response.reference);
+                            
+                            // Clear payment session
                             clearPaymentSession();
+                            
+                            // Hide loading and show success
                             hideLoading();
                             showSuccessContainer();
                         } catch (error) {
                             hideLoading();
-                            showError(error.message || "Error creating user account after successful payment.");
+                            showError(error.message || "Error creating user account");
                             clearPaymentSession();
                         }
                     },
-                    onClose: function() {
+                    onClose: function() { // Use onClose for cancel
                         hideLoading();
                         showPaymentStatus('Payment canceled. You can resume later.', true);
                         setTimeout(() => {
@@ -1007,40 +1054,26 @@
             }
         }
 
-        // --- Event Handlers and Initialization ---
-
+        // Check for existing payment session on page load
         window.addEventListener('load', () => {
-            // Theme initialization
-            (function initializeTheme() {
-                const savedTheme = localStorage.getItem('theme') || 'light';
-                document.body.classList.toggle("dark", savedTheme === 'dark');
-
-                const themeToggle = document.getElementById('themeToggle');
-                themeToggle.addEventListener('click', () => {
-                    const isDark = document.body.classList.toggle("dark");
-                    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-                });
-
-                const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
-                prefersDarkScheme.addEventListener("change", (e) => {
-                    document.body.classList.toggle("dark", e.matches);
-                    localStorage.setItem('theme', e.matches ? 'dark' : 'light');
-                });
-            })();
+            // 1. Initialize theme
+            initializeTheme();
             
-            // Check for existing payment session and pre-fill form
+            // 2. Hide Page Loader immediately after initialization (FIX)
+            hidePageLoader(); 
+
+            // 3. Check for existing payment session
             const session = getPaymentSession();
             if (session) {
+                // Fill in the form fields
                 document.getElementById('name').value = session.name || '';
                 document.getElementById('email').value = session.email || '';
                 
+                // Show a message
                 if (session.status === 'pending') {
-                    showSuccess('We found a previous pending payment session. Please check your Paystack status before attempting a new payment.');
+                    showSuccess('We found a previous pending payment session. You can continue with your payment.');
                 }
             }
-            
-            // Hide page loader after a short delay
-            setTimeout(hidePageLoader, 1000);
         });
 
         // Password strength checker
@@ -1060,12 +1093,13 @@
             toggleButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${iconHtml}</svg>`;
         });
         
-        // Handle form submission and button click
+        // Handle form submission
         document.getElementById('paymentForm').addEventListener('submit', function(e) {
             e.preventDefault();
             payWithPaystack();
         });
         
+        // Attach event listener to the sign-up button
         document.getElementById('signup-button').addEventListener('click', function(e) {
             e.preventDefault();
             payWithPaystack();
@@ -1075,6 +1109,7 @@
         window.addEventListener('beforeunload', function(e) {
             const session = getPaymentSession();
             if (session && session.status === 'pending') {
+                // Show a confirmation message
                 const confirmationMessage = 'You have a payment in progress. Are you sure you want to leave?';
                 e.returnValue = confirmationMessage;
                 return confirmationMessage;
