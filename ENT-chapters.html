@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrepreneur Chapters</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        :root {
+            --primary: #22c55e;
+            --primary-light: #4ade80;
+            --background: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1f2937;
+            --text-secondary: #64748b;
+        }
+
+        [data-theme="dark"] {
+            --background: #1f2937;
+            --card-bg: #374151;
+            --text: #f8fafc;
+            --text-secondary: #cbd5e1;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%23d1d5db' stroke-width='1'%3E%3Crect width='40' height='40' x='10' y='10'/%3E%3Ccircle cx='130' cy='30' r='20'/%3E%3Cpath d='M170 100l-20 20 20 20 20-20z'/%3E%3Cpath d='M30 140c0-11 9-20 20-20s20 9 20 20-9 20-20 20-20-9-20-20z'/%3E%3Cpath d='M130 180l-10-10 10-10 10 10-10 10'/%3E%3C/g%3E%3C/svg%3E");
+            color: var(--text);
+            min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            text-align: center;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            color: var(--primary);
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: var(--primary-light);
+        }
+
+        .back-link i {
+            margin-right: 0.5rem;
+        }
+
+        .page-title {
+            margin-bottom: 2rem;
+            color: var(--text);
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .chapters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chapter-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1.5rem;
+            position: relative;
+        }
+
+        .chapter-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .chapter-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background-color: var(--primary);
+        }
+
+        .chapter-icon {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .chapter-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .chapter-description {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .contact-info {
+            text-align: center;
+            margin: 2rem 0;
+            padding: 1rem;
+            background-color: var(--card-bg);
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .whatsapp-link {
+            display: inline-flex;
+            align-items: center;
+            color: #25D366;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .whatsapp-link:hover {
+            transform: scale(1.05);
+        }
+
+        .whatsapp-link i {
+            margin-right: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .chapters-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .chapters-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                width: 95%;
+                padding: 0 0.5rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .chapter-title {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>CBT for Entrepreneur</h1>
+    </header>
+
+    <div class="container">
+        <a href="ENT-cbt.html" class="back-link">
+            <i data-feather="arrow-left"></i> Back to Main Page
+        </a>
+
+        <h2 class="page-title">Entrepreneur Course Chapters</h2>
+
+        <div class="chapters-grid">
+            <a href="gss201-1.html" class="chapter-card">
+                <div class="chapter-icon">
+                    <i data-feather="book"></i>
+                </div>
+                <h3 class="chapter-title">Chapter 1</h3>
+                <p class="chapter-description">NEW VENTURE CREATION.</p>
+            </a>
+
+            <a href="gss201-2.html" class="chapter-card">
+                <div class="chapter-icon">
+                    <i data-feather="book"></i>
+                </div>
+                <h3 class="chapter-title">Chapter 2</h3>
+                <p class="chapter-description">NIGERIAN TAX SYSTEM AND ADMINISTRATION</p>
+            </a>
+
+            <a href="gss201-3.html" class="chapter-card">
+                <div class="chapter-icon">
+                    <i data-feather="book"></i>
+                </div>
+                <h3 class="chapter-title">Chapter 3</h3>
+                <p class="chapter-description">MARKETING INTERNATIONALIZATION</p>
+            </a>
+
+            <a href="gss201-7.html" class="chapter-card">
+                <div class="chapter-icon">
+                    <i data-feather="book"></i>
+                </div>
+                <h3 class="chapter-title">Chapter 4</h3>
+                <p class="chapter-description">EVENT/ PROJECT MANAGEMENT</p>
+            </a>
+            <a href="gss201-10.html" class="chapter-card">
+                <div class="chapter-icon">
+                    <i data-feather="book"></i>
+                </div>
+                <h3 class="chapter-title">Chapter 5</h3>
+                <p class="chapter-description">FORMS OF BUSINESS ORGANIZATION</p>
+            </a>
+            <a href="gss201-8.html" class="chapter-card">
+                <div class="chapter-icon">
+                    <i data-feather="book"></i>
+                </div>
+                <h3 class="chapter-title">Chapter 6</h3>
+                <p class="chapter-description">GOVERNMENTS AND ENTREPRENEURSHIP</p>
+            </a>
+             <a href="gss201-9.html" class="chapter-card">
+                <div class="chapter-icon">
+                    <i data-feather="book"></i>
+                </div>
+                <h3 class="chapter-title">Chapter 7</h3>
+                <p class="chapter-description">TECHNOLOGY AND ENTREPRENEURSHIP</p>
+            </a>      
+                         <a href="gss201-11.html" class="chapter-card">
+                <div class="chapter-icon">
+                    <i data-feather="book"></i>
+                </div>
+                <h3 class="chapter-title">Chapter 8</h3>
+                <p class="chapter-description">THE ROLE OF BANK AND FINANCIAL INSTITUTION IN ENTREPRENEURSHIP</p>
+            </a>     
+            </div>
+            </body>
+            </html>
