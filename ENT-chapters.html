@@ -269,5 +269,42 @@
                 <p class="chapter-description">THE ROLE OF BANK AND FINANCIAL INSTITUTION IN ENTREPRENEURSHIP</p>
             </a>     
             </div>
-            </body>
-            </html>
+             
+         <div class="contact-info">
+            <p>Having issues? Contact us on WhatsApp:</p>
+            <a href="https://wa.me/2349021328900" class="whatsapp-link">
+                <i data-feather="message-circle"></i> 09021328900
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize Feather Icons
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+        });
+
+        // Dark mode support
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+
+        // Automatically switch theme based on user's system preference
+        const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+        
+        function setTheme(e) {
+            const theme = e.matches ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+        }
+        
+        // Set initial theme based on preference
+        if (prefersDarkScheme.matches) {
+            document.body.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+        }
+        
+        // Listen for changes
+        prefersDarkScheme.addEventListener("change", setTheme);
+    </script>
+</body>
+</html>
