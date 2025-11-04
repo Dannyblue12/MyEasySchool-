@@ -714,8 +714,8 @@
                     <line x1="9" y1="9" x2="15" y2="15"></line>
                 </svg>
             </div>
-            <h3 class="modal-title"> No Payment Found</h3>
-            <p class="modal-message">Payment was not successful at this time</p>
+            <h3 class="modal-title"> Verification Issue</h3>
+            <p id="modalMessage" class="modal-message">Payment was not successful at this time</p>
         </div>
     </div>
 
@@ -781,15 +781,15 @@
                         <polyline points="9,18 15,12 9,6"></polyline>
                     </svg>
                 </button>
-                <button id="retryBtn" class="action-button secondary" onclick="retryPayment()" style="display: none;">
-                    <span>Verify Payment</span>
+                <button id="verifyAllBtn" class="action-button secondary" onclick="verifyAllPendingPayments()" style="display: none;">
+                    <span>Verify All Pending Payments</span>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="23,4 23,10 17,10"></polyline>
                         <path d="M20.49,15a9,9,0,1,1-2.12-9.36L23,10"></path>
                     </svg>
                 </button>
                 <button id="makePaymentBtn" class="action-button" onclick="makePayment()" style="display: none;">
-                    <span>Make Payment</span>
+                    <span>Make New Payment</span>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
                         <line x1="8" y1="21" x2="16" y2="21"></line>
@@ -812,7 +812,6 @@
         ];
         let currentMessageIndex = 0;
         let currentUser = null;
-        let currentSemester = null;
         let recentPayments = [];
         let messageRotationInterval;
 
@@ -837,9 +836,39 @@
             }
         }
 
+        // Utility to hide/show main loading overlay
+        function setInitialLoading(show, message = 'Verifying your payment') {
+            const overlay = document.getElementById('initialLoadingOverlay');
+            const textElement = document.getElementById('initialLoadingText');
+            stopLoadingMessages();
+
+            if (show) {
+                textElement.textContent = message;
+                overlay.style.display = 'flex';
+                overlay.classList.remove('hide');
+                rotateLoadingMessages();
+            } else {
+                overlay.classList.add('hide');
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 500);
+            }
+        }
+        
+        // Utility to show/hide the small verification spinner
+        function setVerificationSpinner(show) {
+            const overlay = document.getElementById('verificationLoadingOverlay');
+            if (show) {
+                overlay.classList.add('show');
+            } else {
+                overlay.classList.remove('show');
+            }
+        }
+
+
         async function fetchCurrentUserData(token) {
             try {
-                console.log('[v0] Fetching user data from:', `${API_BASE}/users/me`);
+                console.log('[v1] Fetching user data from:', `${API_BASE}/users/me`);
                 const res = await fetch(`${API_BASE}/users/me`, {
                     method: 'GET',
                     headers: {
@@ -848,71 +877,15 @@
                     }
                 });
 
-                console.log('[v0] API Response status:', res.status);
-                
                 if (res.ok) {
                     const responseData = await res.json();
-                    console.log('[v0] Current user data response:', responseData);
                     
-                    // Extract current semester data
-                    let currentSemester = null;
-                    if (responseData.currentSemester && typeof responseData.currentSemester === 'object') {
-                        currentSemester = responseData.currentSemester;
-                    } else if (responseData.semesterName || responseData.academicYear) {
-                        currentSemester = {
-                            _id: responseData.currentSemester?._id || responseData._id,
-                            semesterName: responseData.semesterName,
-                            academicYear: responseData.academicYear,
-                            startDate: responseData.startDate,
-                            endDate: responseData.endDate,
-                            university: responseData.university,
-                            createdAt: responseData.createdAt,
-                            updatedAt: responseData.updatedAt
-                        };
-                    }
-                    
-                    if (responseData.currentSemester) {
-                        currentSemester = responseData.currentSemester;
-                    }
-                    
-                    // Extract user data
-                    let user = null;
-                    if (responseData.user && typeof responseData.user === 'object') {
-                        user = responseData.user;
-                    } else {
-                        user = {
-                            _id: responseData.user?._id || responseData._id,
-                            email: responseData.user?.email || responseData.email,
-                            fullName: responseData.user?.fullName || responseData.fullName,
-                            isActive: responseData.user?.isActive ?? responseData.isActive,
-                            lastLoginAt: responseData.user?.lastLoginAt || responseData.lastLoginAt,
-                            role: responseData.user?.role || responseData.role,
-                            university: responseData.user?.university || responseData.university,
-                            courses: responseData.user?.courses || responseData.courses || [],
-                            totalXP: responseData.user?.totalXP ?? responseData.totalXP ?? 0,
-                            weeklyXP: responseData.user?.weeklyXP ?? responseData.weeklyXP ?? 0,
-                            streakCount: responseData.user?.streakCount ?? responseData.streakCount ?? 0,
-                            maxStreak: responseData.user?.maxStreak ?? responseData.maxStreak ?? 0,
-                            lastQuizStartDate: responseData.user?.lastQuizStartDate || responseData.lastQuizStartDate,
-                            currentToken: responseData.user?.currentToken || responseData.currentToken,
-                            subscribed: responseData.user?.subscribed ?? responseData.subscribed ?? false,
-                            subscribedSemester: responseData.user?.subscribedSemester || responseData.subscribedSemester,
-                            subscriptionStartDate: responseData.user?.subscriptionStartDate || responseData.subscriptionStartDate,
-                            subscriptionEndDate: responseData.user?.subscriptionEndDate || responseData.subscriptionEndDate
-                        };
-                    }
+                    let currentSemester = responseData.currentSemester && typeof responseData.currentSemester === 'object' ? responseData.currentSemester : null;
+                    let user = responseData.user && typeof responseData.user === 'object' ? responseData.user : responseData;
 
-                    const userData = {
-                        user: user,
-                        currentSemester: currentSemester
-                    };
+                    const userData = { user, currentSemester };
 
-                    console.log('[v0] Extracted user data:', userData.user);
-                    console.log('[v0] Extracted current semester:', userData.currentSemester);
-
-                    // Store the complete user data
                     localStorage.setItem('currentUserData', JSON.stringify(userData));
-                    
                     if (userData.user) {
                         localStorage.setItem('user', JSON.stringify(userData.user));
                         currentUser = userData.user;
@@ -925,7 +898,7 @@
                     throw new Error(`Failed to fetch user data: ${res.status}`);
                 }
             } catch (error) {
-                console.error('[v0] Error fetching current user data:', error);
+                console.error('[v1] Error fetching current user data:', error);
                 throw error;
             }
         }
@@ -933,12 +906,7 @@
         async function loadUniversityInfo(user) {
             try {
                 if (user && user.university) {
-                    console.log('[v0] Loading university info for ID:', user.university);
-                    // Extract universityId properly - handle both object and string cases
-                    let universityId = user.university;
-                    if (typeof universityId === 'object' && universityId) {
-                        universityId = universityId._id || universityId.id;
-                    }
+                    let universityId = typeof user.university === 'object' ? user.university._id || user.university.id : user.university;
 
                     const response = await fetch(`${API_BASE}/universities/all`, {
                         method: 'GET',
@@ -950,32 +918,32 @@
 
                     if (response.ok) {
                         const uniJson = await response.json();
-                        // Handle different API response shapes
                         const universities = Array.isArray(uniJson) ? uniJson : (uniJson.data || uniJson.universities || []);
                         
                         const university = universities.find(uni => (uni._id || uni.id) === universityId);
                         const universityName = university ? (university.name || university.universityName || university.title) : 'University not found';
                         
                         document.getElementById('universityName').textContent = universityName;
-                        console.log('[v0] University name set to:', universityName);
                     } else {
-                        console.error('[v0] Failed to fetch universities');
                         document.getElementById('universityName').textContent = 'Failed to load university';
                     }
                 } else {
-                    console.log('[v0] No university ID found for user');
                     document.getElementById('universityName').textContent = 'University information not available';
                 }
             } catch (error) {
-                console.error('[v0] Error loading university info:', error);
+                console.error('[v1] Error loading university info:', error);
                 document.getElementById('universityName').textContent = 'Failed to load university';
             }
         }
 
+        /**
+         * Verifies a single payment reference with retry logic.
+         * @param {string} reference 
+         * @returns {Promise<object | null>} The payment object on success/pending, or null on failure.
+         */
         async function verifyPaymentWithRetry(reference, maxRetries = 3, delay = 2000) {
             for (let attempt = 1; attempt <= maxRetries; attempt++) {
                 try {
-                    console.log(`[v0] Payment verification attempt ${attempt} for reference: ${reference}`);
                     const token = localStorage.getItem('token');
                     const response = await fetch(`${API_BASE}/payments/verify`, {
                         method: 'POST',
@@ -987,78 +955,62 @@
                     });
                     
                     const data = await response.json();
-                    console.log(`[v0] Payment verification response:`, data);
+                    const payment = data.data || data.payment;
                     
-                    if (response.ok && data.success) {
-                        // *** FIX 1: Check data.data OR data.payment ***
-                        const payment = data.data || data.payment;
-                        
-                        // *** FIX 2: Use case-insensitive check ***
-                        if (payment.status && payment.status.toLowerCase() === 'success') {
-                            showPaymentSuccess(payment);
-                            await updateUserSubscriptionStatus(); 
-                            return true;
-                        // *** FIX 2: Use case-insensitive check ***
-                        } else if (payment.status && payment.status.toLowerCase() === 'pending') {
-                            showPaymentPending(payment);
-                            return false;
-                        } else {
-                            showPaymentFailure(`Payment ${payment.status}`, payment);
-                            return false;
-                        }
-                    } else {
-                        if (attempt < maxRetries) {
-                            await new Promise(resolve => setTimeout(resolve, delay));
-                            continue;
-                        } else {
-                            showPaymentFailure(data.message || 'Payment verification failed');
-                            return false;
-                        }
+                    // The core fix: Check for success status explicitly and return the payment object.
+                    if (response.ok && data.success && payment) {
+                        // Return immediately on any successful response from server
+                        return payment;
                     }
+
+                    // If not successful, wait and retry
+                    if (attempt < maxRetries) {
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue;
+                    } else {
+                        return null; // Final failure
+                    }
+
                 } catch (error) {
-                    console.error(`[v0] Payment verification attempt ${attempt} error:`, error);
-                    
+                    console.error(`[v1] Payment verification attempt ${attempt} error:`, error);
                     if (attempt < maxRetries) {
                         await new Promise(resolve => setTimeout(resolve, delay));
                     } else {
-                        showPaymentFailure('Unable to verify payment status. Please contact support if payment was deducted.');
-                        return false;
+                        return null; // Final failure
                     }
                 }
             }
-            return false;
+            return null;
         }
-
+        
+        /**
+         * Checks recent payments for a successful one to display as the main status.
+         * @returns {boolean} True if a successful or pending payment was found and displayed.
+         */
         function checkForSuccessfulPaymentInRecents() {
-            console.log('[v0] Checking for successful payments in recent payments:', recentPayments);
+            const successfulPayment = recentPayments.find(payment => 
+                payment.status && payment.status.toLowerCase() === 'success'
+            );
             
-            if (recentPayments && recentPayments.length > 0) {
-                const successfulPayment = recentPayments.find(payment => 
-                    payment.status && payment.status.toLowerCase() === 'success'
-                );
-                
-                if (successfulPayment) {
-                    console.log('[v0] Found successful payment in recents:', successfulPayment);
-                    showPaymentSuccess(successfulPayment);
-                    return true;
-                }
-                
-                const pendingPayment = recentPayments.find(payment => 
-                    payment.status && payment.status.toLowerCase() === 'pending'
-                );
-                
-                if (pendingPayment) {
-                    console.log('[v0] Found pending payment in recents:', pendingPayment);
-                    showPaymentPending(pendingPayment);
-                    return true;
-                }
+            if (successfulPayment) {
+                showPaymentSuccess(successfulPayment);
+                return true;
+            }
+            
+            const pendingPayment = recentPayments.find(payment => 
+                payment.status && payment.status.toLowerCase() === 'pending'
+            );
+            
+            if (pendingPayment) {
+                // Display the first pending payment details
+                showPaymentPending(pendingPayment);
+                return true;
             }
             
             return false;
         }
 
         function showPaymentSuccess(payment) {
-            console.log('[v0] Showing payment success for:', payment);
             document.getElementById('successIcon').style.display = 'flex';
             document.getElementById('errorIcon').style.display = 'none';
             document.getElementById('pendingIcon').style.display = 'none';
@@ -1080,17 +1032,17 @@
             }
             
             document.getElementById('continueBtn').style.display = 'flex';
-            document.getElementById('retryBtn').style.display = 'none';
+            document.getElementById('verifyAllBtn').style.display = 'none'; // Changed from retryBtn
             document.getElementById('makePaymentBtn').style.display = 'none';
+            document.getElementById('userInfoCard').classList.add('verified');
         }
 
         function showPaymentPending(payment) {
-            console.log('[v0] Showing payment pending for:', payment);
             document.getElementById('successIcon').style.display = 'none';
             document.getElementById('errorIcon').style.display = 'none';
             document.getElementById('pendingIcon').style.display = 'flex';
             document.getElementById('resultTitle').textContent = 'Payment Pending';
-            document.getElementById('resultSubtitle').textContent = 'Your payment is being processed. Please wait or try verifying again.';
+            document.getElementById('resultSubtitle').textContent = 'Your payment is being processed. You may verify the payment manually below.';
             
             if (payment) {
                 const amount = payment.amount || 0;
@@ -1107,12 +1059,12 @@
             }
             
             document.getElementById('continueBtn').style.display = 'none';
-            document.getElementById('retryBtn').style.display = 'flex';
+            document.getElementById('verifyAllBtn').style.display = 'flex';
             document.getElementById('makePaymentBtn').style.display = 'none';
+            document.getElementById('userInfoCard').classList.remove('verified');
         }
 
         function showPaymentFailure(message, payment = null) {
-            console.log('[v0] Showing payment failure:', message, payment);
             document.getElementById('successIcon').style.display = 'none';
             document.getElementById('errorIcon').style.display = 'flex';
             document.getElementById('pendingIcon').style.display = 'none';
@@ -1131,15 +1083,17 @@
                 
                 document.getElementById('paymentDetailsCard').style.display = 'block';
                 document.getElementById('paymentDetailsCard').className = 'payment-details-card failed';
+            } else {
+                 document.getElementById('paymentDetailsCard').style.display = 'none';
             }
             
             document.getElementById('continueBtn').style.display = 'none';
-            document.getElementById('retryBtn').style.display = 'flex';
+            document.getElementById('verifyAllBtn').style.display = 'flex';
             document.getElementById('makePaymentBtn').style.display = 'none';
+            document.getElementById('userInfoCard').classList.remove('verified');
         }
 
         function showNoPayment() {
-            console.log('[v0] Showing no payment found');
             document.getElementById('successIcon').style.display = 'none';
             document.getElementById('errorIcon').style.display = 'flex';
             document.getElementById('pendingIcon').style.display = 'none';
@@ -1147,8 +1101,9 @@
             document.getElementById('resultSubtitle').textContent = 'No payment reference was found. Please make a payment to continue.';
             
             document.getElementById('continueBtn').style.display = 'none';
-            document.getElementById('retryBtn').style.display = 'none';
+            document.getElementById('verifyAllBtn').style.display = 'none';
             document.getElementById('makePaymentBtn').style.display = 'flex';
+            document.getElementById('userInfoCard').classList.remove('verified');
         }
 
         async function loadRecentPayments() {
@@ -1162,7 +1117,6 @@
                     return;
                 }
                 
-                console.log('[v0] Loading recent payments from API');
                 const response = await fetch(`${API_BASE}/payments/payment-history`, {
                     method: 'GET',
                     headers: {
@@ -1176,20 +1130,17 @@
                 }
                 
                 const data = await response.json();
-                console.log('[v0] Recent payments response:', data);
                 
                 let payments = [];
-                
                 if (Array.isArray(data)) {
                     payments = data;
-                } else if (data.success && data.data && Array.isArray(data.data)) {
+                } else if (data.success && Array.isArray(data.data)) {
                     payments = data.data;
                 } else if (data.data && Array.isArray(data.data)) {
                     payments = data.data;
                 }
                 
                 recentPayments = payments;
-                console.log('[v0] Stored recent payments:', recentPayments);
                 
                 if (payments.length > 0) {
                     displayPaymentsList(container, payments);
@@ -1197,7 +1148,7 @@
                     showNoPayments(container, 'No recent payments found');
                 }
             } catch (error) {
-                console.error('[v0] Error loading recent payments:', error);
+                console.error('[v1] Error loading recent payments:', error);
                 showNoPayments(container, `Failed to load payment history: ${error.message}`);
             }
         }
@@ -1208,14 +1159,13 @@
                 return;
             }
             
-            const paymentsList = payments.map((payment, index) => {
-                if (!payment.reference) {
-                    return '';
-                }
+            const paymentsList = payments.map((payment) => {
+                if (!payment.reference) return '';
                 
-                const statusClass = getStatusClass(payment.status || 'pending');
-                const statusIcon = getStatusIcon(payment.status || 'pending');
-                const showVerifyButton = (payment.status || '').toLowerCase() === 'pending';
+                const status = payment.status?.toLowerCase() || 'pending';
+                const statusClass = getStatusClass(status);
+                const statusIcon = getStatusIcon(status);
+                const showVerifyButton = status === 'pending' || status === 'failed';
                 
                 const amount = payment.amount || 0;
                 const displayAmount = amount > 0 ? amount.toLocaleString() : 'N/A';
@@ -1226,12 +1176,12 @@
                     try {
                         displayDate = new Date(date).toLocaleString();
                     } catch (dateError) {
-                        console.warn('[v0] Invalid date format:', date);
+                        console.warn('[v1] Invalid date format:', date);
                     }
                 }
                 
                 return `
-                    <div class="payment-item" data-payment-id="${payment._id || payment.id || 'unknown'}">
+                    <div class="payment-item" data-status="${status}" data-reference="${payment.reference}">
                         <div class="payment-info">
                             <div class="payment-reference-text">${payment.reference}</div>
                             <div class="payment-details">
@@ -1240,13 +1190,13 @@
                             </div>
                             <div class="payment-status ${statusClass}">
                                 <span class="status-icon">${statusIcon}</span>
-                                ${payment.status || 'pending'}
+                                ${status}
                             </div>
                             ${showVerifyButton ? `
                                 <button 
                                     class="verify-btn" 
                                     onclick="verifyPayment('${payment.reference}')"
-                                    data-reference="${payment.reference}"
+                                    data-reference-btn="${payment.reference}"
                                 >
                                     <span class="btn-text">Verify</span>
                                 </button>
@@ -1269,7 +1219,7 @@
         }
 
         function getStatusClass(status) {
-            switch (status?.toLowerCase()) {
+            switch (status) {
                 case 'success': return 'status-success';
                 case 'pending': return 'status-pending';
                 case 'failed': return 'status-failed';
@@ -1278,7 +1228,7 @@
         }
 
         function getStatusIcon(status) {
-            switch (status?.toLowerCase()) {
+            switch (status) {
                 case 'success': return '✅';
                 case 'pending': return '⏳';
                 case 'failed': return '❌';
@@ -1286,74 +1236,136 @@
             }
         }
 
+        /**
+         * Verifies a single payment from the recent payments list (individual button click).
+         * @param {string} reference 
+         */
         async function verifyPayment(reference) {
-            const button = document.querySelector(`[data-reference="${reference}"]`);
+            const button = document.querySelector(`[data-reference-btn="${reference}"]`);
             if (!button) return;
             
-            const overlay = document.getElementById('verificationLoadingOverlay');
-            overlay.classList.add('show');
+            setVerificationSpinner(true);
             
             button.disabled = true;
             button.classList.add('loading');
+            const originalText = button.querySelector('.btn-text').textContent;
             button.querySelector('.btn-text').textContent = 'Verifying...';
             
             try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    throw new Error('Authentication token not found');
-                }
+                const payment = await verifyPaymentWithRetry(reference);
                 
-                const response = await fetch(`${API_BASE}/payments/verify`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ reference: reference })
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok && data.success) {
-                    const payment = data.data || data.payment;
-                    
-                    // *** FIX 2: Use case-insensitive check ***
-                    if (payment.status && payment.status.toLowerCase() === 'success') {
+                if (payment) {
+                    const status = payment.status?.toLowerCase();
+
+                    if (status === 'success') {
                         showAlert('Payment verified successfully! Account activated.', 'success');
                         await updateUserSubscriptionStatus(); 
                         await loadRecentPayments();
                         
+                        // If this payment was the one linked in the URL, update the main display
                         const urlParams = new URLSearchParams(window.location.search);
                         const mainReference = urlParams.get('reference') || urlParams.get('trxref');
                         if (mainReference === reference) {
                             showPaymentSuccess(payment);
                         }
-
+                    } else if (status === 'pending') {
+                         showAlert(`Payment for ${reference} is still pending.`, 'warning');
                     } else {
-                        showAlert('Payment is still pending or failed.', 'warning');
-                        showPaymentFailureModal();
+                        showAlert('Verification complete: Payment failed.', 'error');
                     }
+
                 } else {
-                    showAlert(data.message || 'Verification failed.', 'error');
-                    showPaymentFailureModal();
+                    showAlert('Verification failed: Could not connect to the payment gateway or reference not found.', 'error');
                 }
             } catch (error) {
                 console.error('Error verifying payment:', error);
                 showAlert(`Error: ${error.message}`, 'error');
-                showPaymentFailureModal();
             } finally {
-                overlay.classList.remove('show');
-                
-                const currentButton = document.querySelector(`[data-reference="${reference}"]`);
-                if (currentButton) {
-                    currentButton.disabled = false;
-                    currentButton.classList.remove('loading');
-                    currentButton.querySelector('.btn-text').textContent = 'Verify';
+                setVerificationSpinner(false);
+                await loadRecentPayments(); // Refresh list to update status
+
+                // Restore button state, but only if it's still needed (i.e. not success)
+                const currentItem = document.querySelector(`.payment-item[data-reference="${reference}"]`);
+                if (currentItem && currentItem.getAttribute('data-status') !== 'success') {
+                    const currentButton = currentItem.querySelector('.verify-btn');
+                    if(currentButton) {
+                        currentButton.disabled = false;
+                        currentButton.classList.remove('loading');
+                        currentButton.querySelector('.btn-text').textContent = originalText;
+                    }
                 }
             }
         }
 
-        function showPaymentFailureModal() {
+        /**
+         * Called by the main "Verify All Pending Payments" button.
+         * Tries to verify all payments that are currently marked as 'pending' or 'failed' in the UI.
+         */
+        async function verifyAllPendingPayments() {
+            setInitialLoading(true, 'Verifying all pending payments. Please wait...');
+
+            const pendingItems = document.querySelectorAll('.payment-item[data-status="pending"], .payment-item[data-status="failed"]');
+            const references = Array.from(pendingItems).map(item => item.getAttribute('data-reference'));
+            
+            let successCount = 0;
+            
+            for (const reference of references) {
+                 const item = document.querySelector(`.payment-item[data-reference="${reference}"]`);
+                 if (item) {
+                     item.style.opacity = 0.5; // Dim the item being processed
+                 }
+
+                const payment = await verifyPaymentWithRetry(reference, 2, 1000); // Shorter retry for mass verification
+                
+                if (payment && payment.status?.toLowerCase() === 'success') {
+                    successCount++;
+                }
+                 if (item) {
+                     item.style.opacity = 1; // Restore opacity
+                 }
+            }
+            
+            // Re-fetch everything and update the main status immediately after all checks
+            await updateUserSubscriptionStatus(); 
+            await loadRecentPayments();
+            
+            // Re-run the initialization logic to update the main header status
+            const urlParams = new URLSearchParams(window.location.search);
+            const reference = urlParams.get('reference') || urlParams.get('trxref');
+
+            if (reference) {
+                // If there's a reference in the URL, verify it again one last time to set main status
+                const payment = await verifyPaymentWithRetry(reference, 1, 0); 
+                if (payment) {
+                    const status = payment.status?.toLowerCase();
+                    if (status === 'success') {
+                         showPaymentSuccess(payment);
+                    } else if (status === 'pending') {
+                         showPaymentPending(payment);
+                    } else {
+                         showPaymentFailure('Verification complete: Payment is still marked as failed or unverified.', payment);
+                    }
+                } else {
+                     showPaymentFailure('Verification complete, but URL reference verification failed.');
+                }
+
+            } else {
+                // Otherwise, check recents to set the main status
+                checkForSuccessfulPaymentInRecents();
+            }
+
+            setInitialLoading(false);
+            if (successCount > 0) {
+                 showAlert(`${successCount} payment(s) successfully verified and subscription status updated!`, 'success');
+            } else if (references.length > 0) {
+                 showAlert('Verification check complete. No new successful payments found.', 'warning');
+            } else {
+                showAlert('No pending payments to verify.', 'warning');
+            }
+        }
+
+        function showPaymentFailureModal(message = 'Payment was not successful at this time') {
+            document.getElementById('modalMessage').textContent = message;
             const modal = document.getElementById('paymentFailureModal');
             modal.classList.add('show');
         }
@@ -1374,12 +1386,10 @@
             try {
                 const token = localStorage.getItem('token');
                 if (token) {
-                    console.log('[v0] Updating user subscription status by re-fetching user data...');
                     await fetchCurrentUserData(token);
-                    console.log('[v0] User data updated in localStorage.');
                 }
             } catch (error) {
-                console.error('[v0] Error updating user subscription status:', error);
+                console.error('[v1] Error updating user subscription status:', error);
             }
         }
 
@@ -1403,27 +1413,11 @@
             window.location.href = 'dashboard.html';
         }
 
-        function retryPayment() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const reference = urlParams.get('reference') || urlParams.get('trxref');
-            
-            if (reference) {
-                const overlay = document.getElementById('initialLoadingOverlay');
-                overlay.classList.remove('hide');
-                overlay.style.display = 'flex'; // Ensure it's visible
-                document.getElementById('initialLoadingText').textContent = 'Re-verifying your payment...';
-                document.getElementById('paymentResult').style.display = 'none';
-                
-                verifyPaymentWithRetry(reference).finally(() => {
-                    overlay.classList.add('hide');
-                     setTimeout(() => {
-                         overlay.style.display = 'none';
-                    }, 500)
-                    document.getElementById('paymentResult').style.display = 'block';
-                });
-            } else {
-                window.location.href = 'payment.html';
-            }
+        // Renaming original retryPayment to verifyMainPayment for clarity (it only checks the URL ref)
+        async function verifyMainPayment() {
+             // This function is no longer needed since verifyAllPendingPayments handles bulk/retry logic.
+             // We can just redirect to the bulk check if somehow called.
+             verifyAllPendingPayments();
         }
 
         function makePayment() {
@@ -1431,7 +1425,7 @@
         }
 
         async function initializePage() {
-            rotateLoadingMessages();
+            setInitialLoading(true);
             
             try {
                 const token = localStorage.getItem('token');
@@ -1460,23 +1454,38 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 const reference = urlParams.get('reference') || urlParams.get('trxref');
                 
-                console.log('[v0] URL payment reference:', reference);
-                
                 if (reference) {
-                    console.log('[v0] Verifying payment from URL reference');
-                    await verifyPaymentWithRetry(reference);
-                } else {
-                    console.log('[v0] No URL reference, checking recent payments for successful payment');
-                    const foundSuccessfulPayment = checkForSuccessfulPaymentInRecents();
+                    // 1. Verify the specific URL reference first
+                    const payment = await verifyPaymentWithRetry(reference, 3);
                     
-                    if (!foundSuccessfulPayment) {
-                        console.log('[v0] No successful payment found, showing no payment state');
+                    if (payment) {
+                        const status = payment.status?.toLowerCase();
+                        if (status === 'success') {
+                            showPaymentSuccess(payment);
+                            await updateUserSubscriptionStatus(); // Ensure subscription status is updated
+                        } else if (status === 'pending') {
+                            showPaymentPending(payment);
+                        } else {
+                             // If URL payment failed, check if a successful payment exists in recents as a fallback
+                             if (!checkForSuccessfulPaymentInRecents()) {
+                                showPaymentFailure('Payment verification failed for this transaction. Please try verifying again.', payment);
+                             }
+                        }
+                    } else {
+                        // 2. If URL verification completely fails (e.g., bad reference, server down), check recents as a fallback
+                         if (!checkForSuccessfulPaymentInRecents()) {
+                            showPaymentFailure('Could not verify payment from URL. Please try verifying manually or make a new payment.');
+                         }
+                    }
+                } else {
+                    // 3. No URL reference, check recents
+                    if (!checkForSuccessfulPaymentInRecents()) {
                         showNoPayment();
                     }
                 }
                 
             } catch (error) {
-                console.error('[v0] Error initializing page:', error);
+                console.error('[v1] Error initializing page:', error);
                 showPaymentFailure(error.message || 'Failed to load payment information');
                 if (error.message.includes('No authentication')) {
                     setTimeout(() => {
@@ -1484,20 +1493,15 @@
                     }, 2000);
                 }
             } finally {
-                stopLoadingMessages();
-                setTimeout(() => {
-                    const overlay = document.getElementById('initialLoadingOverlay');
-                    overlay.classList.add('hide');
-                    setTimeout(() => {
-                         overlay.style.display = 'none';
-                    }, 500)
-                    document.getElementById('paymentResult').style.display = 'block';
-                }, 500);
+                setInitialLoading(false);
+                document.getElementById('paymentResult').style.display = 'block';
             }
         }
 
         document.addEventListener('DOMContentLoaded', initializePage);
+        
+        // Expose function for button click (using original name from HTML, now pointing to bulk verification)
+        const retryPayment = verifyAllPendingPayments; // Ensures compatibility if other parts of code relied on this name
     </script>
 </body>
 </html>
-
