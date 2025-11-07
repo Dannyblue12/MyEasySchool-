@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GSS 202 App</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- MathJax configuration -->
+</head>
+<style>
+body{
+    background-color: #4CAF50;
+}
+ .timer {
+      position: absolute;
+      top: 150px;
+      right: 20px;
+      font-size: 1.4em;
+      color:red;
+    }
+
+    .timer span {
+      margin: 0px;
+    }
+
+    .hidden {
+      display: none;
+    }
+header {
+    background-color: #1E1E4D;
+    color: #fff;
+    text-align: center;
+    padding: 20px 0;
+}
+
+h1 {
+    font-size: 24px;
+}
+
+main {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #4CAF50;
+    outline:none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#quiz-container {
+    margin-bottom: 20px;
+    padding: 20px;
+    borer: 1px solid #ddd;
+    background-color: #4CAF50;
+}
+
+#question {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+#choices {
+    list-style: none;
+}
+
+#choices li {
+    margin-bottom: 10px;
+}
+
+input[type="radio"] {
+    margin-right: 5px;
+}
+
+#next-btn {
+  margin-left: 90px;
+    background-color: #1E1E4D;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#next-btn:hover {
+    background-color: #1E1E4D;
+}
+.hidden {
+    display: none;
+}
+#prev-btn {
+    background-color: #1E1E4D;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#next-btn:hover {
+    background-color: #555;
+}
+#result-container {
+    text-align: center;
+}
+
+                #content,
+        #unauthorized {
+            display: none;
+        }
+
+        #loader {
+            display: none;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+#score {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+#tab-box {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.tab {
+    margin: px;
+    padding: 10px;
+    background-color: #f4f4f4;
+    cursor: pointer;
+    text-align: center;
+    border: 0.7px solid black;
+}
+
+.tab.active {
+    background-color: #333;
+    color: #fff;
+}
+
+.tab.answered {
+    background-color: green;
+    color: #fff;
+}
+#show-answers-btn {
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+}
+
+#restart-btn {
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+}
+
+#restart-btn:hover {
+    background-color: #555;
+}
+</style>
+<body>
+    <header>
+        <h1>AKSU Exams Simulation</h1>
+        <h3>GSS 202 Examsmode CBT</h3>
+    </header>
+       <div id="loader"></div>
+    <div id="content"></div>
+    <div id="unauthorized">
+        <p>You must be logged in to view this page. Redirecting to the login page...</p>
+    </div>
+<script src="gss202mode.js"></script>
+    </main>
+</body>
+</html>
