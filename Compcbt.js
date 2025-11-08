@@ -526,7 +526,7 @@ console.log(questions.length);
                     // No user is signed in, show unauthorized message and redirect
                     unauthorized.style.display = 'block';
                     setTimeout(() => {
-                        window.location.href = 'Logineasy.html'; // Replace 'login.html' with the actual path to your login page
+                        window.location.href = 'Logincos.html'; // Replace 'login.html' with the actual path to your login page
                     }, 1000); // Redirect after 1 second
                 }
             });
