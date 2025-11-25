@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Exam</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/contrib/auto-render.min.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Requested Header Style */
+        .exam-header {
+            text-align: center;
+            color: black;
+            font-weight: bold;
+            font-size: 24px;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        .question {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .answers {
+            margin-bottom: 20px;
+        }
+        .answers label {
+            display: block;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .correct-answer {
+            color: blue;
+            margin-top: 10px;
+            background-color: #f0f8ff;
+            padding: 10px;
+            border-left: 3px solid blue;
+        }
+        #submit {
+            font-family: sans-serif;
+            font-size: 20px;
+            background-color: #297;
+            color: #fff;
+            border: 0px;
+            border-radius: 3px;
+            padding: 20px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        #submit:hover {
+            background-color: #3a8;
+        }
+        #status-message {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+            margin-top: 20px;
+        }
+        .error {
+            color: red;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Requested Header -->
+    <div class="exam-header">
+        AKWA IBOM STATE UNIVERSITY EXAMS
+    </div>
+
+    <div id="status-message">Loading exam questions...</div>
+    <div id="quiz"></div>
+    <div id="results"></div>
+    <button id="submit" style="display: none;">Get Results</button>
+
+    <script>
+        // --- API Configuration (Matches quiz-questions.html) ---
+        const CORS_PROXY = 'https://corsproxy.io/?';
+        const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
+
+        // --- Main Execution ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            const quizContainer = document.getElementById('quiz');
+            const resultsContainer = document.getElementById('results');
+            const submitButton = document.getElementById('submit');
+            const statusMessage = document.getElementById('status-message');
+
+            // 1. Get Parameters from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const courseId = urlParams.get('courseId');
+            const quizTitle = urlParams.get('quizTitle');
+
+            // 2. Fetch Questions
+            try {
+                let rawQuestions = [];
+
+                // Fallback for testing if no params provided (Optional: remove if strictly production)
+                if (!courseId || !quizTitle) {
+                     statusMessage.innerHTML = 'No quiz selected. <br><small>Please launch this page with courseId and quizTitle parameters, or use the test mode.</small>';
+                     // Uncomment below to test with dummy data if needed
+                     // rawQuestions = getDummyQuestions(); 
+                     return;
+                } else {
+                    rawQuestions = await fetchQuestionsFromApi(courseId, quizTitle);
+                }
+
+                if (rawQuestions && rawQuestions.length > 0) {
+                    // 3. Convert API Data to Phy103test Format
+                    const formattedQuestions = rawQuestions.map(convertApiQuestionToLegacyFormat);
+                    
+                    // 4. Render Quiz
+                    statusMessage.style.display = 'none';
+                    submitButton.style.display = 'block';
+                    generateQuiz(formattedQuestions, quizContainer, resultsContainer, submitButton);
+                } else {
+                    statusMessage.innerHTML = '<span class="error">No questions found for this exam.</span>';
+                }
+
+            } catch (error) {
+                console.error('Error loading quiz:', error);
+                statusMessage.innerHTML = `<span class="error">Error loading exam: ${error.message}</span>`;
+            }
+        });
+
+        // --- API Functions ---
+        async function fetchQuestionsFromApi(courseId, title) {
+            const userToken = localStorage.getItem('token');
+            
+            if (!userToken) {
+                throw new Error("You are not signed in.");
+            }
+
+            console.log('Fetching quiz:', title, 'for course:', courseId);
+
+            // Attempt 1: POST to /quiz/start
+            try {
+                const response = await fetch(`${API_BASE}/quiz/start`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${userToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        courseid: courseId, // Note: API expects lowercase 'courseid' sometimes
+                        title: title
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    return extractQuestionsFromResponse(data, title);
+                }
+                
+                // Retry with camelCase courseId if first failed
+                console.warn('First attempt failed, retrying with courseId...');
+                const retryResponse = await fetch(`${API_BASE}/quiz/start`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${userToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        courseId: courseId,
+                        title: title
+                    })
+                });
+
+                if (retryResponse.ok) {
+                    const data = await retryResponse.json();
+                    return extractQuestionsFromResponse(data, title);
+                }
+
+                throw new Error(`Failed to fetch quiz. Status: ${retryResponse.status}`);
+
+            } catch (error) {
+                console.error("API Error:", error);
+                throw error;
+            }
+        }
+
+        function extractQuestionsFromResponse(data, title) {
+            // Helper to find the questions array in various API response structures
+            if (data.success && data.data && Array.isArray(data.data.questions)) {
+                return data.data.questions;
+            } else if (data.success && Array.isArray(data.data)) {
+                // Sometimes data.data is an array of quizzes
+                const quiz = data.data.find(q => q.title === title);
+                return quiz ? quiz.questions : [];
+            } else if (Array.isArray(data.questions)) {
+                return data.questions;
+            }
+            return [];
+        }
+
+        // --- Data Mapping Function ---
+        // Converts the modern API question format to the format Phy103test.html expects
+        function convertApiQuestionToLegacyFormat(apiQ, index) {
+            const options = apiQ.options || apiQ.choices || [];
+            const letters = ['A', 'B', 'C', 'D', 'E'];
+            
+            // Determine Correct Answer Letter
+            // API might send an index (0) or a letter string ("A")
+            let correctLetter = 'A';
+            if (typeof apiQ.correctAnswer === 'number') {
+                correctLetter = letters[apiQ.correctAnswer];
+            } else if (typeof apiQ.correctAnswer === 'string' && apiQ.correctAnswer.length === 1) {
+                correctLetter = apiQ.correctAnswer;
+            } else if (typeof apiQ.answer === 'string') {
+                correctLetter = apiQ.answer; // Fallback for some formats
+            }
+
+            // Build object
+            const qObj = {
+                "Q": apiQ.question || apiQ.text,
+                "Ans": correctLetter,
+                "Solution": apiQ.solution || apiQ.explanation || `The correct answer is ${correctLetter}.`
+            };
+
+            // Map options array to A, B, C, D properties
+            options.forEach((opt, i) => {
+                if (i < letters.length) {
+                    qObj[letters[i]] = typeof opt === 'string' ? opt : (opt.text || opt.option);
+                }
+            });
+
+            return qObj;
+        }
+
+        // --- Original Quiz Logic (Slightly Adapted) ---
+        function generateQuiz(questions, quizContainer, resultsContainer, submitButton) {
+            function showQuestions(questions, quizContainer) {
+                var output = [];
+                var answers;
+
+                for (var i = 0; i < questions.length; i++) {
+                    answers = [];
+
+                    // Loop through properties A-D to build radio buttons
+                    ['A', 'B', 'C', 'D'].forEach(letter => {
+                        if (questions[i][letter]) {
+                            answers.push(
+                                '<label>'
+                                + '<input type="radio" name="question' + i + '" value="' + letter + '">'
+                                + letter + ': ' + questions[i][letter]
+                                + '</label>'
+                            );
+                        }
+                    });
+
+                    output.push(
+                        '<div class="question">' + (i + 1) + '. ' + questions[i].Q + '</div>'
+                        + '<div class="answers">' + answers.join('') + '</div>'
+                    );
+                }
+
+                quizContainer.innerHTML = output.join('');
+                
+                // Render MathJax/KaTeX
+                if (typeof renderMathInElement !== 'undefined') {
+                    renderMathInElement(quizContainer, {
+                        delimiters: [
+                            {left: "\\(", right: "\\)", display: false},
+                            {left: "\\[", right: "\\]", display: true}
+                        ]
+                    });
+                }
+            }
+
+            function showResults(questions, quizContainer, resultsContainer) {
+                var answerContainers = quizContainer.querySelectorAll('.answers');
+                var userAnswer = '';
+                var numCorrect = 0;
+
+                for (var i = 0; i < questions.length; i++) {
+                    userAnswer = (answerContainers[i].querySelector('input[name=question' + i + ']:checked') || {}).value;
+
+                    let correctAnswerLetter = questions[i].Ans;
+
+                    // Remove existing explanations if checking multiple times
+                    const existingCorrect = answerContainers[i].querySelector('.correct-answer');
+                    if (existingCorrect) existingCorrect.remove();
+
+                    if (userAnswer === correctAnswerLetter) {
+                        numCorrect++;
+                        answerContainers[i].style.color = 'lightgreen';
+                    } else {
+                        answerContainers[i].style.color = 'red';
+
+                        var correctAnswer = document.createElement('div');
+                        correctAnswer.className = 'correct-answer';
+                        correctAnswer.innerHTML = '<strong>Correct answer: ' + correctAnswerLetter + '</strong><br>' + 
+                            (questions[i][correctAnswerLetter] || '') + 
+                            '<br><br><em>Explanation: ' + (questions[i].Solution || '') + '</em>';
+                        answerContainers[i].appendChild(correctAnswer);
+                        
+                        if (typeof renderMathInElement !== 'undefined') {
+                            renderMathInElement(correctAnswer, {
+                                delimiters: [
+                                    {left: "\\(", right: "\\)", display: false},
+                                    {left: "\\[", right: "\\]", display: true}
+                                ]
+                            });
+                        }
+                    }
+                }
+
+                resultsContainer.innerHTML = '<h3>You scored ' + numCorrect + ' out of ' + questions.length + '</h3>';
+                
+                // Scroll to top of results
+                resultsContainer.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            // Initial render
+            showQuestions(questions, quizContainer);
+
+            // Bind click
+            submitButton.onclick = function() {
+                showResults(questions, quizContainer, resultsContainer);
+            }
+        }
+    </script>
+</body>
+</html>
