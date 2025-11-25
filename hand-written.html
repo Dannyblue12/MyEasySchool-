@@ -26,9 +26,21 @@
             color: black;
             font-weight: bold;
             font-size: 24px;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             text-transform: uppercase;
-            padding-bottom: 10px;
+        }
+
+        /* Student Info Styles */
+        .student-info {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: normal;
+            line-height: 1.4;
+        }
+
+        .student-field {
+            display: block;
         }
 
         .exam-sub-header {
@@ -37,6 +49,7 @@
             margin-bottom: 30px;
             border-bottom: 2px solid #000;
             padding-bottom: 20px;
+            font-weight: bold;
         }
 
         .question {
@@ -68,12 +81,12 @@
         }
 
         .correct-answer {
-            color: #000; /* Keep black for handwritten feel, or use blue for grading feel */
+            color: #000; 
             margin-top: 10px;
             background-color: #f0f8ff;
             padding: 10px;
             border: 1px solid #000;
-            font-family: sans-serif; /* Distinction for solution */
+            font-family: sans-serif; 
         }
         
         #submit {
@@ -128,6 +141,13 @@
     <div class="exam-header">
         AKWA IBOM STATE UNIVERSITY EXAMS
     </div>
+
+    <!-- Student Information Section -->
+    <div class="student-info">
+        <div class="student-field" id="student-name">Name: Loading...</div>
+        <div class="student-field" id="student-level">Level: 100lv</div>
+    </div>
+
     <div class="exam-sub-header" id="course-info">
         HAND-WRITTEN ASSESSMENT
     </div>
@@ -139,7 +159,6 @@
 
     <script>
         // --- API Configuration ---
-        // Using same configuration as quiz-questions.html
         const hostname = window.location.hostname;
         const isLocalDev = hostname === 'localhost' || hostname === '127.0.0.1';
         const CORS_PROXY = 'https://corsproxy.io/?';
@@ -153,7 +172,28 @@
             const statusMessage = document.getElementById('status-message');
             const courseInfo = document.getElementById('course-info');
 
-            // 1. Get Parameters from URL
+            // --- 1. Fetch User Info ---
+            try {
+                const currentUserData = localStorage.getItem('currentUserData');
+                const userData = localStorage.getItem('user');
+                let user = null;
+
+                if (currentUserData) {
+                    const parsedData = JSON.parse(currentUserData);
+                    user = parsedData.user;
+                } else if (userData) {
+                    user = JSON.parse(userData);
+                }
+
+                // Logic requested: fullName OR name OR 'Student'
+                const userName = user ? (user.fullName || user.name || 'Student') : 'Student';
+                document.getElementById('student-name').textContent = `Name: ${userName}`;
+            } catch (e) {
+                console.error("Error fetching user info:", e);
+                document.getElementById('student-name').textContent = `Name: Student`;
+            }
+
+            // --- 2. Get Parameters from URL ---
             const urlParams = new URLSearchParams(window.location.search);
             const courseId = urlParams.get('courseId');
             const courseCode = urlParams.get('courseCode');
@@ -163,7 +203,7 @@
                 courseInfo.textContent = `${courseCode} - ${quizTitle}`;
             }
 
-            // 2. Fetch Questions
+            // --- 3. Fetch Questions ---
             try {
                 if (!courseId || !quizTitle) {
                      statusMessage.innerHTML = 'No quiz selected. <br><small>Please return to the previous page and select a quiz.</small>';
@@ -173,10 +213,10 @@
                 const rawQuestions = await fetchQuestionsFromApi(courseId, quizTitle);
 
                 if (rawQuestions && rawQuestions.length > 0) {
-                    // 3. Convert API Data
+                    // Convert API Data
                     const formattedQuestions = rawQuestions.map(convertApiQuestionToLegacyFormat);
                     
-                    // 4. Render Quiz
+                    // Render Quiz
                     statusMessage.style.display = 'none';
                     submitButton.style.display = 'block';
                     generateQuiz(formattedQuestions, quizContainer, resultsContainer, submitButton);
@@ -195,7 +235,6 @@
             const userToken = localStorage.getItem('token');
             
             if (!userToken) {
-                // For development/demo without token
                 console.warn("No token found. Make sure you are logged in.");
             }
 
@@ -220,7 +259,7 @@
                     return extractQuestionsFromResponse(data, title);
                 }
                 
-                // Attempt 2: Retry with camelCase courseId (Server inconsistency fix)
+                // Attempt 2: Retry with camelCase courseId
                 console.warn('First attempt failed, retrying with courseId...');
                 const retryResponse = await fetch(`${API_BASE}/quiz/start`, {
                     method: 'POST',
@@ -239,7 +278,6 @@
                     return extractQuestionsFromResponse(data, title);
                 }
 
-                // If 400 or other error, throw
                 throw new Error(`Failed to fetch quiz. Status: ${retryResponse.status}`);
 
             } catch (error) {
@@ -257,16 +295,14 @@
             } else if (Array.isArray(data.questions)) {
                 return data.questions;
             } else if (data.data && data.data.availableTitles) {
-                 // Sometimes the start endpoint returns the list if start fails logic
                  const quiz = data.data.availableTitles.find(q => q.title === title);
                  return quiz ? quiz.questions : [];
             }
             return [];
         }
 
-        // --- Data Mapping Function (FIXED) ---
+        // --- Data Mapping Function ---
         function convertApiQuestionToLegacyFormat(apiQ, index) {
-            // ROBUST OPTION HANDLING
             let options = apiQ.options || apiQ.choices || [];
             
             // FIX: If options is an object (not array), convert it values array
@@ -294,7 +330,7 @@
             let imageHtml = '';
             if (apiQ.image || apiQ.imageUrl || apiQ.ImageUrl) {
                  const imgUrl = apiQ.image || apiQ.imageUrl || apiQ.ImageUrl;
-                 // Strip backticks if present (API quirk)
+                 // Strip backticks if present
                  const cleanUrl = imgUrl.replace(/`/g, '');
                  if(cleanUrl.startsWith('http')) {
                     imageHtml = `<img src="${cleanUrl}" class="question-image" alt="Question Diagram">`;
@@ -311,7 +347,6 @@
             // Map options array to A, B, C, D properties
             options.forEach((opt, i) => {
                 if (i < letters.length) {
-                    // Extract text if option is object
                     let optText = opt;
                     if (typeof opt === 'object' && opt !== null) {
                         optText = opt.text || opt.option || opt.value || JSON.stringify(opt);
