@@ -4,18 +4,20 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>University Exam</title>
+    <title>Hand Written Exam</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/contrib/auto-render.min.js"></script>
     <style>
         body {
-            font-family: sans-serif;
+            font-family: "Times New Roman", Times, serif; /* Serif font for exam look */
             margin: 0;
             padding: 20px;
             max-width: 800px;
             margin-left: auto;
             margin-right: auto;
+            background-color: #fff;
+            color: #000;
         }
         
         /* Requested Header Style */
@@ -24,72 +26,122 @@
             color: black;
             font-weight: bold;
             font-size: 24px;
-            margin-bottom: 30px;
+            margin-bottom: 10px;
             text-transform: uppercase;
-            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .exam-sub-header {
+            text-align: center;
+            font-size: 16px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #000;
             padding-bottom: 20px;
         }
 
         .question {
-            margin-top: 20px;
+            margin-top: 25px;
             font-weight: bold;
+            font-size: 18px;
         }
+        
         .answers {
             margin-bottom: 20px;
+            margin-left: 20px;
+            margin-top: 10px;
         }
+        
         .answers label {
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             cursor: pointer;
+            font-size: 16px;
         }
+
+        /* Image handling */
+        .question-image {
+            max-width: 100%;
+            height: auto;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            display: block;
+        }
+
         .correct-answer {
-            color: blue;
+            color: #000; /* Keep black for handwritten feel, or use blue for grading feel */
             margin-top: 10px;
             background-color: #f0f8ff;
             padding: 10px;
-            border-left: 3px solid blue;
+            border: 1px solid #000;
+            font-family: sans-serif; /* Distinction for solution */
         }
+        
         #submit {
             font-family: sans-serif;
-            font-size: 20px;
-            background-color: #297;
+            font-size: 18px;
+            background-color: #000;
             color: #fff;
             border: 0px;
-            border-radius: 3px;
-            padding: 20px;
+            border-radius: 4px;
+            padding: 15px 30px;
             cursor: pointer;
-            margin-bottom: 20px;
+            margin-bottom: 40px;
+            margin-top: 30px;
+            display: block;
             width: 100%;
-            margin-top: 20px;
         }
+        
         #submit:hover {
-            background-color: #3a8;
+            background-color: #333;
         }
+
         #status-message {
             text-align: center;
             font-style: italic;
             color: #666;
             margin-top: 20px;
         }
+        
         .error {
             color: red;
             text-align: center;
         }
+
+        /* Navigation helper */
+        .back-nav {
+            margin-bottom: 20px;
+        }
+        .back-nav a {
+            text-decoration: none;
+            color: #666;
+            font-family: sans-serif;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
+    <div class="back-nav">
+        <a href="#" onclick="history.back()">← Back</a>
+    </div>
+
     <!-- Requested Header -->
     <div class="exam-header">
         AKWA IBOM STATE UNIVERSITY EXAMS
     </div>
+    <div class="exam-sub-header" id="course-info">
+        HAND-WRITTEN ASSESSMENT
+    </div>
 
-    <div id="status-message">Loading exam questions...</div>
+    <div id="status-message">Fetching questions...</div>
     <div id="quiz"></div>
     <div id="results"></div>
-    <button id="submit" style="display: none;">Get Results</button>
+    <button id="submit" style="display: none;">Show Answers & Explanations</button>
 
     <script>
-        // --- API Configuration (Matches quiz-questions.html) ---
+        // --- API Configuration ---
+        // Using same configuration as quiz-questions.html
+        const hostname = window.location.hostname;
+        const isLocalDev = hostname === 'localhost' || hostname === '127.0.0.1';
         const CORS_PROXY = 'https://corsproxy.io/?';
         const API_BASE = `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
 
@@ -99,28 +151,29 @@
             const resultsContainer = document.getElementById('results');
             const submitButton = document.getElementById('submit');
             const statusMessage = document.getElementById('status-message');
+            const courseInfo = document.getElementById('course-info');
 
             // 1. Get Parameters from URL
             const urlParams = new URLSearchParams(window.location.search);
             const courseId = urlParams.get('courseId');
+            const courseCode = urlParams.get('courseCode');
             const quizTitle = urlParams.get('quizTitle');
+
+            if (courseCode && quizTitle) {
+                courseInfo.textContent = `${courseCode} - ${quizTitle}`;
+            }
 
             // 2. Fetch Questions
             try {
-                let rawQuestions = [];
-
-                // Fallback for testing if no params provided (Optional: remove if strictly production)
                 if (!courseId || !quizTitle) {
-                     statusMessage.innerHTML = 'No quiz selected. <br><small>Please launch this page with courseId and quizTitle parameters, or use the test mode.</small>';
-                     // Uncomment below to test with dummy data if needed
-                     // rawQuestions = getDummyQuestions(); 
+                     statusMessage.innerHTML = 'No quiz selected. <br><small>Please return to the previous page and select a quiz.</small>';
                      return;
-                } else {
-                    rawQuestions = await fetchQuestionsFromApi(courseId, quizTitle);
                 }
 
+                const rawQuestions = await fetchQuestionsFromApi(courseId, quizTitle);
+
                 if (rawQuestions && rawQuestions.length > 0) {
-                    // 3. Convert API Data to Phy103test Format
+                    // 3. Convert API Data
                     const formattedQuestions = rawQuestions.map(convertApiQuestionToLegacyFormat);
                     
                     // 4. Render Quiz
@@ -128,7 +181,7 @@
                     submitButton.style.display = 'block';
                     generateQuiz(formattedQuestions, quizContainer, resultsContainer, submitButton);
                 } else {
-                    statusMessage.innerHTML = '<span class="error">No questions found for this exam.</span>';
+                    statusMessage.innerHTML = '<span class="error">No questions found for this exam topic.</span>';
                 }
 
             } catch (error) {
@@ -142,7 +195,8 @@
             const userToken = localStorage.getItem('token');
             
             if (!userToken) {
-                throw new Error("You are not signed in.");
+                // For development/demo without token
+                console.warn("No token found. Make sure you are logged in.");
             }
 
             console.log('Fetching quiz:', title, 'for course:', courseId);
@@ -156,7 +210,7 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        courseid: courseId, // Note: API expects lowercase 'courseid' sometimes
+                        courseid: courseId, 
                         title: title
                     })
                 });
@@ -166,7 +220,7 @@
                     return extractQuestionsFromResponse(data, title);
                 }
                 
-                // Retry with camelCase courseId if first failed
+                // Attempt 2: Retry with camelCase courseId (Server inconsistency fix)
                 console.warn('First attempt failed, retrying with courseId...');
                 const retryResponse = await fetch(`${API_BASE}/quiz/start`, {
                     method: 'POST',
@@ -185,6 +239,7 @@
                     return extractQuestionsFromResponse(data, title);
                 }
 
+                // If 400 or other error, throw
                 throw new Error(`Failed to fetch quiz. Status: ${retryResponse.status}`);
 
             } catch (error) {
@@ -194,39 +249,61 @@
         }
 
         function extractQuestionsFromResponse(data, title) {
-            // Helper to find the questions array in various API response structures
             if (data.success && data.data && Array.isArray(data.data.questions)) {
                 return data.data.questions;
             } else if (data.success && Array.isArray(data.data)) {
-                // Sometimes data.data is an array of quizzes
                 const quiz = data.data.find(q => q.title === title);
-                return quiz ? quiz.questions : [];
+                return quiz ? quiz.questions : (data.data[0]?.questions || []);
             } else if (Array.isArray(data.questions)) {
                 return data.questions;
+            } else if (data.data && data.data.availableTitles) {
+                 // Sometimes the start endpoint returns the list if start fails logic
+                 const quiz = data.data.availableTitles.find(q => q.title === title);
+                 return quiz ? quiz.questions : [];
             }
             return [];
         }
 
-        // --- Data Mapping Function ---
-        // Converts the modern API question format to the format Phy103test.html expects
+        // --- Data Mapping Function (FIXED) ---
         function convertApiQuestionToLegacyFormat(apiQ, index) {
-            const options = apiQ.options || apiQ.choices || [];
+            // ROBUST OPTION HANDLING
+            let options = apiQ.options || apiQ.choices || [];
+            
+            // FIX: If options is an object (not array), convert it values array
+            if (!Array.isArray(options)) {
+                if (typeof options === 'object' && options !== null) {
+                    options = Object.values(options);
+                } else {
+                    options = [];
+                }
+            }
+
             const letters = ['A', 'B', 'C', 'D', 'E'];
             
             // Determine Correct Answer Letter
-            // API might send an index (0) or a letter string ("A")
             let correctLetter = 'A';
             if (typeof apiQ.correctAnswer === 'number') {
                 correctLetter = letters[apiQ.correctAnswer];
             } else if (typeof apiQ.correctAnswer === 'string' && apiQ.correctAnswer.length === 1) {
                 correctLetter = apiQ.correctAnswer;
             } else if (typeof apiQ.answer === 'string') {
-                correctLetter = apiQ.answer; // Fallback for some formats
+                correctLetter = apiQ.answer;
+            }
+
+            // Image handling
+            let imageHtml = '';
+            if (apiQ.image || apiQ.imageUrl || apiQ.ImageUrl) {
+                 const imgUrl = apiQ.image || apiQ.imageUrl || apiQ.ImageUrl;
+                 // Strip backticks if present (API quirk)
+                 const cleanUrl = imgUrl.replace(/`/g, '');
+                 if(cleanUrl.startsWith('http')) {
+                    imageHtml = `<img src="${cleanUrl}" class="question-image" alt="Question Diagram">`;
+                 }
             }
 
             // Build object
             const qObj = {
-                "Q": apiQ.question || apiQ.text,
+                "Q": (apiQ.question || apiQ.text || "Question Text Missing") + imageHtml,
                 "Ans": correctLetter,
                 "Solution": apiQ.solution || apiQ.explanation || `The correct answer is ${correctLetter}.`
             };
@@ -234,14 +311,19 @@
             // Map options array to A, B, C, D properties
             options.forEach((opt, i) => {
                 if (i < letters.length) {
-                    qObj[letters[i]] = typeof opt === 'string' ? opt : (opt.text || opt.option);
+                    // Extract text if option is object
+                    let optText = opt;
+                    if (typeof opt === 'object' && opt !== null) {
+                        optText = opt.text || opt.option || opt.value || JSON.stringify(opt);
+                    }
+                    qObj[letters[i]] = optText;
                 }
             });
 
             return qObj;
         }
 
-        // --- Original Quiz Logic (Slightly Adapted) ---
+        // --- Render Logic ---
         function generateQuiz(questions, quizContainer, resultsContainer, submitButton) {
             function showQuestions(questions, quizContainer) {
                 var output = [];
@@ -250,13 +332,12 @@
                 for (var i = 0; i < questions.length; i++) {
                     answers = [];
 
-                    // Loop through properties A-D to build radio buttons
                     ['A', 'B', 'C', 'D'].forEach(letter => {
                         if (questions[i][letter]) {
                             answers.push(
                                 '<label>'
                                 + '<input type="radio" name="question' + i + '" value="' + letter + '">'
-                                + letter + ': ' + questions[i][letter]
+                                + '<b>' + letter + '.</b> ' + questions[i][letter]
                                 + '</label>'
                             );
                         }
@@ -270,7 +351,6 @@
 
                 quizContainer.innerHTML = output.join('');
                 
-                // Render MathJax/KaTeX
                 if (typeof renderMathInElement !== 'undefined') {
                     renderMathInElement(quizContainer, {
                         delimiters: [
@@ -291,44 +371,42 @@
 
                     let correctAnswerLetter = questions[i].Ans;
 
-                    // Remove existing explanations if checking multiple times
+                    // Clear previous results
                     const existingCorrect = answerContainers[i].querySelector('.correct-answer');
                     if (existingCorrect) existingCorrect.remove();
 
+                    // Logic: Always show the solution when "Get Results" is clicked (Study mode)
                     if (userAnswer === correctAnswerLetter) {
                         numCorrect++;
-                        answerContainers[i].style.color = 'lightgreen';
+                        answerContainers[i].style.color = 'darkgreen';
                     } else {
                         answerContainers[i].style.color = 'red';
-
-                        var correctAnswer = document.createElement('div');
-                        correctAnswer.className = 'correct-answer';
-                        correctAnswer.innerHTML = '<strong>Correct answer: ' + correctAnswerLetter + '</strong><br>' + 
-                            (questions[i][correctAnswerLetter] || '') + 
-                            '<br><br><em>Explanation: ' + (questions[i].Solution || '') + '</em>';
-                        answerContainers[i].appendChild(correctAnswer);
-                        
-                        if (typeof renderMathInElement !== 'undefined') {
-                            renderMathInElement(correctAnswer, {
-                                delimiters: [
-                                    {left: "\\(", right: "\\)", display: false},
-                                    {left: "\\[", right: "\\]", display: true}
-                                ]
-                            });
-                        }
+                    }
+                    
+                    // Show explanation for everyone
+                    var correctAnswer = document.createElement('div');
+                    correctAnswer.className = 'correct-answer';
+                    correctAnswer.innerHTML = '<strong>Answer: ' + correctAnswerLetter + '</strong><br>' + 
+                        '<em>' + (questions[i].Solution || '') + '</em>';
+                    answerContainers[i].appendChild(correctAnswer);
+                    
+                    if (typeof renderMathInElement !== 'undefined') {
+                        renderMathInElement(correctAnswer, {
+                            delimiters: [
+                                {left: "\\(", right: "\\)", display: false},
+                                {left: "\\[", right: "\\]", display: true}
+                            ]
+                        });
                     }
                 }
 
-                resultsContainer.innerHTML = '<h3>You scored ' + numCorrect + ' out of ' + questions.length + '</h3>';
-                
-                // Scroll to top of results
+                resultsContainer.innerHTML = '<h3 style="text-align:center; border-top: 2px solid #000; padding-top:20px;">Score: ' + numCorrect + ' / ' + questions.length + '</h3>';
                 resultsContainer.scrollIntoView({ behavior: 'smooth' });
+                submitButton.style.display = 'none'; // Hide button after submission
             }
 
-            // Initial render
             showQuestions(questions, quizContainer);
 
-            // Bind click
             submitButton.onclick = function() {
                 showResults(questions, quizContainer, resultsContainer);
             }
