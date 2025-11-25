@@ -109,13 +109,14 @@
             flex: 1;
             background: none;
             border: none;
-            padding: 15px 10px;
+            padding: 15px 5px; /* Reduced padding to fit 3 tabs */
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px; /* Slightly smaller font */
             font-weight: 500;
             color: #666;
             transition: all 0.3s ease;
             border-bottom: 3px solid transparent;
+            white-space: nowrap; /* Prevent text wrapping */
         }
 
         .nav-tab:hover {
@@ -310,27 +311,6 @@
             background: #333;
             transform: translateY(-1px);
         }
-        
-        /* *** ADDED STYLE FOR NEW BUTTON *** */
-        .already-paid-button {
-            background: none;
-            color: #555;
-            border: 1px solid #ccc;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 12px;
-            transition: all 0.3s ease;
-        }
-
-        .already-paid-button:hover {
-            background: #f0f0f0;
-            border-color: #999;
-        }
-
 
         .close-modal {
             position: absolute;
@@ -444,16 +424,6 @@
  [data-theme="dark"] .close-modal:hover { background: #1f2937; color: #ffffff; }
  [data-theme="dark"] .payment-button { background: #101a3a; color: #ffffff; border: 1px solid #1f2937; }
  [data-theme="dark"] .payment-button:hover { background: #15224d; }
- 
-  /* *** ADDED STYLE FOR NEW BUTTON (DARK) *** */
- [data-theme="dark"] .already-paid-button {
-    color: #e5e7eb;
-    border-color: #374151;
- }
- [data-theme="dark"] .already-paid-button:hover {
-    background: #1f2937;
-    border-color: #e5e7eb;
- }
  </style>
 </head>
 <body>
@@ -467,6 +437,7 @@
         <!-- Navigation Tabs -->
         <div class="nav-tabs">
             <button class="nav-tab active" onclick="switchTab('practice')">CBT Practice</button>
+            <button class="nav-tab" onclick="switchTab('handwritten')">Hand Written</button>
             <button class="nav-tab" onclick="switchTab('exams')">Exams Mode</button>
         </div>
 
@@ -476,6 +447,16 @@
                 <div class="loading">
                     <div class="loading-spinner"></div>
                     <p>Loading quiz titles...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hand Written Exams Tab Content (New) -->
+        <div class="tab-content" id="handWrittenTab">
+            <div class="content-container" id="handWrittenContent">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading topics...</p>
                 </div>
             </div>
         </div>
@@ -500,9 +481,8 @@
         <div class="modal-content">
             <button class="close-modal" onclick="closeSubscriptionModal()">×</button>
             <div class="modal-title">Subscribe to Access Full CBT</div>
-            <!-- *** MODIFIED PRICE *** -->
             <div class="modal-description">
-                You need to Subscribe 800 naira to get access to the full CBT for both MTH and GST
+                You need to Subscribe 900 naira to get access to the full CBT for both MTH and GST
             </div>
             <div class="modal-description">Get access to:</div>
             <ul class="features-list">
@@ -510,10 +490,7 @@
                 <li>Exams Mode</li>
                 <li>Well Detailed Explanations for Maths problems</li>
             </ul>
-            <!-- *** MODIFIED BUTTON TEXT *** -->
-            <button class="payment-button" onclick="initiatePayment()">Pay ₦800 naira</button>
-            <!-- *** ADDED NEW BUTTON *** -->
-            <button class="already-paid-button" onclick="checkPaymentStatus()">Already paid? Verify</button>
+            <button class="payment-button" onclick="initiatePayment()">Payment 900 naira</button>
         </div>
     </div>
 
@@ -576,35 +553,25 @@
                 }
                 const data = await response.json();
                 console.log('[v0] Quiz chapters data received:', data);
-                console.log('[v0] Data structure:', JSON.stringify(data, null, 2));
                 
                 let quizData = null;
                 
                 if (data && data.success && data.data && Array.isArray(data.data.availableTitles)) {
-                    console.log('[v0] Using data.data.availableTitles format');
                     quizData = data.data.availableTitles;
-                    // Also store course info if available
                     if (data.data.course) {
                         document.getElementById('courseTitle').textContent = data.data.course.courseName || `${courseCode} - Select Quiz`;
                     }
                 } else if (data && data.success && Array.isArray(data.data)) {
-                    console.log('[v0] Using data.data format');
                     quizData = data.data;
                 } else if (data && data.success && data.quiz && Array.isArray(data.quiz)) {
-                    console.log('[v0] Using data.quiz format');
                     quizData = data.quiz;
                 } else if (Array.isArray(data)) {
-                    console.log('[v0] Using direct array format');
                     quizData = data;
                 } else if (data && Array.isArray(data.quizzes)) {
-                    console.log('[v0] Using data.quizzes format');
                     quizData = data.quizzes;
                 } else if (data && typeof data === 'object') {
-                    console.log('[v0] Checking for array properties in object');
-                    // Look for any array property in the response
                     const arrayProps = Object.keys(data).filter(key => Array.isArray(data[key]));
                     if (arrayProps.length > 0) {
-                        console.log('[v0] Found array properties:', arrayProps);
                         quizData = data[arrayProps[0]];
                     }
                 }
@@ -617,7 +584,6 @@
                 console.log('[v0] Processing quiz data:', quizData);
                 
                 quizTitles = quizData.map((quiz, index) => {
-                    console.log('[v0] Processing quiz item:', quiz);
                     return {
                         title: quiz.title || quiz.name || quiz.quizTitle || `Chapter ${index + 1}`,
                         description: `${quiz.questionCount || quiz.questions?.length || 0} questions`,
@@ -626,7 +592,6 @@
                     };
                 });
 
-                console.log('[v0] Processed quiz titles:', quizTitles);
                 displayQuizTitles();
                 
             } catch (error) {
@@ -639,19 +604,22 @@
             const courseTitle = document.getElementById('courseTitle');
             const quizInfo = document.getElementById('quizInfo');
             const quizContent = document.getElementById('quizContent');
+            const handWrittenContent = document.getElementById('handWrittenContent');
 
             courseTitle.textContent = `${courseCode} - Select Quiz`;
             
             if (!quizTitles || quizTitles.length === 0) {
                 quizInfo.textContent = 'No quizzes available';
-                quizContent.innerHTML = '<div class="error-message">No quizzes found for this course.</div>';
+                const errorHTML = '<div class="error-message">No quizzes found for this course.</div>';
+                quizContent.innerHTML = errorHTML;
+                handWrittenContent.innerHTML = errorHTML;
                 return;
             }
 
             quizInfo.textContent = `${quizTitles.length} quiz${quizTitles.length > 1 ? 'es' : ''} available • Click to start`;
 
+            // --- Generate HTML for CBT Practice ---
             let titlesHTML = '<ul class="quiz-titles-list">';
-            
             quizTitles.forEach((quiz, index) => {
                 const quizTitle = quiz.title || quiz.name || `Quiz ${index + 1}`;
                 const quizDescription = quiz.description || `${quiz.questionCount || 'Multiple'} questions`;
@@ -665,9 +633,27 @@
                     </li>
                 `;
             });
-
             titlesHTML += '</ul>';
             quizContent.innerHTML = titlesHTML;
+
+            // --- Generate HTML for Hand Written Exams (Same list, different OnClick) ---
+            let hwTitlesHTML = '<ul class="quiz-titles-list">';
+            quizTitles.forEach((quiz, index) => {
+                const quizTitle = quiz.title || quiz.name || `Quiz ${index + 1}`;
+                const quizDescription = quiz.description || `${quiz.questionCount || 'Multiple'} questions`;
+                
+                // Using selectHandWrittenQuiz for this list
+                hwTitlesHTML += `
+                    <li class="quiz-title-item" onclick="selectHandWrittenQuiz('${quizTitle}', ${index})">
+                        <div class="quiz-title-content">
+                            <div class="quiz-title-name">${quizTitle}</div>
+                            <div class="quiz-title-meta">${quizDescription}</div>
+                        </div>
+                    </li>
+                `;
+            });
+            hwTitlesHTML += '</ul>';
+            handWrittenContent.innerHTML = hwTitlesHTML;
         }
 
         function checkUserSubscription() {
@@ -682,13 +668,9 @@
                     currentUser = JSON.parse(userData);
                 }
                 
-                console.log('[v0] Current user data:', currentUser);
-                
                 if (currentUser && currentUser.subscribed) {
-                    console.log('[v0] User is subscribed');
                     return true;
                 } else {
-                    console.log('[v0] User is not subscribed');
                     return false;
                 }
             } catch (error) {
@@ -708,29 +690,17 @@
         }
 
         function initiatePayment() {
-            // Redirect to payment page or initiate payment flow
             window.location.href = 'payment.html';
-        }
-
-        // *** ADDED NEW FUNCTION ***
-        function checkPaymentStatus() {
-            // Redirect to payment success page for verification
-            window.location.href = 'payment-success.html';
         }
 
         function selectQuizTitle(title, index) {
             selectedQuizTitle = title;
-            console.log('[v0] Selected quiz title:', title);
+            console.log('[v0] Selected quiz title (CBT):', title);
             
-            // Check if user is subscribed
             if (!checkUserSubscription()) {
-                console.log('[v0] User not subscribed, showing subscription modal');
                 showSubscriptionModal();
                 return;
             }
-            
-            console.log('[v0] User is subscribed, redirecting to quiz questions page');
-            console.log('[v0] Redirecting to quiz questions page with courseId:', courseId, 'title:', title);
             
             const params = new URLSearchParams({
                 courseId: courseId,
@@ -741,10 +711,29 @@
             window.location.href = `quiz-questions.html?${params.toString()}`;
         }
 
+        // --- New Function for Hand Written Exams ---
+        function selectHandWrittenQuiz(title, index) {
+            selectedQuizTitle = title;
+            console.log('[v0] Selected quiz title (Hand Written):', title);
+            
+            if (!checkUserSubscription()) {
+                showSubscriptionModal();
+                return;
+            }
+            
+            const params = new URLSearchParams({
+                courseId: courseId,
+                courseCode: courseCode,
+                quizTitle: title
+            });
+            
+            // Redirect to hand-written.html instead of quiz-questions.html
+            window.location.href = `hand-written.html?${params.toString()}`;
+        }
+
         // Display error message
         function displayError(message) {
-            const quizContent = document.getElementById('quizContent');
-            quizContent.innerHTML = `
+            const errorHTML = `
                 <div class="error-message">
                     <h3>Error</h3>
                     <p>${message}</p>
@@ -757,13 +746,18 @@
                     </div>
                 </div>
             `;
+            
+            const quizContent = document.getElementById('quizContent');
+            const handWrittenContent = document.getElementById('handWrittenContent');
+            
+            if (quizContent) quizContent.innerHTML = errorHTML;
+            if (handWrittenContent) handWrittenContent.innerHTML = errorHTML;
         }
 
         // Load test data when API is unavailable
         function loadTestData() {
             console.log('[v0] Loading test data for choice display testing');
             
-            // Sample quiz data for testing choice display
             quizTitles = [
                 {
                     title: "Sample Quiz - Test Choices Display",
@@ -776,22 +770,29 @@
             displayQuizTitles();
         }
 
-        // Go back to dashboard
         function goBack() {
             window.location.href = 'dashboard.html';
         }
 
-        // Tab switching functionality
         function switchTab(tabName) {
-            // Remove active class from all tabs and content
+            // Remove active class from all tabs
             document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
-            // Add active class to selected tab and content
-            event.target.classList.add('active');
-            
+            // Add active class to clicked tab
+            // Note: event.target works if called from onclick, but we need to find the specific button
+            // simple way: iterate and match text or use index.
+            // Cleaner way:
+            const tabs = document.querySelectorAll('.nav-tab');
+            if (tabName === 'practice') tabs[0].classList.add('active');
+            if (tabName === 'handwritten') tabs[1].classList.add('active');
+            if (tabName === 'exams') tabs[2].classList.add('active');
+
+            // Show content
             if (tabName === 'practice') {
                 document.getElementById('practiceTab').classList.add('active');
+            } else if (tabName === 'handwritten') {
+                document.getElementById('handWrittenTab').classList.add('active');
             } else if (tabName === 'exams') {
                 document.getElementById('examsTab').classList.add('active');
             }
@@ -804,16 +805,13 @@
                 return;
             }
 
-            // Check if user is subscribed
             if (!checkUserSubscription()) {
-                console.log('[v0] User not subscribed, showing subscription modal');
                 showSubscriptionModal();
                 return;
             }
 
             console.log('[v0] Starting Exams Mode for course:', courseCode);
             
-            // Redirect to exams-mode.html with course parameters
             const params = new URLSearchParams({
                 courseId: courseId,
                 courseCode: courseCode
@@ -841,9 +839,7 @@
             }
         });
 
-        // Start the application
         document.addEventListener('DOMContentLoaded', initQuizPage);
-        // Apply theme from localStorage on load
         document.addEventListener('DOMContentLoaded', () => {
             const savedTheme = localStorage.getItem('theme');
             const body = document.body;
