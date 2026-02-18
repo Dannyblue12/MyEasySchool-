@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - MyEasySchool</title>
+    <link rel="icon" type="image/png" href="https://c7wfzhbejlqborls.public.blob.vercel-storage.com/1000230185-removebg-preview-T4QEc3Sxf6BsCcvJKC0JRvsedK3eO9.png">
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;620;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --color-primary: #0eb80eff;
+            --color-primary-dark: #0a8a0a;
+            --color-secondary: #087308;
+            --color-accent: #11d411;
+            --color-deep-green: #0a850aff;
+            --color-dark: #1f2937;
+            --color-light: #f8fafc;
+            --color-white: #ffffff;
+            --color-gray: #64748b;
+            --color-bg-white: #ffffff;
+            --color-text-white: #ffffff;
+            --color-text-light: #94a3b8;
+            --color-text-medium: #475569;
+            --shadow-medium: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6; color: var(--color-dark); overflow-x: hidden; background-color: var(--color-light);
+        }
+
+        /* Enhanced Glassmorphism Header */
+        .header {
+            position: fixed; top: 15px; left: 50%; transform: translateX(-50%); width: calc(100% - 30px);
+            max-width: 1200px; height: 80px; z-index: 50; background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 20px;
+            transition: all 0.3s ease; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-container { display: flex; justify-content: space-between; align-items: center; height: 100%; padding: 0 30px; }
+        .logo { display: flex; align-items: center; flex-shrink: 0; text-decoration: none; }
+        .logo img { width: 55px; height: 55px; margin-right: 15px; border-radius: 10px; }
+        .logo-text { font-weight: 900; color: var(--color-dark); font-size: 24px; letter-spacing: -0.02em; text-decoration: none; }
+        
+        .nav-menu { display: flex; gap: 35px; align-items: center; list-style: none; }
+        .nav-link {
+            color: var(--color-dark); font-weight: 500; transition: all 0.3s ease;
+            font-size: 16px; position: relative; padding: 8px 0; text-decoration: none;
+        }
+        .nav-link::after {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px;
+            background: linear-gradient(to right, var(--color-primary), var(--color-accent));
+            transition: width 0.3s ease; border-radius: 2px;
+        }
+        .nav-link:hover, .nav-link.active { color: var(--color-primary); }
+        .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+
+        .nav-cta {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent)); color: white;
+            padding: 12px 24px; border-radius: 25px; font-weight: 600; transition: all 0.3s ease; font-size: 15px;
+            box-shadow: 0 4px 15px rgba(14, 184, 14, 0.3); text-decoration: none;
+        }
+        .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(14, 184, 14, 0.4); }
+
+        .menu-toggle { display: none; background: none; border: none; cursor: pointer; padding: 8px; flex-direction: column; gap: 4px; }
+        .hamburger-line { width: 24px; height: 3px; background: var(--color-dark); border-radius: 2px; transition: all 0.3s ease; }
+        .menu-toggle.active .hamburger-line:nth-child(1) { transform: rotate(45deg) translate(6px, 6px); }
+        .menu-toggle.active .hamburger-line:nth-child(2) { opacity: 0; }
+        .menu-toggle.active .hamburger-line:nth-child(3) { transform: rotate(-45deg) translate(6px, -6px); }
+
+        .mobile-menu {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: white; z-index: 45;
+            padding: 120px 30px 30px; transform: translateY(-100%); transition: transform 0.4s ease; overflow-y: auto;
+        }
+        .mobile-menu.active { transform: translateY(0); }
+        .mobile-nav { display: flex; flex-direction: column; gap: 0; list-style: none; max-width: 400px; margin: 0 auto; }
+        .mobile-nav-link {
+            color: var(--color-dark); font-weight: 600; font-size: 20px; padding: 25px 0; transition: all 0.3s ease;
+            display: flex; align-items: center; text-decoration: none; border-bottom: 1px solid #f1f5f9; position: relative;
+        }
+        .mobile-nav-link:hover, .mobile-nav-link.active { color: var(--color-primary); padding-left: 20px; }
+        .mobile-nav-icon { margin-right: 15px; color: var(--color-primary); width: 24px; height: 24px; }
+
+        /* =========================================
+           PRIVACY POLICY SPECIFIC STYLES
+           ========================================= */
+        .policy-header {
+            padding: 180px 20px 80px;
+            background: linear-gradient(135deg, rgba(14, 184, 14, 0.05) 0%, rgba(10, 133, 10, 0.02) 100%);
+            text-align: center;
+        }
+
+        .policy-title {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--color-dark);
+            margin-bottom: 15px;
+            letter-spacing: -0.02em;
+        }
+
+        .policy-title span {
+            color: var(--color-deep-green);
+        }
+
+        .policy-meta {
+            font-size: 1.1rem;
+            color: var(--color-gray);
+            font-weight: 500;
+        }
+
+        .policy-meta span {
+            display: inline-block;
+            margin: 0 10px;
+        }
+
+        .policy-container {
+            max-width: 900px;
+            margin: -40px auto 100px;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .policy-card {
+            background: white;
+            border-radius: 30px;
+            padding: 60px 70px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        /* Typography Hierarchy for the Document */
+        .policy-card h2 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--color-deep-green);
+            margin-top: 50px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid rgba(14, 184, 14, 0.1);
+        }
+
+        .policy-card h2:first-child {
+            margin-top: 0;
+        }
+
+        .policy-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--color-dark);
+            margin-top: 35px;
+            margin-bottom: 15px;
+        }
+        
+        .policy-card h4 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--color-dark);
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+
+        .policy-card p {
+            font-size: 1.05rem;
+            color: var(--color-text-medium);
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .policy-card strong {
+            color: var(--color-dark);
+            font-weight: 700;
+        }
+
+        /* Elegant Lists */
+        .policy-card ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 25px;
+        }
+
+        .policy-card ul li {
+            font-size: 1.05rem;
+            color: var(--color-text-medium);
+            line-height: 1.7;
+            margin-bottom: 12px;
+            position: relative;
+            padding-left: 28px;
+        }
+
+        .policy-card ul li::before {
+            content: '\f058'; /* FontAwesome check-circle */
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 2px;
+            color: var(--color-primary);
+            font-size: 1.1rem;
+        }
+
+        /* Special Highlight Box for Important Info */
+        .disclaimer-box {
+            background: rgba(255, 107, 107, 0.05);
+            border-left: 4px solid #ff6b6b;
+            padding: 25px 30px;
+            border-radius: 0 12px 12px 0;
+            margin: 30px 0;
+        }
+
+        .disclaimer-box h4 {
+            color: #ef4444;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .disclaimer-box ul li::before {
+            content: '\f00d'; /* FontAwesome times-circle */
+            color: #ef4444;
+        }
+
+        .disclaimer-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .contact-email-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(14, 184, 14, 0.1);
+            color: var(--color-deep-green);
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .contact-email-link:hover {
+            background: var(--color-primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(14, 184, 14, 0.2);
+        }
+
+        /* Footer Section */
+        .footer { background: var(--color-dark); color: white; padding: 80px 20px 30px; border-top: 1px solid rgba(255,255,255,0.05);}
+        .footer-container { max-width: 1200px; margin: 0 auto; text-align: center; }
+        .footer-logo { display: flex; align-items: center; justify-content: center; margin-bottom: 25px; }
+        .footer-logo img { width: 50px; height: 50px; margin-right: 15px; border-radius: 10px; }
+        .footer-logo-text { font-size: 1.8rem; font-weight: 800; color: white; }
+        .footer-description { color: #9ca3af; line-height: 1.8; margin-bottom: 35px; max-width: 500px; margin-left: auto; margin-right: auto; font-size: 1.05rem;}
+        .footer-social { display: flex; gap: 15px; justify-content: center; margin-bottom: 40px; }
+        
+        .social-link { 
+            width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; 
+            justify-content: center; font-size: 1.3rem; background: white; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .social-link.fb { background: #1877F2; color: white; }
+        .social-link.fb:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(24, 119, 242, 0.4); }
+        .social-link.ig { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: white; }
+        .social-link.ig:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(225, 48, 108, 0.4); }
+        .social-link.tk { background: #000000; color: white; }
+        .social-link.tk:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); }
+
+        .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 25px; text-align: center; }
+        .footer-bottom p { color: #9ca3af; font-size: 0.95rem; }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 768px) {
+            .header { top: 10px; width: calc(100% - 20px); height: 70px; border-radius: 15px; }
+            .nav-menu { display: none; }
+            .menu-toggle { display: flex; }
+            
+            .policy-header { padding: 140px 20px 60px; }
+            .policy-title { font-size: 2.2rem; }
+            .policy-meta span { display: block; margin: 5px 0; }
+            
+            .policy-card { padding: 40px 30px; border-radius: 20px; }
+            .policy-card h2 { font-size: 1.5rem; }
+            .policy-card p, .policy-card ul li { font-size: 1rem; }
+            .disclaimer-box { padding: 20px; }
+        }
+
+        @media (max-width: 480px) {
+            .policy-card { padding: 30px 20px; }
+            .policy-title { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header" id="header">
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <img src="https://c7wfzhbejlqborls.public.blob.vercel-storage.com/1000230185-removebg-preview-T4QEc3Sxf6BsCcvJKC0JRvsedK3eO9.png" alt="MyEasySchool Logo">
+                <span class="logo-text">MyEasySchool</span>
+            </a>
+            <nav class="nav">
+                <ul class="nav-menu">
+                    <li><a href="index.html#hero" class="nav-link">Home</a></li>
+                    <li><a href="index.html#about" class="nav-link">About</a></li>
+                    <li><a href="index.html#features" class="nav-link">Features</a></li>
+                    <li><a href="index.html#contact" class="nav-cta">Contact Us</a></li>
+                </ul>
+            </nav>
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+            </button>
+        </div>
+    </header>
+
+    <div class="mobile-menu" id="mobileMenu">
+       <nav>
+            <ul class="mobile-nav">
+                <li><a href="index.html#hero" class="mobile-nav-link">Home</a></li>
+                <li><a href="index.html#about" class="mobile-nav-link">About</a></li>
+                <li><a href="index.html#features" class="mobile-nav-link">Features</a></li>
+                <li><a href="index.html#contact" class="mobile-nav-link">Contact Us</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <main class="main">
+        <section class="policy-header">
+            <h1 class="policy-title" data-aos="fade-up">Privacy <span>Policy</span></h1>
+            <div class="policy-meta" data-aos="fade-up" data-aos-delay="100">
+                <span><strong>Effective Date:</strong> 2026-01-20</span>
+                <span class="hide-mobile">|</span>
+                <span><strong>Last Updated:</strong> 2026-01-20</span>
+            </div>
+        </section>
+
+        <section class="policy-container">
+            <div class="policy-card" data-aos="fade-up" data-aos-delay="200">
+                
+                <h2>1. Introduction & Legal Compliance</h2>
+                <p>This Privacy Policy governs the use of <strong>MyEasySchool</strong>, an educational web and mobile platform designed to support students with learning resources, quizzes, and academic progress tracking.</p>
+                <p>We are deeply committed to protecting your personal data and fully complying with the Nigeria Data Protection Act (NDPA) 2023.</p>
+                <p><strong>Data Controller:</strong><br>MyEasySchool is the data controller responsible for all user data collected and stored on its servers and third-party infrastructure.</p>
+
+                <h2>2. Information We Collect (The “What”)</h2>
+                <p>We collect information necessary to provide, personalize, and improve our educational services. Data is collected directly through the MyEasySchool platform.</p>
+
+                <h3>A. Personal Information</h3>
+                <ul>
+                    <li><strong>Full Name</strong> – Used for personalization and account identification.</li>
+                    <li><strong>Email Address</strong> – Used as your unique user ID, login credential, and for secure account recovery.</li>
+                    <li><strong>Password</strong> – Used strictly for account security. Passwords are encrypted and hashed. We cannot view or access your actual password.</li>
+                </ul>
+
+                <h3>B. Academic & Usage Data</h3>
+                <ul>
+                    <li>Quiz results and academic scores.</li>
+                    <li>Subjects accessed and overall practice history.</li>
+                    <li>Learning progress and activity records.</li>
+                </ul>
+                <p><em>This data helps us provide performance tracking, learning continuity across your sessions, and highly personalized academic insights.</em></p>
+
+                <h3>C. Financial Data (via Paystack)</h3>
+                <p>For users accessing premium/paid features, we track:</p>
+                <ul>
+                    <li><strong>Transaction Reference ID</strong> – Used to safely confirm successful payments.</li>
+                    <li><strong>Payment Status</strong> – Used to instantly unlock your premium content.</li>
+                </ul>
+
+                <div class="disclaimer-box">
+                    <h4>Important Disclaimer:</h4>
+                    <p>We absolutely <strong>do not</strong> collect or store the following sensitive financial information:</p>
+                    <ul>
+                        <li>Debit or credit card numbers</li>
+                        <li>CVV or PIN codes</li>
+                        <li>Bank account details</li>
+                    </ul>
+                    <p>All payments are securely processed and handled directly by <strong>Paystack</strong>, a fully PCI-DSS compliant payment processor.</p>
+                </div>
+
+                <h3>D. Device & Technical Data</h3>
+                <ul>
+                    <li><strong>IP address</strong> – For account security and fraud prevention.</li>
+                    <li><strong>Device type, browser, and operating system</strong> – For debugging, platform optimization, and ensuring a seamless user experience.</li>
+                </ul>
+
+                <h2>3. Lawful Basis for Processing (NDPA Requirement)</h2>
+                <p>We process your personal data under the following legal lawful bases:</p>
+                <ul>
+                    <li><strong>Contractual Necessity:</strong> To create your account, authenticate your login, and actively provide our educational services to you.</li>
+                    <li><strong>Legitimate Interest:</strong> To seamlessly track learning progress, improve platform performance, and ensure overall system security.</li>
+                    <li><strong>Consent:</strong> Where applicable, to send essential service-related updates such as academic progress reports or system notifications.</li>
+                </ul>
+
+                <h2>4. Third-Party Data Sharing</h2>
+                <p><strong>We do not sell user data under any circumstances.</strong></p>
+                <p>We only share limited, strictly necessary data with trusted third parties required to securely operate the platform:</p>
+                <ul>
+                    <li><strong>Paystack (Payment Processor):</strong> Used exclusively for secure payment processing. Shared data may include email and transaction amount.</li>
+                    <li><strong>Hosting Providers:</strong> User data is securely encrypted, stored, and managed using globally trusted cloud infrastructure providers.</li>
+                </ul>
+                <p><em>Each third party we partner with is strictly required to comply with applicable data protection laws.</em></p>
+
+                <h2>5. Data Retention & Account Deletion</h2>
+                <h4>Retention</h4>
+                <p>We retain user data only for as long as your account remains active or as strictly required to provide our services to you.</p>
+
+                <h4>Account Deletion</h4>
+                <p>You have full control over your data. You may request account and data deletion at any time by:</p>
+                <ul>
+                    <li>Using the “Delete Account” option directly in your account settings (if available), or</li>
+                    <li>Contacting our support team directly via email.</li>
+                </ul>
+                <p>Once deleted, your personal data is permanently and irreversibly removed from our active systems, except where temporary retention is legally required by law.</p>
+
+                <h2>6. Security Measures</h2>
+                <p>We implement strict, industry-standard security measures to keep your data safe, including:</p>
+                <ul>
+                    <li>HTTPS (SSL) encryption for all data transmission.</li>
+                    <li>Restricted, role-based database access.</li>
+                    <li>Encrypted and salted/hashed user credentials.</li>
+                    <li>Secure, token-based authentication mechanisms.</li>
+                </ul>
+                <p><em>While no digital system is 100% immune to all threats, we continuously take all reasonable and proactive steps to protect your data.</em></p>
+
+                <h2>7. Children’s Privacy</h2>
+                <p>MyEasySchool is primarily intended for students preparing for higher academic examinations, typically aged 15–18.</p>
+                <p>We do not knowingly or intentionally collect personal data from children under the age of 13 without verified parental or guardian consent. If you are a parent or guardian and believe a child under 13 has mistakenly provided personal data to us, please contact us immediately for swift data removal.</p>
+
+                <h2>8. Your Rights Under NDPA 2023</h2>
+                <p>As a user, you maintain the following rights regarding your data:</p>
+                <ul>
+                    <li><strong>Access:</strong> The right to access your personal data.</li>
+                    <li><strong>Correction:</strong> The right to easily correct inaccurate information.</li>
+                    <li><strong>Deletion:</strong> The right to request full data deletion.</li>
+                    <li><strong>Withdrawal:</strong> The right to withdraw consent where applicable.</li>
+                </ul>
+
+                <h2>9. Contact Information</h2>
+                <p>If you have any questions, concerns, or specific requests regarding this Privacy Policy or your data rights, we are always here to help.</p>
+                
+                <p><strong>Data Protection Contact:</strong></p>
+                <a href="mailto:myeasyschoolhelp@gmail.com" class="contact-email-link">
+                    <i class="fas fa-envelope"></i> myeasyschoolhelp@gmail.com
+                </a>
+
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-logo">
+                <img src="https://c7wfzhbejlqborls.public.blob.vercel-storage.com/1000230185-removebg-preview-T4QEc3Sxf6BsCcvJKC0JRvsedK3eO9.png" alt="MyEasySchool Logo">
+                <span class="footer-logo-text">MyEasySchool</span>
+            </div>
+            <p class="footer-description">
+                Empowering students to achieve academic excellence through innovative learning solutions and comprehensive educational resources.
+            </p>
+            <div class="footer-social">
+                <a href="https://www.facebook.com/profile.php?id=100082069716805" target="_blank" class="social-link fb"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://www.instagram.com/myeasyschool_aksu?utm_source=ig_web_button_share_sheet&igsh=Y2l4enF6N29ldHBl" target="_blank" class="social-link ig"><i class="fab fa-instagram"></i></a>
+                <a href="http://tiktok.com/@myeasyschool_aksu" target="_blank" class="social-link tk"><i class="fab fa-tiktok"></i></a>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 MyEasySchool. All rights reserved. Designed with ❤️ for students.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize AOS Animation Library
+            AOS.init({ 
+                duration: 800, 
+                easing: 'ease-out-cubic', 
+                once: true, 
+                offset: 50 
+            });
+
+            // Mobile Menu Toggle Logic
+            const menuToggle = document.getElementById('menuToggle');
+            const mobileMenu = document.getElementById('mobileMenu');
+            
+            menuToggle.addEventListener('click', () => {
+                const isActive = mobileMenu.classList.toggle('active');
+                menuToggle.classList.toggle('active');
+                document.body.style.overflow = isActive ? 'hidden' : '';
+            });
+
+            document.querySelectorAll('.mobile-nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.remove('active');
+                    menuToggle.classList.remove('active');
+                    document.body.style.overflow = '';
+                });
+            });
+
+            // Header Scroll Effect
+            const header = document.getElementById('header');
+            window.addEventListener('scroll', () => {
+                header.classList.toggle('scrolled', window.scrollY > 20);
+            });
+        });
+    </script>
+</body>
+</html>
