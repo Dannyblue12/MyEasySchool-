@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Deletion - MyEasySchool</title>
+    <link rel="icon" type="image/png" href="https://c7wfzhbejlqborls.public.blob.vercel-storage.com/1000230185-removebg-preview-T4QEc3Sxf6BsCcvJKC0JRvsedK3eO9.png">
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;620;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --color-primary: #0eb80eff;
+            --color-primary-dark: #0a8a0a;
+            --color-secondary: #087308;
+            --color-accent: #11d411;
+            --color-deep-green: #0a850aff;
+            --color-dark: #1f2937;
+            --color-light: #f8fafc;
+            --color-white: #ffffff;
+            --color-gray: #64748b;
+            --color-bg-white: #ffffff;
+            --color-text-white: #ffffff;
+            --color-text-light: #94a3b8;
+            --color-text-medium: #475569;
+            --shadow-medium: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6; color: var(--color-dark); overflow-x: hidden; background-color: var(--color-light);
+        }
+
+        /* Enhanced Glassmorphism Header */
+        .header {
+            position: fixed; top: 15px; left: 50%; transform: translateX(-50%); width: calc(100% - 30px);
+            max-width: 1200px; height: 80px; z-index: 50; background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 20px;
+            transition: all 0.3s ease; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-container { display: flex; justify-content: space-between; align-items: center; height: 100%; padding: 0 30px; }
+        .logo { display: flex; align-items: center; flex-shrink: 0; text-decoration: none; }
+        .logo img { width: 55px; height: 55px; margin-right: 15px; border-radius: 10px; }
+        .logo-text { font-weight: 900; color: var(--color-dark); font-size: 24px; letter-spacing: -0.02em; text-decoration: none; }
+        
+        .nav-menu { display: flex; gap: 35px; align-items: center; list-style: none; }
+        .nav-link {
+            color: var(--color-dark); font-weight: 500; transition: all 0.3s ease;
+            font-size: 16px; position: relative; padding: 8px 0; text-decoration: none;
+        }
+        .nav-link::after {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px;
+            background: linear-gradient(to right, var(--color-primary), var(--color-accent));
+            transition: width 0.3s ease; border-radius: 2px;
+        }
+        .nav-link:hover, .nav-link.active { color: var(--color-primary); }
+        .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+
+        .nav-cta {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent)); color: white;
+            padding: 12px 24px; border-radius: 25px; font-weight: 600; transition: all 0.3s ease; font-size: 15px;
+            box-shadow: 0 4px 15px rgba(14, 184, 14, 0.3); text-decoration: none;
+        }
+        .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(14, 184, 14, 0.4); }
+
+        .menu-toggle { display: none; background: none; border: none; cursor: pointer; padding: 8px; flex-direction: column; gap: 4px; }
+        .hamburger-line { width: 24px; height: 3px; background: var(--color-dark); border-radius: 2px; transition: all 0.3s ease; }
+        .menu-toggle.active .hamburger-line:nth-child(1) { transform: rotate(45deg) translate(6px, 6px); }
+        .menu-toggle.active .hamburger-line:nth-child(2) { opacity: 0; }
+        .menu-toggle.active .hamburger-line:nth-child(3) { transform: rotate(-45deg) translate(6px, -6px); }
+
+        .mobile-menu {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: white; z-index: 45;
+            padding: 120px 30px 30px; transform: translateY(-100%); transition: transform 0.4s ease; overflow-y: auto;
+        }
+        .mobile-menu.active { transform: translateY(0); }
+        .mobile-nav { display: flex; flex-direction: column; gap: 0; list-style: none; max-width: 400px; margin: 0 auto; }
+        .mobile-nav-link {
+            color: var(--color-dark); font-weight: 600; font-size: 20px; padding: 25px 0; transition: all 0.3s ease;
+            display: flex; align-items: center; text-decoration: none; border-bottom: 1px solid #f1f5f9; position: relative;
+        }
+        .mobile-nav-link:hover, .mobile-nav-link.active { color: var(--color-primary); padding-left: 20px; }
+        .mobile-nav-icon { margin-right: 15px; color: var(--color-primary); width: 24px; height: 24px; }
+
+        /* =========================================
+           DOCUMENT/POLICY SPECIFIC STYLES
+           ========================================= */
+        .policy-header {
+            padding: 180px 20px 80px;
+            background: linear-gradient(135deg, rgba(14, 184, 14, 0.05) 0%, rgba(10, 133, 10, 0.02) 100%);
+            text-align: center;
+        }
+
+        .policy-title {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--color-dark);
+            margin-bottom: 15px;
+            letter-spacing: -0.02em;
+        }
+
+        .policy-title span {
+            color: var(--color-deep-green);
+        }
+
+        .policy-meta {
+            font-size: 1.1rem;
+            color: var(--color-gray);
+            font-weight: 500;
+        }
+
+        .policy-container {
+            max-width: 900px;
+            margin: -40px auto 100px;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .policy-card {
+            background: white;
+            border-radius: 30px;
+            padding: 60px 70px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        /* Typography Hierarchy for the Document */
+        .policy-card h2 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--color-deep-green);
+            margin-top: 50px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid rgba(14, 184, 14, 0.1);
+        }
+
+        .policy-card h2:first-child { margin-top: 0; }
+
+        .policy-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--color-dark);
+            margin-top: 35px;
+            margin-bottom: 15px;
+        }
+        
+        .policy-card h4 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--color-dark);
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+
+        .policy-card p {
+            font-size: 1.05rem;
+            color: var(--color-text-medium);
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .policy-card strong { color: var(--color-dark); font-weight: 700; }
+
+        /* Elegant Lists */
+        .policy-card ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 25px;
+        }
+
+        .policy-card ul li {
+            font-size: 1.05rem;
+            color: var(--color-text-medium);
+            line-height: 1.7;
+            margin-bottom: 12px;
+            position: relative;
+            padding-left: 28px;
+        }
+
+        .policy-card ul li::before {
+            content: '\f058'; /* FontAwesome check-circle */
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 2px;
+            color: var(--color-primary);
+            font-size: 1.1rem;
+        }
+
+        /* Custom Box for Steps / Instructions */
+        .instruction-box {
+            background: rgba(14, 184, 14, 0.04);
+            border-left: 4px solid var(--color-primary);
+            padding: 30px;
+            border-radius: 0 16px 16px 0;
+            margin: 30px 0;
+        }
+
+        .instruction-box h4 {
+            color: var(--color-deep-green);
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .instruction-box .step-text {
+            display: block;
+            margin-bottom: 15px;
+            color: var(--color-dark);
+            font-size: 1.05rem;
+        }
+
+        .instruction-box .step-detail {
+            background: white;
+            padding: 12px 18px;
+            border-radius: 8px;
+            border: 1px solid rgba(0,0,0,0.05);
+            margin-top: 8px;
+            color: var(--color-text-medium);
+            font-family: monospace;
+            font-size: 0.95rem;
+        }
+
+        /* Alert/Warning Box */
+        .alert-box {
+            background: rgba(255, 107, 107, 0.05);
+            border-left: 4px solid #ff6b6b;
+            padding: 20px 25px;
+            border-radius: 0 12px 12px 0;
+            margin: 25px 0;
+            color: #d32f2f;
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+
+        .contact-email-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(14, 184, 14, 0.1);
+            color: var(--color-deep-green);
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .contact-email-link:hover {
+            background: var(--color-primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(14, 184, 14, 0.2);
+        }
+
+        /* Footer Section */
+        .footer { background: var(--color-dark); color: white; padding: 80px 20px 30px; border-top: 1px solid rgba(255,255,255,0.05);}
+        .footer-container { max-width: 1200px; margin: 0 auto; text-align: center; }
+        .footer-logo { display: flex; align-items: center; justify-content: center; margin-bottom: 25px; }
+        .footer-logo img { width: 50px; height: 50px; margin-right: 15px; border-radius: 10px; }
+        .footer-logo-text { font-size: 1.8rem; font-weight: 800; color: white; }
+        .footer-description { color: #9ca3af; line-height: 1.8; margin-bottom: 35px; max-width: 500px; margin-left: auto; margin-right: auto; font-size: 1.05rem;}
+        .footer-social { display: flex; gap: 15px; justify-content: center; margin-bottom: 40px; }
+        
+        .social-link { 
+            width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; 
+            justify-content: center; font-size: 1.3rem; background: white; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .social-link.fb { background: #1877F2; color: white; }
+        .social-link.fb:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(24, 119, 242, 0.4); }
+        .social-link.ig { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: white; }
+        .social-link.ig:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(225, 48, 108, 0.4); }
+        .social-link.tk { background: #000000; color: white; }
+        .social-link.tk:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); }
+
+        .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 25px; text-align: center; }
+        .footer-bottom p { color: #9ca3af; font-size: 0.95rem; }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 768px) {
+            .header { top: 10px; width: calc(100% - 20px); height: 70px; border-radius: 15px; }
+            .nav-menu { display: none; }
+            .menu-toggle { display: flex; }
+            
+            .policy-header { padding: 140px 20px 60px; }
+            .policy-title { font-size: 2.2rem; }
+            
+            .policy-card { padding: 40px 30px; border-radius: 20px; }
+            .policy-card h2 { font-size: 1.5rem; }
+            .policy-card p, .policy-card ul li { font-size: 1rem; }
+            
+            .instruction-box { padding: 20px; }
+        }
+
+        @media (max-width: 480px) {
+            .policy-card { padding: 30px 20px; }
+            .policy-title { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header" id="header">
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <img src="https://c7wfzhbejlqborls.public.blob.vercel-storage.com/1000230185-removebg-preview-T4QEc3Sxf6BsCcvJKC0JRvsedK3eO9.png" alt="MyEasySchool Logo">
+                <span class="logo-text">MyEasySchool</span>
+            </a>
+            <nav class="nav">
+                <ul class="nav-menu">
+                    <li><a href="index.html#hero" class="nav-link">Home</a></li>
+                    <li><a href="index.html#about" class="nav-link">About</a></li>
+                    <li><a href="index.html#features" class="nav-link">Features</a></li>
+                    <li><a href="index.html#contact" class="nav-cta">Contact Us</a></li>
+                </ul>
+            </nav>
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+            </button>
+        </div>
+    </header>
+
+    <div class="mobile-menu" id="mobileMenu">
+       <nav>
+            <ul class="mobile-nav">
+                <li><a href="index.html#hero" class="mobile-nav-link">Home</a></li>
+                <li><a href="index.html#about" class="mobile-nav-link">About</a></li>
+                <li><a href="index.html#features" class="mobile-nav-link">Features</a></li>
+                <li><a href="index.html#contact" class="mobile-nav-link">Contact Us</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <main class="main">
+        <section class="policy-header">
+            <h1 class="policy-title" data-aos="fade-up">Account & <span>Data Deletion</span></h1>
+            <div class="policy-meta" data-aos="fade-up" data-aos-delay="100">
+                <span><strong>Last Updated:</strong> 20 January 2026</span>
+            </div>
+        </section>
+
+        <section class="policy-container">
+            <div class="policy-card" data-aos="fade-up" data-aos-delay="200">
+                
+                <p>MyEasySchool respects users’ privacy and data rights. This page explains how users can easily request the permanent deletion of their account and associated personal data.</p>
+                <p><em>This deletion process applies to the MyEasySchool mobile application and platform available on Google Play.</em></p>
+
+                <h2>How to Request Account Deletion</h2>
+                <p>Users who wish to delete their account and associated data can do so by following the steps below:</p>
+
+                <div class="instruction-box">
+                    <h4>Required Steps:</h4>
+                    
+                    <span class="step-text"><strong>1. Send an email to:</strong></span>
+                    <div class="step-detail">myeasyschoolhelp@gmail.com</div>
+                    <br>
+                    
+                    <span class="step-text"><strong>2. Use the subject line:</strong></span>
+                    <div class="step-detail">Account Deletion Request – MyEasySchool</div>
+                    <br>
+                    
+                    <span class="step-text"><strong>3. In the email body, include:</strong></span>
+                    <div class="step-detail">
+                        - The email address used to register or log in to MyEasySchool<br>
+                        - A clear statement requesting account deletion
+                    </div>
+                </div>
+                
+                <p><small><em>Note: For security reasons, we may verify ownership of the account before processing the deletion request.</em></small></p>
+
+                <h2>What Data Will Be Deleted</h2>
+                <p>Once an account deletion request is verified and approved, we will permanently delete the following data associated with the user:</p>
+                <ul>
+                    <li>Account information (such as name, email address, and user ID)</li>
+                    <li>Login and authentication records</li>
+                    <li>Saved learning progress and activity history</li>
+                    <li>Quiz results and performance records</li>
+                    <li>App preferences linked to the account</li>
+                    <li>Any personal data stored in connection with the user account</li>
+                </ul>
+                <p><strong>After deletion, the account will no longer be accessible.</strong></p>
+
+                <h2>Data That May Be Retained</h2>
+                <p>In some cases, we may retain limited, anonymized, or non-personally identifiable data for the following purposes:</p>
+                <ul>
+                    <li>Legal or regulatory compliance</li>
+                    <li>Security and fraud prevention</li>
+                    <li>System integrity and platform improvement</li>
+                </ul>
+                <p><em>Any retained data cannot be used to identify an individual user.</em></p>
+
+                <h2>Processing Time</h2>
+                <p>Account deletion requests are typically processed within 30 days of receipt.</p>
+                <div class="alert-box">
+                    <i class="fas fa-exclamation-triangle"></i> Once deletion is complete, the data cannot be recovered.
+                </div>
+
+                <h2>Partial Data Deletion</h2>
+                <p>At this time, MyEasySchool does not support partial deletion of user data without deleting the associated account. To remove personal data, the full account deletion process must be completed.</p>
+
+                <h2>Children’s Privacy</h2>
+                <p>MyEasySchool is an educational platform intended for secondary school students and above.</p>
+                <p>We do not knowingly collect personal data from children under the age of 13 without appropriate parental or guardian consent. Parents or guardians who believe their child’s data has been collected may contact us using the details below to request immediate deletion.</p>
+
+                <h2>Contact Information</h2>
+                <p>If you have any questions about account deletion or data privacy, please contact us directly:</p>
+                
+                <p>
+                    <strong>📱 App Name:</strong> MyEasySchool<br>
+                    <strong>📧 Email:</strong> 
+                </p>
+                <a href="mailto:myeasyschoolhelp@gmail.com" class="contact-email-link">
+                    <i class="fas fa-envelope"></i> myeasyschoolhelp@gmail.com
+                </a>
+
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-logo">
+                <img src="https://c7wfzhbejlqborls.public.blob.vercel-storage.com/1000230185-removebg-preview-T4QEc3Sxf6BsCcvJKC0JRvsedK3eO9.png" alt="MyEasySchool Logo">
+                <span class="footer-logo-text">MyEasySchool</span>
+            </div>
+            <p class="footer-description">
+                Empowering students to achieve academic excellence through innovative learning solutions and comprehensive educational resources.
+            </p>
+            <div class="footer-social">
+                <a href="https://www.facebook.com/profile.php?id=100082069716805" target="_blank" class="social-link fb"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://www.instagram.com/myeasyschool_aksu?utm_source=ig_web_button_share_sheet&igsh=Y2l4enF6N29ldHBl" target="_blank" class="social-link ig"><i class="fab fa-instagram"></i></a>
+                <a href="http://tiktok.com/@myeasyschool_aksu" target="_blank" class="social-link tk"><i class="fab fa-tiktok"></i></a>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 MyEasySchool. All rights reserved. Designed with ❤️ for students.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize AOS Animation Library
+            AOS.init({ 
+                duration: 800, 
+                easing: 'ease-out-cubic', 
+                once: true, 
+                offset: 50 
+            });
+
+            // Mobile Menu Toggle Logic
+            const menuToggle = document.getElementById('menuToggle');
+            const mobileMenu = document.getElementById('mobileMenu');
+            
+            menuToggle.addEventListener('click', () => {
+                const isActive = mobileMenu.classList.toggle('active');
+                menuToggle.classList.toggle('active');
+                document.body.style.overflow = isActive ? 'hidden' : '';
+            });
+
+            document.querySelectorAll('.mobile-nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.remove('active');
+                    menuToggle.classList.remove('active');
+                    document.body.style.overflow = '';
+                });
+            });
+
+            // Header Scroll Effect
+            const header = document.getElementById('header');
+            window.addEventListener('scroll', () => {
+                header.classList.toggle('scrolled', window.scrollY > 20);
+            });
+        });
+    </script>
+</body>
+</html>
