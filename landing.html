@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="BXAN-M835tJQx2NFnAJGqJiV6jSUiBeqX_3Fkgt8lc4" />
+    <title>MyEasySchool - Discover Your True Potential</title>
+    <link rel="icon" type="image/png" href="https://c7wfzhbejlqborls.public.blob.vercel-storage.com/1000230185-removebg-preview-T4QEc3Sxf6BsCcvJKC0JRvsedK3eO9.png">
+    <link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;620;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --color-primary: #0eb80eff;
+            --color-primary-dark: #0a8a0a;
+            --color-secondary: #087308;
+            --color-accent: #11d411;
+            --color-deep-green: #0a850aff;
+            --color-dark: #1f2937;
+            --color-light: #f8fafc;
+            --color-white: #ffffff;
+            --color-gray: #64748b;
+            --color-bg-white: #ffffff;
+            --color-text-white: #ffffff;
+            --color-text-light: #94a3b8;
+            --color-text-medium: #64748b;
+            --shadow-medium: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6; color: var(--color-dark); overflow-x: hidden; background-color: var(--color-white);
+        }
+
+        /* Enhanced Glassmorphism Header */
+        .header {
+            position: fixed; top: 15px; left: 50%; transform: translateX(-50%); width: calc(100% - 30px);
+            max-width: 1200px; height: 80px; z-index: 50; background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px;
+            transition: all 0.3s ease; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+        }
+
+        .header.scrolled { background: rgba(255, 255, 255, 0.85); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); border-color: rgba(255, 255, 255, 0.3); }
+        .header-container { display: flex; justify-content: space-between; align-items: center; height: 100%; padding: 0 30px; }
+        .logo { display: flex; align-items: center; flex-shrink: 0; text-decoration: none; }
+        .logo img { width: 55px; height: 55px; margin-right: 15px; border-radius: 10px; }
+        .logo-text { font-weight: 900; color: var(--color-dark); font-size: 24px; letter-spacing: -0.02em; text-decoration: none; }
+        
+        .nav-menu { display: flex; gap: 35px; align-items: center; list-style: none; }
+        .nav-link {
+            color: var(--color-dark); font-weight: 500; transition: all 0.3s ease;
+            font-size: 16px; position: relative; padding: 8px 0; text-decoration: none;
+        }
+        .nav-link::after {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px;
+            background: linear-gradient(to right, var(--color-primary), var(--color-accent));
+            transition: width 0.3s ease; border-radius: 2px;
+        }
+        .nav-link:hover, .nav-link.active { color: var(--color-primary); }
+        .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+
+        .nav-cta {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent)); color: white;
+            padding: 12px 24px; border-radius: 25px; font-weight: 600; transition: all 0.3s ease; font-size: 15px;
+            box-shadow: 0 4px 15px rgba(14, 184, 14, 0.3); text-decoration: none;
+        }
+        .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(14, 184, 14, 0.4); }
+
+        .menu-toggle { display: none; background: none; border: none; cursor: pointer; padding: 8px; flex-direction: column; gap: 4px; }
+        .hamburger-line { width: 24px; height: 3px; background: var(--color-dark); border-radius: 2px; transition: all 0.3s ease; }
+        .menu-toggle.active .hamburger-line:nth-child(1) { transform: rotate(45deg) translate(6px, 6px); }
+        .menu-toggle.active .hamburger-line:nth-child(2) { opacity: 0; }
+        .menu-toggle.active .hamburger-line:nth-child(3) { transform: rotate(-45deg) translate(6px, -6px); }
+
+        .mobile-menu {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: white; z-index: 45;
+            padding: 120px 30px 30px; transform: translateY(-100%); transition: transform 0.4s ease; overflow-y: auto;
+        }
+        .mobile-menu.active { transform: translateY(0); }
+        .mobile-nav { display: flex; flex-direction: column; gap: 0; list-style: none; max-width: 400px; margin: 0 auto; }
+        .mobile-nav-link {
+            color: var(--color-dark); font-weight: 600; font-size: 20px; padding: 25px 0; transition: all 0.3s ease;
+            display: flex; align-items: center; text-decoration: none; border-bottom: 1px solid #f1f5f9; position: relative;
+        }
+        .mobile-nav-link:hover, .mobile-nav-link.active { color: var(--color-primary); padding-left: 20px; }
+        .mobile-nav-icon { margin-right: 15px; color: var(--color-primary); width: 24px; height: 24px; }
+
+        .main { padding-top: 0; overflow-x: hidden; }
+
+        /* Hero Section */
+        .hero { position: relative; height: 100vh; min-height: 700px; width: 100%; overflow: hidden; }
+        .hero .swiper-container { width: 100%; height: 100%; }
+        .hero-slide { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; }
+        .hero-slide .hero-slide-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; transition: transform 7s ease-out; z-index: 1; }
+        .hero-slide.swiper-slide-active .hero-slide-image { transform: scale(1.1); }
+        .hero-slide::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 2; }
+        .hero-content { position: relative; z-index: 3; color: white; padding: 20px; max-width: 800px; text-align: center; }
+        
+        .hero-title { font-size: 3.5rem; font-weight: 800; line-height: 1.1; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); letter-spacing: -0.02em; }
+        .hero-title span { color: var(--color-primary); }
+        .hero-description { font-size: 1.2rem; margin-bottom: 40px; color: rgba(255, 255, 255, 0.95); line-height: 1.6; max-width: 600px; margin-left: auto; margin-right: auto; }
+
+        .hero-cta { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-bottom: 60px; }
+
+        /* Professional App Store Buttons */
+        .btn-store {
+            display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+            padding: 10px 25px; border-radius: 50px; font-weight: 600; text-align: left;
+            transition: all 0.3s ease; cursor: pointer; text-decoration: none;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        
+        .btn-store .store-text { display: flex; flex-direction: column; line-height: 1.1; }
+        .btn-store .store-text span { font-size: 0.7rem; font-weight: 500; opacity: 0.9; }
+        .btn-store .store-text strong { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.01em;}
+        .btn-store svg { width: 30px; height: 30px; }
+
+        .btn-playstore { background: white; color: var(--color-dark); border: 1px solid rgba(0,0,0,0.05); }
+        .btn-playstore:hover { transform: translateY(-4px); box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2); }
+        
+        .btn-ios { background: #000000; color: #ffffff; border: none; }
+        .btn-ios:hover { background: #1a1a1a; transform: translateY(-4px); box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3); }
+
+        .hero-stats {
+            position: absolute; bottom: 40px; right: 40px; z-index: 4; display: flex; align-items: center; gap: 20px;
+            background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(15px); padding: 15px 25px; border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.3); transform: translateX(100%); opacity: 0; animation: slideInStats 1s ease-out 2s forwards;
+        }
+        .stats-images { display: flex; align-items: center; }
+        .stats-image { width: 45px; height: 45px; border-radius: 50%; border: 3px solid var(--color-primary); overflow: hidden; margin-left: -15px; background: white; transition: all 0.3s ease; }
+        .stats-image:first-child { margin-left: 0; }
+        .stats-image:hover { transform: scale(1.1); z-index: 10; }
+        .stats-image img { width: 100%; height: 100%; object-fit: cover; }
+        .stats-text { color: white; font-weight: 600; font-size: 15px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5); margin-left: 5px; line-height: 1.3;}
+        .stats-number { color: var(--color-primary); font-size: 18px; font-weight: 800;}
+
+        @keyframes slideInStats { to { transform: translateX(0); opacity: 1; } }
+
+        .hero .swiper-pagination-bullet { background: rgba(255, 255, 255, 0.7); width: 12px; height: 12px; opacity: 1; }
+        .hero .swiper-pagination-bullet-active { background: var(--color-primary); transform: scale(1.2); }
+
+        /* General Section Layouts */
+        .section-spacing { height: 100px; }
+        .section-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        /* Universal Senior Level Heading */
+        .section-header-centered {
+            text-align: center; max-width: 900px; margin: 0 auto 60px auto;
+            padding: 0 20px; position: relative; z-index: 10;
+        }
+
+        .section-title-centered {
+            font-size: 2.4rem; font-weight: 800; color: var(--color-dark);
+            margin-bottom: 0; position: relative; display: inline-block; letter-spacing: -0.02em;
+        }
+
+        /* Specific Highlight Logic - Requested Deep Green Color */
+        .text-highlight { color: var(--color-deep-green); position: relative; display: inline-block; }
+        
+        .section-title-centered::after {
+            content: ''; position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%);
+            width: 70px; height: 4px; background: var(--color-primary); border-radius: 4px;
+        }
+
+        /* =========================================
+           "WHAT MAKES US DIFFERENT" SECTION 
+           ========================================= */
+
+        .why-stand-out-section {
+            margin-top: 80px; padding: 40px 0 100px 0; background: white;
+            position: relative; overflow: hidden; 
+        }
+
+        .stand-out-container {
+            max-width: 1250px; margin: 0 auto; padding: 0 20px;
+            display: flex; align-items: center; gap: 60px; position: relative;
+        }
+
+        .stand-out-visual {
+            flex: 0 0 50%; position: relative; display: flex; align-items: flex-end; justify-content: flex-start; 
+        }
+
+        .green-shape-bg {
+            position: absolute; bottom: 0; left: -50vw; width: calc(100% + 50vw); 
+            height: 55%; background: var(--color-primary); z-index: 1;
+            border-radius: 0 120px 20px 0; box-shadow: 15px 15px 40px rgba(14, 184, 14, 0.15);
+        }
+
+        .green-shape-bg::after {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 60%);
+            border-radius: inherit; z-index: 1;
+        }
+
+        .lady-image-container {
+            position: relative; z-index: 2; width: 100%; max-width: 400px; 
+            display: flex; align-items: flex-end; line-height: 0; 
+        }
+
+        .lady-image { width: 100%; height: auto; display: block; filter: drop-shadow(5px 10px 25px rgba(0,0,0,0.15)); }
+
+        .stand-out-content { flex: 0 0 50%; position: relative; z-index: 3; padding-left: 20px; }
+
+        .impact-pillars { display: flex; flex-direction: column; gap: 45px; }
+        .impact-pillar { display: flex; gap: 25px; align-items: flex-start; }
+
+        .pillar-icon-box {
+            flex-shrink: 0; width: 55px; height: 55px;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+            border-radius: 16px; display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1.3rem; box-shadow: 0 10px 20px rgba(14, 184, 14, 0.2);
+            transform: rotate(-5deg); transition: transform 0.3s ease;
+        }
+        
+        .impact-pillar:hover .pillar-icon-box { transform: rotate(0deg) scale(1.1); }
+
+        .pillar-content h3 { font-size: 1.4rem; font-weight: 800; color: var(--color-dark); margin-bottom: 8px; line-height: 1.3; }
+        .pillar-content h3 span { color: var(--color-deep-green); }
+        .pillar-content p { font-size: 1.05rem; color: var(--color-gray); line-height: 1.6; margin: 0;}
+
+
+        /* =========================================
+           "AMAZING FEATURES" SECTION
+           ========================================= */
+
+        .features-section {
+            background-color: var(--color-white); padding: 80px 0 100px; position: relative; overflow: hidden;
+        }
+
+        .features-container {
+            max-width: 1250px; margin: 0 auto; padding: 0 20px;
+            display: flex; align-items: center; gap: 40px; 
+        }
+
+        /* Left Side: Content */
+        .features-content { flex: 0 0 45%; }
+        
+        /* Empathic Gen Z Copy */
+        .features-lead { 
+            font-size: 1.05rem; color: var(--color-text-medium); line-height: 1.8; 
+            margin-bottom: 50px; font-weight: 400; 
+        }
+        .features-lead strong { color: var(--color-dark); font-weight: 700; }
+
+        /* Direct Features List, Clean UI without card borders */
+        .feature-list { display: flex; flex-direction: column; gap: 40px; margin-bottom: 50px;}
+
+        .feature-item {
+            display: flex; align-items: center; gap: 25px; transition: transform 0.3s ease;
+            background: transparent; 
+        }
+        .feature-item:hover { transform: translateX(10px); }
+
+        .feature-item-icon {
+            flex-shrink: 0; width: 60px; height: 60px;
+            background: rgba(14, 184, 14, 0.1); color: var(--color-primary);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        /* Feature 4 Specific Icon Color */
+        .icon-streak { background: rgba(14, 184, 14, 0.1); color: var(--color-primary); }
+
+        .feature-item:hover .feature-item-icon {
+            background: var(--color-primary);
+            color: white; transform: scale(1.15) rotate(5deg); box-shadow: 0 10px 25px rgba(14, 184, 14, 0.3);
+        }
+
+        .feature-text h4 { font-size: 1.6rem; font-weight: 700; color: var(--color-dark); margin: 0; line-height: 1.4; transition: color 0.3s ease; }
+        .feature-item:hover .feature-text h4 { color: var(--color-deep-green); }
+
+        .feature-cta-container { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 10px;}
+
+        /* Right Side: Massive App Image shifted Left */
+        .features-visual {
+            flex: 0 0 55%; display: flex; justify-content: flex-start; align-items: center; position: relative;
+        }
+
+        .features-image-wrapper {
+            position: relative; width: 100%; max-width: 700px; margin-left: -50px; 
+            /* Feather blend top and bottom perfectly */
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+        }
+
+        .features-image-wrapper img { width: 100%; height: auto; display: block; object-fit: contain; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.1)); }
+
+
+        /* =========================================
+           TESTIMONIAL SECTION (PREMIUM GSAP 3D)
+           ========================================= */
+        .reviews-section { background: var(--color-white); padding: 80px 0 120px 0; overflow: hidden; }
+
+        .review-slider-container { position: relative; max-width: 1200px; margin: 0 auto; padding: 20px 0 60px 0; }
+        
+        .review-slider-wrapper { position: relative; height: 350px; display: flex; align-items: center; justify-content: center; perspective: 1200px; }
+
+        .review-card {
+            position: absolute; width: 100%; max-width: 600px; left: 0; right: 0; margin: 0 auto;
+            background: #ffffff; border-radius: 20px; padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08); border: 1px solid rgba(14, 184, 14, 0.1);
+            text-align: left; opacity: 1; z-index: 1; cursor: pointer; user-select: none;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+
+        .review-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px;
+            background: linear-gradient(to right, var(--color-primary), var(--color-deep-green));
+            border-radius: 25px 25px 0 0;
+        }
+
+        .review-quote-icon { font-size: 2.5rem; color: var(--color-primary); opacity: 0.3; margin-bottom: 15px; }
+        .review-text { font-size: 1.15rem; color: var(--color-dark); line-height: 1.7; font-weight: 500; font-style: italic; margin-bottom: 25px; }
+
+        .review-author { display: flex; align-items: center; gap: 15px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 20px; }
+        .review-avatar-placeholder {
+            width: 45px; height: 45px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-deep-green));
+            display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem;
+        }
+        .review-author-info h4 { font-size: 1.1rem; font-weight: 800; color: var(--color-dark); margin: 0; line-height: 1.2;}
+        .review-author-info p { font-size: 0.85rem; color: var(--color-gray); margin: 0;}
+
+        .slider-nav { display: flex; justify-content: center; align-items: center; margin-top: 2rem; gap: 1.5rem; position: relative; z-index: 20; }
+        .slider-nav button {
+            background: white; color: var(--color-primary); border: 2px solid var(--color-primary);
+            width: 55px; height: 55px; border-radius: 50%; cursor: pointer; transition: all 0.3s ease;
+            display: flex; align-items: center; justify-content: center; font-size: 1.4rem; box-shadow: 0 10px 20px rgba(14, 184, 14, 0.1);
+        }
+        .slider-nav button:hover {
+            background: var(--color-primary); color: white; transform: translateY(-3px) scale(1.05); box-shadow: 0 15px 30px rgba(14, 184, 14, 0.2);
+        }
+
+        /* =========================================
+           NEW "AI STUDY FRIEND" SECTION (GSAP 5-Card)
+           ========================================= */
+        .ai-buddy-section {
+            padding: 100px 0 140px 0; background: var(--color-white); position: relative; overflow: hidden;
+        }
+
+        .ai-buddy-lead {
+            text-align: center; max-width: 750px; margin: 0 auto 50px auto;
+            font-size: 1.15rem; color: var(--color-text-medium); line-height: 1.7; padding: 0 20px;
+        }
+
+        .ai-slider-wrapper {
+            position: relative; height: 400px; display: flex; align-items: center; justify-content: center; perspective: 1200px; 
+            margin-top: 50px; width: 100%; max-width: 1300px; margin-left: auto; margin-right: auto;
+        }
+
+        .ai-buddy-card {
+            position: absolute; width: 100%; max-width: 340px; left: 0; right: 0; margin: 0 auto;
+            background: white; border-radius: 25px; padding: 35px 30px 40px; /* Internal padding only */
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08); border: 1px solid rgba(0,0,0,0.03);
+            text-align: center; opacity: 1; z-index: 1; cursor: pointer; user-select: none;
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        /* Avatar inside the card, no rings, real gradient backgrounds */
+        .ai-avatar-wrapper {
+            width: 120px; height: 120px; border-radius: 50%;
+            margin-bottom: 25px;
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .ai-avatar {
+            width: 100%; height: 100%; border-radius: 50%; object-fit: cover;
+            /* Fully transparent PNG sits on top of wrapper background */
+        }
+
+        .ai-name { font-size: 1.6rem; font-weight: 800; color: var(--color-dark); margin-bottom: 5px; }
+        .ai-role { 
+            font-size: 0.85rem; font-weight: 700; color: var(--color-deep-green); 
+            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; 
+            background: rgba(10, 133, 10, 0.1); padding: 6px 16px; border-radius: 20px; display: inline-block;
+        }
+        .ai-desc { font-size: 1.05rem; color: var(--color-gray); line-height: 1.6; }
+
+        .ai-cta-container { display: flex; justify-content: center; gap: 15px; margin-top: 80px; flex-wrap: wrap; }
+
+
+        /* =========================================
+           COMMUNITY COLLAGE SECTION 
+           ========================================= */
+        .community-section { padding: 120px 20px; background: white; position: relative; overflow: hidden;}
+        
+        /* Floating background elements for family vibe */
+        .bg-decor { position: absolute; z-index: 0; color: var(--color-primary); opacity: 0.05; }
+        .decor-plane { top: 10%; left: 5%; font-size: 5rem; transform: rotate(-15deg); }
+        .decor-path { position: absolute; top: 15%; left: 10%; width: 150px; height: 30px; border-top: 3px dashed rgba(14, 184, 14, 0.05); border-radius: 50%; transform: rotate(-15deg); z-index: 0;}
+        .decor-book { top: 20%; right: 8%; font-size: 4rem; transform: rotate(25deg); }
+        .decor-pen { bottom: 15%; left: 10%; font-size: 3.5rem; transform: rotate(45deg); }
+        .decor-cap { bottom: 25%; right: 10%; font-size: 6rem; transform: rotate(-10deg); }
+
+        .collage-container {
+            position: relative; width: 100%; max-width: 1100px; height: 600px; margin: 40px auto 60px; z-index: 2;
+        }
+        
+        .collage-item {
+            position: absolute; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15); border: 2px solid white;
+            /* Hover effects removed as requested */
+        }
+        
+        .collage-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        /* Masonry Custom Positioning */
+        .c-item-1 { width: 280px; height: 380px; top: 0; left: 0; transform: rotate(-4deg); z-index: 2;}
+        .c-item-2 { width: 340px; height: 240px; top: 20px; left: 300px; transform: rotate(2deg); z-index: 1;}
+        .c-item-3 { width: 260px; height: 260px; top: 0; right: 260px; transform: rotate(-3deg); z-index: 3;}
+        .c-item-4 { width: 250px; height: 350px; top: 40px; right: 0; transform: rotate(5deg); z-index: 4;}
+        .c-item-5 { width: 300px; height: 200px; bottom: 40px; left: 50px; transform: rotate(3deg); z-index: 5;}
+        .c-item-6 { width: 240px; height: 300px; bottom: 0; left: 370px; transform: rotate(-5deg); z-index: 6;}
+        .c-item-7 { width: 320px; height: 220px; bottom: 30px; right: 280px; transform: rotate(4deg); z-index: 7;}
+        .c-item-8 { width: 220px; height: 220px; bottom: 0; right: 40px; transform: rotate(-2deg); z-index: 8;}
+
+        .btn-whatsapp {
+            background: #25D366; color: white; padding: 16px 40px; border-radius: 50px;
+            font-weight: 700; font-size: 1.1rem; text-decoration: none; transition: all 0.3s ease;
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            box-shadow: 0 10px 25px rgba(37, 211, 102, 0.3); position: relative; z-index: 2;
+        }
+        .btn-whatsapp:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(37, 211, 102, 0.4); }
+        .btn-whatsapp i { font-size: 1.4rem; }
+
+        /* =========================================
+           EDUCATIONAL ARTICLES (Redesigned Single Column)
+           ========================================= */
+        .news-section { padding: 100px 20px; background: var(--color-white); }
+        .news-list { display: flex; flex-direction: column; gap: 40px; max-width: 950px; margin: 0 auto; }
+        
+        .news-card {
+            display: flex; flex-direction: row; align-items: center; background: white; border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05); overflow: hidden; transition: all 0.4s ease;
+            border: 1px solid rgba(0, 0, 0, 0.03); height: 320px;
+        }
+        .news-card:hover { transform: translateY(-5px); box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1); }
+        
+        .news-image { width: 45%; height: 100%; overflow: hidden; flex-shrink: 0; }
+        .news-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .news-card:hover .news-image img { transform: scale(1.05); }
+
+        .news-content { width: 55%; padding: 40px; display: flex; flex-direction: column; justify-content: center; height: 100%;}
+        .news-card-title { font-size: 1.6rem; font-weight: 800; color: var(--color-dark); margin-bottom: 15px; line-height: 1.3; }
+        .news-excerpt { color: var(--color-gray); line-height: 1.7; margin-bottom: 30px; font-size: 1.1rem; }
+
+        .read-more-link {
+            color: var(--color-primary); font-weight: 700; font-size: 1.05rem; text-decoration: none; 
+            display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease; align-self: flex-start;
+        }
+        .read-more-link i { transition: transform 0.3s ease; }
+        .read-more-link:hover { color: var(--color-deep-green); }
+        .read-more-link:hover i { transform: translateX(5px); }
+
+        .see-all-news-container { text-align: center; margin-top: 60px; }
+        .see-all-news-btn {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+            color: white; padding: 18px 45px; border-radius: 50px; font-weight: 700;
+            text-decoration: none; transition: all 0.3s ease; display: inline-block; font-size: 1.1rem;
+            box-shadow: 0 10px 25px rgba(14, 184, 14, 0.3);
+        }
+        .see-all-news-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(14, 184, 14, 0.4); }
+
+        /* =========================================
+           CONTACT US SECTION (Premium Design)
+           ========================================= */
+        .contact-section { padding: 120px 20px; background: var(--color-white); }
+        
+        .contact-subtitle { text-align: center; font-size: 1.15rem; color: var(--color-text-medium); margin-top: -40px; margin-bottom: 60px; }
+
+        .contact-container { 
+            display: flex; gap: 0; max-width: 1000px; margin: 0 auto; background: white; 
+            border-radius: 30px; box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08); overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+        
+        .contact-info { 
+            flex: 0 0 45%; background: linear-gradient(135deg, var(--color-primary), var(--color-deep-green)); 
+            padding: 60px 50px; color: white; display: flex; flex-direction: column; justify-content: center;
+            position: relative; overflow: hidden;
+        }
+        
+        /* Floating glowing orbs */
+        .contact-info::before { content:''; position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(255,255,255,0.1); border-radius: 50%; filter: blur(20px); }
+        .contact-info::after { content:''; position: absolute; bottom: -50px; left: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%; filter: blur(30px); }
+
+        .contact-info h3 { font-size: 2.2rem; font-weight: 800; margin-bottom: 20px; position: relative; z-index: 2;}
+        .contact-info p { font-size: 1.1rem; line-height: 1.7; margin-bottom: 40px; opacity: 0.9; position: relative; z-index: 2;}
+        
+        .contact-detail { display: flex; align-items: center; margin-bottom: 25px; font-size: 1.05rem; font-weight: 600; text-decoration: none; color: white; position: relative; z-index: 2; transition: transform 0.3s ease;}
+        .contact-detail:hover { transform: translateX(5px); }
+        .contact-detail i { width: 30px; font-size: 1.3rem; }
+        .contact-detail .fa-arrow-right { font-size: 1rem; margin-left: 10px; opacity: 0.7; transition: transform 0.3s ease; }
+        .contact-detail:hover .fa-arrow-right { transform: translateX(5px) rotate(-45deg); opacity: 1; }
+
+        .contact-info h4 { margin-top: 40px; margin-bottom: 20px; font-size: 1.1rem; position: relative; z-index: 2;}
+        
+        .social-links { display: flex; gap: 15px; position: relative; z-index: 2;}
+        .social-link { 
+            width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; 
+            justify-content: center; font-size: 1.3rem; background: white; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        /* Real Brand Colors for Socials */
+        .social-link.fb { background: #1877F2; color: white; }
+        .social-link.fb:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(24, 119, 242, 0.4); }
+        
+        .social-link.ig { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: white; }
+        .social-link.ig:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(225, 48, 108, 0.4); }
+        
+        .social-link.tk { background: #000000; color: white; }
+        .social-link.tk:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); }
+
+        .contact-form { flex: 0 0 55%; padding: 60px 50px; background: white; }
+        .form-group { margin-bottom: 25px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-label { display: block; font-weight: 700; color: var(--color-dark); margin-bottom: 8px; font-size: 0.95rem; }
+        .form-input, .form-textarea { width: 100%; padding: 16px 20px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; transition: all 0.3s ease; background: #f8fafc; font-family: 'Inter', sans-serif;}
+        .form-input:focus, .form-textarea:focus { outline: none; border-color: var(--color-primary); background: white; box-shadow: 0 0 0 4px rgba(14, 184, 14, 0.1); }
+        .form-textarea { resize: vertical; min-height: 120px; }
+        .submit-btn { background: linear-gradient(135deg, var(--color-primary), var(--color-deep-green)); color: white; padding: 16px 40px; border-radius: 12px; font-weight: 700; font-size: 1.1rem; border: none; cursor: pointer; transition: all 0.3s ease; width: 100%; margin-top: 10px;}
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(14, 184, 14, 0.3); }
+
+        /* Footer Section */
+        .footer { background: var(--color-dark); color: white; padding: 80px 20px 30px; border-top: 1px solid rgba(255,255,255,0.05);}
+        .footer-container { max-width: 1200px; margin: 0 auto; text-align: center; }
+        .footer-logo { display: flex; align-items: center; justify-content: center; margin-bottom: 25px; }
+        .footer-logo img { width: 50px; height: 50px; margin-right: 15px; border-radius: 10px; }
+        .footer-logo-text { font-size: 1.8rem; font-weight: 800; color: white; }
+        .footer-description { color: #9ca3af; line-height: 1.8; margin-bottom: 35px; max-width: 500px; margin-left: auto; margin-right: auto; font-size: 1.05rem;}
+        .footer-social { display: flex; gap: 15px; justify-content: center; margin-bottom: 40px; }
+        .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 25px; text-align: center; }
+        .footer-bottom p { color: #9ca3af; font-size: 0.95rem; }
+
+        /* Modals & Loaders */
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(5px); }
+        .loading-overlay.show { display: flex; }
+        .spinner { width: 60px; height: 60px; border: 4px solid rgba(14, 184, 14, 0.3); border-top: 4px solid var(--color-primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .contact-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .contact-modal.show { display: flex; }
+        .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); }
+        .modal-content { position: relative; background: white; border-radius: 20px; max-width: 450px; width: 100%; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3); transform: scale(0.7); opacity: 0; transition: all 0.3s ease; overflow: hidden; }
+        .contact-modal.show .modal-content { transform: scale(1); opacity: 1; }
+        .modal-header { padding: 40px 30px 20px; text-align: center; position: relative; }
+        .modal-close { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 28px; color: var(--color-gray); cursor: pointer; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.3s ease; }
+        .modal-close:hover { background: rgba(0, 0, 0, 0.1); color: var(--color-dark); }
+        .modal-icon { width: 90px; height: 90px; margin: 0 auto 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 45px; color: white; }
+        .modal-icon.success { background: linear-gradient(135deg, #0eb80eff, #0b960b); }
+        .modal-icon.error { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .modal-header h3 { font-size: 1.6rem; font-weight: 800; color: var(--color-dark); margin: 0; }
+        .modal-body { padding: 0 40px 25px; text-align: center; }
+        .modal-body p { color: var(--color-gray); line-height: 1.6; font-size: 1.05rem; }
+        .modal-footer { padding: 20px 40px 40px; text-align: center; }
+        .modal-btn { background: linear-gradient(135deg, var(--color-primary), var(--color-accent)); color: white; border: none; padding: 14px 40px; border-radius: 25px; font-weight: 700; font-size: 1.05rem; cursor: pointer; transition: all 0.3s ease; min-width: 140px; }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1024px) {
+            .stand-out-container, .features-container { flex-direction: column; gap: 50px; }
+            .stand-out-visual, .features-content, .features-visual { width: 100%; flex: 0 0 100%; }
+            .green-shape-bg { left: -50vw; width: calc(100% + 50vw); border-radius: 0 80px 20px 0; }
+            .stand-out-content { padding-left: 0; }
+            .features-image-wrapper { margin-left: 0; max-width: 90%; margin: 0 auto; }
+            .features-visual { justify-content: center; }
+            
+            .contact-container { flex-direction: column; }
+            .contact-info, .contact-form { flex: 0 0 100%; }
+
+            .collage-container { height: auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 40px;}
+            .collage-item { position: relative; width: 100% !important; height: 300px !important; top: auto !important; left: auto !important; right: auto !important; bottom: auto !important; transform: none !important; }
+            .bg-decor, .decor-path { display: none; } /* Hide floating elements on grid layout */
+        }
+
+        @media (max-width: 768px) {
+            .header { top: 10px; width: calc(100% - 20px); height: 70px; border-radius: 15px; }
+            .nav-menu, .hero-stats { display: none; }
+            .menu-toggle { display: flex; }
+            .hero-title { font-size: 2.5rem; }
+            
+            .section-title-centered { font-size: 2rem; }
+            
+            /* Remove side padding on features so image can bleed */
+            .why-stand-out-section, .reviews-section, .ai-buddy-section, .community-section, .news-section, .contact-section { padding: 60px 15px; }
+            
+            .features-section { padding: 60px 0; }
+            .features-header-centered { padding: 0 15px; }
+            .features-container { padding: 0; gap: 30px;}
+            .features-content { padding: 0 20px; }
+            
+            /* Full width bleed for mobile app image */
+            .features-image-wrapper { margin-left: calc(-50vw + 50%); width: 100vw; max-width: 100vw; }
+            .features-image-wrapper img { width: 100%; border-radius: 0; }
+
+            /* Ensure left bleed stays perfect on mobile */
+            .green-shape-bg { left: -50vw; width: calc(100% + 50vw); border-radius: 0 60px 10px 0; }
+            
+            .impact-pillar { flex-direction: column; align-items: center; text-align: center; }
+            .pillar-icon-box { transform: rotate(0deg); }
+            
+            .feature-text h4 { font-size: 1.4rem; }
+            .feature-cta-container { justify-content: center; }
+            
+            .review-slider-wrapper { height: 450px; }
+            .review-card { padding: 2.5rem 2rem; max-width: 90%; }
+            
+            .ai-slider-wrapper { height: 480px; }
+            .ai-buddy-card { max-width: 90%; padding: 30px 20px;}
+
+            .collage-container { grid-template-columns: 1fr; }
+
+            .news-card { flex-direction: column; height: auto;}
+            .news-image { width: 100%; height: 250px; }
+            .news-content { width: 100%; padding: 30px;}
+            
+            .contact-container { max-width: 500px; margin: 0 auto; }
+            .contact-info, .contact-form { padding: 40px 30px; }
+            .form-row { grid-template-columns: 1fr; gap: 0; }
+            
+            .btn-store { width: 100%; max-width: 300px; justify-content: center;}
+        }
+
+        @media (max-width: 480px) {
+            .hero-title { font-size: 2rem; }
+            .btn-store { width: 100%; max-width: 280px; }
+            .review-card .reviewer-name { font-size: 1.2rem; }
+            .review-card .review-text { font-size: 1rem; }
+            .contact-form, .contact-info { padding: 30px 20px; }
+            .review-slider-wrapper { height: 500px; }
+            .ai-slider-wrapper { height: 500px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header" id="header">
+        <div class="header-container">
+            <a href="#" class="logo">
+                <img src="https://c7wfzhbejlqborls.public.blob.vercel-storage.com/1000230185-removebg-preview-T4QEc3Sxf6BsCcvJKC0JRvsedK3eO9.png" alt="MyEasySchool Logo">
+                <span class="logo-text">MyEasySchool</span>
+            </a>
+            <nav class="nav">
+                <ul class="nav-menu">
+                    <li><a href="#hero" class="nav-link active">Home</a></li>
+                    <li><a href="#about" class="nav-link">About</a></li>
+                    <li><a href="#features" class="nav-link">Features</a></li>
+                    <li><a href="#contact" class="nav-cta">Contact Us</a></li>
+                </ul>
+            </nav>
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu" aria-expanded="false">
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+            </button>
+        </div>
+    </header>
+
+    <div class="mobile-menu" id="mobileMenu">
+       <nav>
+            <ul class="mobile-nav">
+                <li><a href="#hero" class="mobile-nav-link">Home</a></li>
+                <li><a href="#about" class="mobile-nav-link">About</a></li>
+                <li><a href="#features" class="mobile-nav-link">Features</a></li>
+                <li><a href="#contact" class="mobile-nav-link">Contact Us</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <main class="main">
+        <section class="hero" id="hero">
+            <div class="swiper-container hero-swiper-container">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide hero-slide">
+                        <div class="hero-slide-image" style="background-image: url('https://img.gs/qnmmkvpkzv/full/https://c7wfzhbejlqborls.public.blob.vercel-storage.com/young-african-female-student-with-facemask-holding-her-textbooks-campus-area.jpg');"></div>
+                        <div class="hero-content" data-aos="fade-up">
+                            <h1 class="hero-title">Discover Your True <span>Potentials</span> as a Student</h1>
+                            <p class="hero-description">Unlock academic excellence with personalized learning experiences.</p>
+                            <div class="hero-cta">
+                                <a href="#" class="btn-store btn-playstore">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                      <path fill="#4285F4" d="M3.7,2.2c-0.2,0.3-0.3,0.7-0.3,1.3v17c0,0.6,0.1,1,0.3,1.3l0.1,0.1l9.8-9.8v-0.2L3.8,2.1L3.7,2.2z"/>
+                                      <path fill="#F4B400" d="M13.6,12.1l3.3,3.3l3.8-2.2c1.1-0.6,1.1-1.6,0-2.2l-3.8-2.2L13.6,12.1z"/>
+                                      <path fill="#0F9D58" d="M3.7,21.5l10-10l3.3,3.3l-9.8,5.6C6,21,4.9,21,3.7,21.5z"/>
+                                      <path fill="#DB4437" d="M3.7,2.5C4.9,3,6,3,7.2,3.6l9.8,5.6l-3.3,3.3L3.7,2.5z"/>
+                                    </svg>
+                                    <div class="store-text"><span>Download on</span><strong>Google Play</strong></div>
+                                </a>
+                                <a href="#" class="btn-store btn-ios">
+                                    <svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg">
+                                      <path fill="#ffffff" d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
+                                    </svg>
+                                    <div class="store-text"><span>Download on the</span><strong>App Store</strong></div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="hero-stats">
+                            <div class="stats-images">
+                                <div class="stats-image"><img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20230912-WA0044.jpg-lrHrUSVRFzNaCbXEIvUMd8vhVZJNpS.jpeg" alt="Student 1"></div>
+                                <div class="stats-image"><img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20240526-WA0007.jpg-B5y4KImFoYbmCJggP0NnsP0Rie2fld.jpeg" alt="Student 2"></div>
+                                <div class="stats-image"><img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20230912-WA0046.jpg-fRY6K0df4QwFSCF89IJCoHiXB8sYqb.jpeg" alt="Student 3"></div>
+                            </div>
+                            <div class="stats-text">Over <span class="stats-number">5000+</span><br>Students Impacted</div>
+                        </div>
+                    </div>
+                    <div class="swiper-slide hero-slide">
+                        <div class="hero-slide-image" style="background-image: url('https://img.gs/qnmmkvpkzv/full/https://c7wfzhbejlqborls.public.blob.vercel-storage.com/dl.beatsnoop.com-3000-KDWerX3ayV.jpg');"></div>
+                        <div class="hero-content" data-aos="fade-up">
+                            <h1 class="hero-title">Promoting High Quality <span>Education</span> for 3 Years+</h1>
+                            <p class="hero-description">Excellence in educational technology, transforming learning experiences worldwide.</p>
+                            <div class="hero-cta">
+                                <a href="#" class="btn-store btn-playstore">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                      <path fill="#4285F4" d="M3.7,2.2c-0.2,0.3-0.3,0.7-0.3,1.3v17c0,0.6,0.1,1,0.3,1.3l0.1,0.1l9.8-9.8v-0.2L3.8,2.1L3.7,2.2z"/>
+                                      <path fill="#F4B400" d="M13.6,12.1l3.3,3.3l3.8-2.2c1.1-0.6,1.1-1.6,0-2.2l-3.8-2.2L13.6,12.1z"/>
+                                      <path fill="#0F9D58" d="M3.7,21.5l10-10l3.3,3.3l-9.8,5.6C6,21,4.9,21,3.7,21.5z"/>
+                                      <path fill="#DB4437" d="M3.7,2.5C4.9,3,6,3,7.2,3.6l9.8,5.6l-3.3,3.3L3.7,2.5z"/>
+                                    </svg>
+                                    <div class="store-text"><span>Download on</span><strong>Google Play</strong></div>
+                                </a>
+                                <a href="#" class="btn-store btn-ios">
+                                    <svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg">
+                                      <path fill="#ffffff" d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
+                                    </svg>
+                                    <div class="store-text"><span>Download on the</span><strong>App Store</strong></div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-slide hero-slide">
+                        <div class="hero-slide-image" style="background-image: url('https://img.gs/qnmmkvpkzv/full/https://c7wfzhbejlqborls.public.blob.vercel-storage.com/group-five-african-college-students-spending-time-together-campus-university-yard-black-afro-friends-sitting-grass-studying-with-laptops.jpg');"></div>
+                        <div class="hero-content" data-aos="fade-up">
+                            <h1 class="hero-title">Connect with Your <span>Peers</span> and Colleagues</h1>
+                            <p class="hero-description">Build connections and collaborate in our vibrant learning community.</p>
+                            <div class="hero-cta">
+                                <a href="#" class="btn-store btn-playstore">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                      <path fill="#4285F4" d="M3.7,2.2c-0.2,0.3-0.3,0.7-0.3,1.3v17c0,0.6,0.1,1,0.3,1.3l0.1,0.1l9.8-9.8v-0.2L3.8,2.1L3.7,2.2z"/>
+                                      <path fill="#F4B400" d="M13.6,12.1l3.3,3.3l3.8-2.2c1.1-0.6,1.1-1.6,0-2.2l-3.8-2.2L13.6,12.1z"/>
+                                      <path fill="#0F9D58" d="M3.7,21.5l10-10l3.3,3.3l-9.8,5.6C6,21,4.9,21,3.7,21.5z"/>
+                                      <path fill="#DB4437" d="M3.7,2.5C4.9,3,6,3,7.2,3.6l9.8,5.6l-3.3,3.3L3.7,2.5z"/>
+                                    </svg>
+                                    <div class="store-text"><span>Download on</span><strong>Google Play</strong></div>
+                                </a>
+                                <a href="#" class="btn-store btn-ios">
+                                    <svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg">
+                                      <path fill="#ffffff" d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
+                                    </svg>
+                                    <div class="store-text"><span>Download on the</span><strong>App Store</strong></div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper-pagination"></div>
+            </div>
+        </section>
+
+        <section class="why-stand-out-section" id="about">
+            
+            <div class="section-header-centered" data-aos="fade-up">
+                <h2 class="section-title-centered">What Makes Us <span class="text-highlight">Different</span></h2>
+            </div>
+
+            <div class="stand-out-container">
+                <div class="stand-out-visual" data-aos="fade-right" data-aos-duration="1000">
+                    <div class="green-shape-bg"></div>
+                    <div class="lady-image-container">
+                        <img src="outdoor-shot-thoughtful-curly-haired-woman-stands-against-urban-building-writes-information-notebook-holds-pen-notepad-notes-text-creats-new-chapter-o-book-dressed-casual-green-jumper.png" alt="Thoughtful student writing" class="lady-image">
+                    </div>
+                </div>
+
+                <div class="stand-out-content">
+                    <div class="impact-pillars">
+                        
+                        <div class="impact-pillar" data-aos="fade-left" data-aos-delay="100">
+                            <div class="pillar-icon-box"><i class="fas fa-brain"></i></div>
+                            <div class="pillar-content">
+                                <h3>Smart Study <span>Plans</span></h3>
+                                <p>Our platform uses smart algorithms to figure out your weak points and creates a personal study schedule just for you.</p>
+                            </div>
+                        </div>
+
+                        <div class="impact-pillar" data-aos="fade-left" data-aos-delay="200">
+                            <div class="pillar-icon-box"><i class="fas fa-certificate"></i></div>
+                            <div class="pillar-content">
+                                <h3>Understand, <span>Don't Just Memorize</span></h3>
+                                <p>We skip the boring memorization. Our expert materials help you truly understand the topics so you can easily pass any exam.</p>
+                            </div>
+                        </div>
+
+                        <div class="impact-pillar" data-aos="fade-left" data-aos-delay="300">
+                            <div class="pillar-icon-box"><i class="fas fa-chart-line"></i></div>
+                            <div class="pillar-content">
+                                <h3>Track Your <span>Progress</span></h3>
+                                <p>See your scores improve every week with our clear progress tracking. It’s the perfect way to build your confidence before the real test.</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <section class="features-section" id="features">
+            
+            <div class="section-header-centered" data-aos="fade-up">
+                <h2 class="section-title-centered">Amazing Features on <span class="text-highlight">MyEasySchool</span></h2>
+            </div>
+
+            <div class="features-container">
+                
+                <div class="features-content">
+                    <p class="features-lead" data-aos="fade-up" data-aos-delay="100">
+                        School can be stressful, but it doesn't have to be. We built MyEasySchool specifically for <strong>Gen Z's like you</strong>. Because we care about your academic success and well-being, we replaced confusing, long-winded textbooks with bite-sized, crystal-clear solutions that make learning genuinely effortless and fun.
+                    </p>
+
+                    <div class="feature-list">
+                        <div class="feature-item" data-aos="fade-up" data-aos-delay="200">
+                            <div class="feature-item-icon"><i class="fas fa-list-check"></i></div>
+                            <div class="feature-text"><h4>Over 5000+ CBT Questions</h4></div>
+                        </div>
+
+                        <div class="feature-item" data-aos="fade-up" data-aos-delay="300">
+                            <div class="feature-item-icon"><i class="fas fa-desktop"></i></div>
+                            <div class="feature-text"><h4>CBT Exams Simulator</h4></div>
+                        </div>
+
+                        <div class="feature-item" data-aos="fade-up" data-aos-delay="400">
+                            <div class="feature-item-icon"><i class="fas fa-book-open"></i></div>
+                            <div class="feature-text"><h4>Well Detailed Solution Manuals</h4></div>
+                        </div>
+
+                        <div class="feature-item" data-aos="fade-up" data-aos-delay="500">
+                            <div class="feature-item-icon icon-streak"><i class="fas fa-fire-flame-curved"></i></div>
+                            <div class="feature-text"><h4>Streak Functionality</h4></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="features-visual" data-aos="fade-left" data-aos-duration="1000">
+                    <div class="features-image-wrapper">
+                        <img src="1.png" alt="MyEasySchool App Interface">
+                    </div>
+                </div>
+
+            </div>
+        </section>
+        
+        <section class="reviews-section">
+            <div class="section-container">
+                
+                <div class="section-header-centered" data-aos="fade-up">
+                    <h2 class="section-title-centered">Testimonial from <span class="text-highlight">Students</span></h2>
+                </div>
+
+                <div class="review-slider-container" data-aos="zoom-in" data-aos-delay="200">
+                    <div class="review-slider-wrapper" id="gsapTestimonialWrapper">
+                        
+                        <div class="review-card">
+                            <i class="fas fa-quote-left review-quote-icon"></i>
+                            <div class="review-text">MyEasySchool gives you an idea of how the real exam would be like, in order for you to prepare yourself mentally and academically.</div>
+                            <div class="review-author">
+                                <div class="review-avatar-placeholder">GU</div>
+                                <div class="review-author-info">
+                                    <h4>God'swill Ubong</h4>
+                                    <p>Active Student</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="review-card">
+                            <i class="fas fa-quote-left review-quote-icon"></i>
+                            <div class="review-text">It explored me more to advance learning. The platform's simplicity makes difficult topics highly approachable. E get y!</div>
+                            <div class="review-author">
+                                <div class="review-avatar-placeholder" style="background: linear-gradient(135deg, #f59e0b, #fcd34d);">G</div>
+                                <div class="review-author-info">
+                                    <h4>God'swin</h4>
+                                    <p>Active Student</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="review-card">
+                            <i class="fas fa-quote-left review-quote-icon"></i>
+                            <div class="review-text">It gives you a highly accurate draft of the kind of questions to expect in the actual exams. Highly recommended!</div>
+                            <div class="review-author">
+                                <div class="review-avatar-placeholder" style="background: linear-gradient(135deg, #3b82f6, #93c5fd);">VF</div>
+                                <div class="review-author-info">
+                                    <h4>Victor Felix</h4>
+                                    <p>Active Student</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="review-card">
+                            <i class="fas fa-quote-left review-quote-icon"></i>
+                            <div class="review-text">MyEasySchool successfully summarized all my fragmented learning materials into one incredibly easy-to-use place.</div>
+                            <div class="review-author">
+                                <div class="review-avatar-placeholder" style="background: linear-gradient(135deg, #8b5cf6, #c4b5fd);">D</div>
+                                <div class="review-author-info">
+                                    <h4>David</h4>
+                                    <p>Active Student</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="review-card">
+                            <i class="fas fa-quote-left review-quote-icon"></i>
+                            <div class="review-text">Practicing on this app completely boosted my confidence before writing my final exams. The interface is just flawless.</div>
+                            <div class="review-author">
+                                <div class="review-avatar-placeholder" style="background: linear-gradient(135deg, #ec4899, #d8b4fe);">A</div>
+                                <div class="review-author-info">
+                                    <h4>Archibong</h4>
+                                    <p>Active Student</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="slider-nav">
+                        <button id="tsPrevBtn"><i class="fas fa-chevron-left"></i></button>
+                        <button id="tsNextBtn"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="ai-buddy-section">
+            <div class="section-container">
+                <div class="section-header-centered" data-aos="fade-up">
+                    <h2 class="section-title-centered">Have Your Personalized <br> <span class="text-highlight">AI Study Friend</span></h2>
+                </div>
+                
+                <p class="ai-buddy-lead" data-aos="fade-up" data-aos-delay="100">
+                    Imagine having a lesson tutor available 24/7. Our AI buddies track your study progress, pinpoint your weak areas, and motivate you to improve. Best of all? They each have unique personalities tailored to fit your specific learning style!
+                </p>
+
+                <div class="review-slider-container" data-aos="zoom-in" data-aos-delay="200">
+                    <div class="ai-slider-wrapper" id="gsapAiWrapper">
+                        
+                        <div class="ai-buddy-card">
+                            <div class="ai-avatar-wrapper" style="background: linear-gradient(135deg, #B4E5BC, #15AF04);">
+                                <img src="60d4c797e6625308c04b27511307e1075ad5ec02 (1).png" alt="Alex AI Buddy" class="ai-avatar">
+                            </div>
+                            <h3 class="ai-name">Alex</h3>
+                            <span class="ai-role">The Strategist</span>
+                            <p class="ai-desc">Direct and data-focused. Alex analyzes your stats and creates strict, highly optimized study plans to ensure you beat your own high scores.</p>
+                        </div>
+
+                        <div class="ai-buddy-card">
+                            <div class="ai-avatar-wrapper" style="background: linear-gradient(135deg, #CCC1F0, #4321B4);">
+                                <img src="d96bed37530e35c2c3b853f803bfe25cda4c620a (1).png" alt="Kemi AI Buddy" class="ai-avatar">
+                            </div>
+                            <h3 class="ai-name">Kemi</h3>
+                            <span class="ai-role">The Motivator</span>
+                            <p class="ai-desc">Empathetic and encouraging. Kemi celebrates your small wins, helps reduce pre-exam anxiety, and keeps your spirits high throughout.</p>
+                        </div>
+
+                        <div class="ai-buddy-card">
+                            <div class="ai-avatar-wrapper" style="background: linear-gradient(135deg, #B8DFF2, #0B40BA);">
+                                <img src="dc66bbd75267f80dc5946b2c6a060faf0026ec43 (1).png" alt="Zara AI Buddy" class="ai-avatar">
+                            </div>
+                            <h3 class="ai-name">Zara</h3>
+                            <span class="ai-role">The Taskmaster</span>
+                            <p class="ai-desc">No-nonsense and strict. Zara sets tight deadlines and pushes you to your absolute limits. She's the perfect cure for ending procrastination.</p>
+                        </div>
+
+                        <div class="ai-buddy-card">
+                            <div class="ai-avatar-wrapper" style="background: linear-gradient(135deg, #FFD8A8, #FF922B);">
+                                <img src="e64a007733867bc6ae9b9d629fe1c99e923fdbf8 (1).png" alt="Ethan AI Buddy" class="ai-avatar">
+                            </div>
+                            <h3 class="ai-name">Ethan</h3>
+                            <span class="ai-role">The Chill Peer</span>
+                            <p class="ai-desc">Casual and relatable. Ethan explains complex topics using everyday slang and pop culture, making studying feel exactly like a fun chat.</p>
+                        </div>
+
+                        <div class="ai-buddy-card">
+                            <div class="ai-avatar-wrapper" style="background: linear-gradient(135deg, #FFF3BF, #FAB005);">
+                                <img src="e9649028b0bccd8c610f8f56161b6dc9c17ed1ce (1).png" alt="Debbie AI Buddy" class="ai-avatar">
+                            </div>
+                            <h3 class="ai-name">Debbie</h3>
+                            <span class="ai-role">The Visionary</span>
+                            <p class="ai-desc">Creative and highly visual. Debbie uses clever analogies, fun acronyms, and visual cues to help you memorize the hardest topics easily.</p>
+                        </div>
+
+                    </div>
+                    
+                    <div class="slider-nav">
+                        <button id="aiPrevBtn"><i class="fas fa-chevron-left"></i></button>
+                        <button id="aiNextBtn"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+
+                <div class="ai-cta-container" data-aos="fade-up" data-aos-delay="300">
+                    <a href="#" class="btn-store btn-playstore">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="#4285F4" d="M3.7,2.2c-0.2,0.3-0.3,0.7-0.3,1.3v17c0,0.6,0.1,1,0.3,1.3l0.1,0.1l9.8-9.8v-0.2L3.8,2.1L3.7,2.2z"/>
+                            <path fill="#F4B400" d="M13.6,12.1l3.3,3.3l3.8-2.2c1.1-0.6,1.1-1.6,0-2.2l-3.8-2.2L13.6,12.1z"/>
+                            <path fill="#0F9D58" d="M3.7,21.5l10-10l3.3,3.3l-9.8,5.6C6,21,4.9,21,3.7,21.5z"/>
+                            <path fill="#DB4437" d="M3.7,2.5C4.9,3,6,3,7.2,3.6l9.8,5.6l-3.3,3.3L3.7,2.5z"/>
+                        </svg>
+                        <div class="store-text"><span>Download on</span><strong>Google Play</strong></div>
+                    </a>
+                    <a href="#" class="btn-store btn-ios">
+                        <svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="#ffffff" d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
+                        </svg>
+                        <div class="store-text"><span>Download on the</span><strong>App Store</strong></div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="community-section">
+            
+            <i class="fas fa-paper-plane bg-decor decor-plane" data-aos="fade-right" data-aos-duration="2000"></i>
+            <div class="decor-path" data-aos="fade-in" data-aos-delay="500"></div>
+            <i class="fas fa-book-open bg-decor decor-book" data-aos="fade-left" data-aos-duration="2500"></i>
+            <i class="fas fa-pen-fancy bg-decor decor-pen" data-aos="fade-up" data-aos-duration="2000"></i>
+            <i class="fas fa-lightbulb bg-decor decor-cap" data-aos="fade-down" data-aos-duration="2000"></i>
+
+            <div class="section-container">
+                <div class="section-header-centered" data-aos="zoom-in-up">
+                    <h2 class="section-title-centered">Join a family of <span class="text-highlight">Top Learners</span></h2>
+                </div>
+                
+                <div class="collage-container" data-aos="zoom-in-up" data-aos-duration="1000" data-aos-delay="100">
+                    <div class="collage-item c-item-1"><img src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?auto=format&fit=crop&w=800&q=80" alt="Black student smiling"></div>
+                    <div class="collage-item c-item-2"><img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/portrait-young-woman-with-laptop-hands-outside-school.jpg-ATbdTYNHtNeHD7H2CSMEK5jw7LW4zT.jpeg" alt="Student with laptop"></div>
+                    <div class="collage-item c-item-3"><img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/study-group-african-people%20%281%29.jpg-NOEIKG1MzDVHInGNFCU1cHaC7cTKM9.jpeg" alt="Study group"></div>
+                    <div class="collage-item c-item-4"><img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/young-student-working-assignment.jpg-CrsxPCx7s5oCQPYiAydtPMozm9DBJ0.jpeg" alt="Student assignment"></div>
+                    <div class="collage-item c-item-5"><img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/group-five-african-college-students-spending-time-together-campus-university-yard-black-afro-friends-studying-education-theme.jpg-uJLrEjsaKnez0rCFEiJXxeZtBet9fw.jpeg" alt="Students collaborating"></div>
+                    <div class="collage-item c-item-6"><img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/shot-professional-black-graphic-designer-works-remotely-sits-front-opened-laptop.jpg-664jKNcvCug7rxynYgUhT3WoJ2Xc6Y.jpeg" alt="Remote student"></div>
+                    <div class="collage-item c-item-7"><img src="https://images.unsplash.com/photo-1522228115018-d838bcce5c3a?auto=format&fit=crop&w=800&q=80" alt="Black student smiling with friends"></div>
+                    <div class="collage-item c-item-8"><img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/medium-shot-hard-working-student.jpg-cf0yNvb0grRUoYzBR9nO2BbZ7lA3kN.jpeg" alt="Hard working student"></div>
+                </div>
+                
+                <div style="text-align: center;" data-aos="fade-up">
+                    <a href="https://wa.me/09021328900" class="btn-whatsapp"><i class="fab fa-whatsapp"></i> Connect On Whatsapp</a>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-spacing"></div>
+
+        <section class="news-section">
+            <div class="section-container">
+                <div class="section-header-centered" data-aos="fade-up">
+                    <h2 class="section-title-centered">Educational <span class="text-highlight">Articles</span></h2>
+                </div>
+                
+                <div class="news-list">
+                    <div class="news-card" data-aos="fade-up">
+                        <div class="news-image">
+                            <img src="group-afro-americans-working-together.jpg" alt="High-Demand Side Hustles">
+                        </div>
+                        <div class="news-content">
+                            <h3 class="news-card-title">High-Demand Side Hustles for UniUyo & AKSU Students</h3>
+                            <p class="news-excerpt">Being a student in Nigeria is not cheap. Tuition, transport, and daily meals can quickly eat up allowances. But instead of depending entirely on family, you can turn your creative skills into income...</p>
+                            <a href="high-demand-side-hustles.html" class="read-more-link">Read More <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    
+                    <div class="news-card" data-aos="fade-up" data-aos-delay="100">
+                        <div class="news-image">
+                            <img src="ibpremiumthree242208-1920x1080.jpg.webp" alt="Study Smart With Phone">
+                        </div>
+                        <div class="news-content">
+                            <h3 class="news-card-title">How to Study Smartly With Your Phone</h3>
+                            <p class="news-excerpt">Picture this: you grab your phone to "quickly" check a study resource, but twenty minutes later you're laughing at a TikTok dance challenge you don't even remember clicking on...</p>
+                            <a href="tiktok-doomscrolling.html" class="read-more-link">Read More <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    
+                    <div class="news-card" data-aos="fade-up" data-aos-delay="200">
+                        <div class="news-image">
+                            <img src="hq720.jpg" alt="Study Smart">
+                        </div>
+                        <div class="news-content">
+                            <h3 class="news-card-title">How to master anything like an A+ student</h3>
+                            <p class="news-excerpt">Benjamin Franklin, one of the Founding Fathers of the United States wasn't always the genius you read about in history books. Teachers actually thought he was hopeless at first...</p>
+                            <a href="study-like-an-A+.html" class="read-more-link">Read More <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="news-card" data-aos="fade-up" data-aos-delay="300">
+                        <div class="news-image">
+                            <img src="25-Scholarships-for-Nigerian-Students-to-Study-Abroad-800x500.jpg" alt="Scholarship Opportunities">
+                        </div>
+                        <div class="news-content">
+                            <h3 class="news-card-title">15 Scholarships for Students with Low CGPA</h3>
+                            <p class="news-excerpt">Are you a student worried that your low CGPA means you can't win a scholarship? Take a deep breath, you're not alone. Many students believe scholarships are only for first-class...</p>
+                            <a href="15-scholarships-for-nigerian-students.html" class="read-more-link">Read More <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="see-all-news-container" data-aos="fade-up">
+                    <a href="blogs.html" class="see-all-news-btn">See More Articles</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="contact-section" id="contact">
+            <div class="section-container">
+                <div class="section-header-centered" data-aos="fade-up">
+                    <h2 class="section-title-centered">Contact <span class="text-highlight">Us</span></h2>
+                </div>
+                <p class="contact-subtitle" data-aos="fade-up">Get in touch with our team to learn more about our services</p>
+                
+                <div class="contact-container" data-aos="fade-up" data-aos-delay="100">
+                    <div class="contact-info">
+                        <h3>Get In Touch</h3>
+                        <p>We're here to answer any questions you may have about our educational services. Go ahead and send your messages, we would be happy to reply them. 💚</p>
+                        
+                        <a href="https://wa.me/09021328900" class="contact-detail">
+                            <i class="fab fa-whatsapp"></i><span>09021328900</span> <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="mailto:myeasyschoolhelp@gmail.com" class="contact-detail">
+                            <i class="fas fa-envelope"></i><span>myeasyschoolhelp@gmail.com</span> <i class="fas fa-arrow-right"></i>
+                        </a>
+                        
+                        <h4>Check out our amazing contents on social medias</h4>
+                        <div class="social-links">
+                            <a href="https://www.facebook.com/profile.php?id=100082069716805" target="_blank" class="social-link fb"><i class="fab fa-facebook-f"></i></a>
+                            <a href="https://www.instagram.com/myeasyschool_aksu?utm_source=ig_web_button_share_sheet&igsh=Y2l4enF6N29ldHBl" target="_blank" class="social-link ig"><i class="fab fa-instagram"></i></a>
+                            <a href="http://tiktok.com/@myeasyschool_aksu" target="_blank" class="social-link tk"><i class="fab fa-tiktok"></i></a>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-form">
+                        <h3 style="margin-bottom: 30px; color: var(--color-dark); font-size: 1.5rem;">Send Us a Message</h3>
+                        <form id="contactForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="fullName" class="form-label">Full Name</label>
+                                    <input type="text" id="fullName" name="fullName" class="form-input" placeholder="Your full name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email" class="form-label">Email Address</label>
+                                    <input type="email" id="email" name="email" class="form-input" placeholder="Your email address" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="message" class="form-label">Message</label>
+                                <textarea id="message" name="message" class="form-textarea" placeholder="Tell us about your educational needs" required></textarea>
+                            </div>
+                            <button type="submit" class="submit-btn">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-logo">
+                <img src="https://c7wfzhbejlqborls.public.blob.vercel-storage.com/1000230185-removebg-preview-T4QEc3Sxf6BsCcvJKC0JRvsedK3eO9.png" alt="MyEasySchool Logo">
+                <span class="footer-logo-text">MyEasySchool</span>
+            </div>
+            <p class="footer-description">
+                Empowering students to achieve academic excellence through innovative learning solutions and comprehensive educational resources.
+            </p>
+            <div class="footer-social">
+                <a href="https://www.facebook.com/profile.php?id=100082069716805" target="_blank" class="social-link fb"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://www.instagram.com/myeasyschool_aksu?utm_source=ig_web_button_share_sheet&igsh=Y2l4enF6N29ldHBl" target="_blank" class="social-link ig"><i class="fab fa-instagram"></i></a>
+                <a href="http://tiktok.com/@myeasyschool_aksu" target="_blank" class="social-link tk"><i class="fab fa-tiktok"></i></a>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 MyEasySchool. All rights reserved. Designed with ❤️ for students.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="contactModal" class="contact-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon" id="modalIcon"></div>
+                <h3 id="modalTitle">Message Status</h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body"><p id="modalMessage">Your message has been processed.</p></div>
+            <div class="modal-footer"><button class="modal-btn" id="modalOkBtn">OK</button></div>
+        </div>
+    </div>
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <div class="loading-text">Sending your message...</div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    <script>
+        const API_BASE = 'https://my-easy-school-api.onrender.com/api';
+
+        // --- AUTH LOGIC ---
+        async function checkAuthenticationAndRedirect() {
+            try {
+                const token = localStorage.getItem('token');
+                const user = localStorage.getItem('user');
+
+                if (!token || !user) return;
+
+                let userData;
+                try {
+                    userData = JSON.parse(user);
+                } catch (error) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    return;
+                }
+
+                const response = await fetch(`${API_BASE}/users/me`, {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    const apiUserData = await response.json();
+                    const currentSemester = apiUserData.currentSemester;
+                    if (!currentSemester || !currentSemester._id) {
+                        window.location.href = 'university-selection.html';
+                        return;
+                    }
+                    window.location.href = 'dashboard.html';
+                } else {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('currentUserData');
+                }
+            } catch (error) {
+                const token = localStorage.getItem('token');
+                const user = localStorage.getItem('user');
+                if (token && user) {
+                    try {
+                        const userData = JSON.parse(user);
+                        if (userData.email) window.location.href = 'dashboard.html';
+                    } catch (parseError) {}
+                }
+            }
+        }
+
+        // --- EMAILJS LOGIC ---
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof emailjs !== 'undefined') emailjs.init('R_s_d01TPKlpSRB0s');
+        });
+
+        function showModal(isSuccess, message) {
+            const modal = document.getElementById('contactModal');
+            const modalIcon = document.getElementById('modalIcon');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalMessage = document.getElementById('modalMessage');
+
+            if (isSuccess) {
+                modalIcon.className = 'modal-icon success';
+                modalIcon.innerHTML = '<i class="fas fa-check"></i>';
+                modalTitle.textContent = 'Message Sent Successfully!';
+                modalMessage.textContent = message || 'Thank you for contacting us. We will get back to you soon.';
+            } else {
+                modalIcon.className = 'modal-icon error';
+                modalIcon.innerHTML = '<i class="fas fa-times"></i>';
+                modalTitle.textContent = 'Message Failed to Send';
+                modalMessage.textContent = message || 'Sorry, there was an error sending your message. Please try again.';
+            }
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function hideModal() {
+            document.getElementById('contactModal').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        function showLoadingOverlay() {
+            document.getElementById('loadingOverlay').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function hideLoadingOverlay() {
+            document.getElementById('loadingOverlay').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        function handleContactForm(event) {
+            event.preventDefault();
+            const form = event.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.textContent;
+
+            showLoadingOverlay();
+            submitBtn.textContent = 'Sending...';
+            submitBtn.disabled = true;
+
+            emailjs.sendForm('service_03tiv9c', 'template_sc3jc8q', form)
+                .then(() => {
+                    hideLoadingOverlay();
+                    showModal(true, 'Your message has been sent successfully! We will get back to you within 24 hours.');
+                    form.reset();
+                })
+                .catch(() => {
+                    hideLoadingOverlay();
+                    showModal(false, 'Failed to send message. Please check your internet connection and try again.');
+                })
+                .finally(() => {
+                    submitBtn.textContent = originalBtnText;
+                    submitBtn.disabled = false;
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // INITIALIZE AOS
+            AOS.init({ duration: 1000, easing: 'ease-in-out', once: true, mirror: false, offset: 50 });
+
+            // EVENT LISTENERS
+            const contactForm = document.getElementById('contactForm');
+            if (contactForm) contactForm.addEventListener('submit', handleContactForm);
+
+            const modal = document.getElementById('contactModal');
+            document.getElementById('modalClose').addEventListener('click', hideModal);
+            document.getElementById('modalOkBtn').addEventListener('click', hideModal);
+            modal.querySelector('.modal-overlay').addEventListener('click', hideModal);
+
+            document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('show')) hideModal(); });
+
+            const menuToggle = document.getElementById('menuToggle');
+            const mobileMenu = document.getElementById('mobileMenu');
+            menuToggle.addEventListener('click', () => {
+                const isActive = mobileMenu.classList.toggle('active');
+                menuToggle.classList.toggle('active');
+                menuToggle.setAttribute('aria-expanded', isActive);
+                document.body.style.overflow = isActive ? 'hidden' : '';
+            });
+
+            document.querySelectorAll('.mobile-nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.remove('active');
+                    menuToggle.classList.remove('active');
+                    menuToggle.setAttribute('aria-expanded', 'false');
+                    document.body.style.overflow = '';
+                });
+            });
+
+            const header = document.getElementById('header');
+            window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 50));
+
+            // HERO SWIPER
+            new Swiper('.hero-swiper-container', {
+                loop: true, autoplay: { delay: 6000, disableOnInteraction: false },
+                effect: 'fade', fadeEffect: { crossFade: true },
+                pagination: { el: '.swiper-pagination', clickable: true },
+                on: {
+                    slideChangeTransitionStart: function() { this.slides.forEach(s => { const img = s.querySelector('.hero-slide-image'); if(img) img.style.transform = 'scale(1)'; }); },
+                    slideChangeTransitionEnd: function() { const img = this.slides[this.activeIndex].querySelector('.hero-slide-image'); if(img) img.style.transform = 'scale(1.1)'; }
+                }
+            });
+
+            // =========================================
+            // REUSABLE GSAP 3D CAROUSEL LOGIC
+            // =========================================
+            function initGSAPCarousel(wrapperId, nextBtnId, prevBtnId, cardClass, isAI = false) {
+                const wrapper = document.getElementById(wrapperId);
+                if (!wrapper) return;
+                
+                const cards = gsap.utils.toArray(`#${wrapperId} .${cardClass}`);
+                let currentIndex = 0;
+                const total = cards.length;
+
+                function updateSlider() {
+                    cards.forEach((card, index) => {
+                        gsap.killTweensOf(card);
+                        
+                        // Calculate wrapped distance to allow 5 visible cards continuously
+                        let diff = (index - currentIndex) % total;
+                        if (diff < -Math.floor(total / 2)) diff += total;
+                        if (diff > Math.floor(total / 2)) diff -= total;
+
+                        const isMobile = window.innerWidth < 768;
+                        // For AI sections, spread them out more on desktop to utilize space
+                        const offset1 = isMobile ? '60%' : (isAI ? '65%' : '50%');
+                        const offset2 = isMobile ? '120%' : (isAI ? '130%' : '90%');
+
+                        if (diff === 0) {
+                            gsap.to(card, { x: '0%', scale: 1, opacity: 1, zIndex: 10, duration: 0.6, ease: 'power3.out' });
+                        } else if (diff === -1) {
+                            gsap.to(card, { x: `-${offset1}`, scale: 0.85, opacity: 1, zIndex: 5, duration: 0.6, ease: 'power3.out' });
+                        } else if (diff === 1) {
+                            gsap.to(card, { x: offset1, scale: 0.85, opacity: 1, zIndex: 5, duration: 0.6, ease: 'power3.out' });
+                        } else if (diff === -2) {
+                            gsap.to(card, { x: `-${offset2}`, scale: 0.7, opacity: 1, zIndex: 2, duration: 0.6, ease: 'power3.out' });
+                        } else if (diff === 2) {
+                            gsap.to(card, { x: offset2, scale: 0.7, opacity: 1, zIndex: 2, duration: 0.6, ease: 'power3.out' });
+                        } else {
+                            gsap.to(card, { x: '0%', scale: 0.5, opacity: 0, zIndex: 1, duration: 0.6, ease: 'power3.out' });
+                        }
+                    });
+                }
+
+                function nextSlide() { currentIndex = (currentIndex < total - 1) ? currentIndex + 1 : 0; updateSlider(); }
+                function prevSlide() { currentIndex = (currentIndex > 0) ? currentIndex - 1 : total - 1; updateSlider(); }
+
+                document.getElementById(nextBtnId).addEventListener('click', nextSlide);
+                document.getElementById(prevBtnId).addEventListener('click', prevSlide);
+
+                let startX = 0;
+                let isDragging = false;
+
+                wrapper.addEventListener('touchstart', e => { isDragging = true; startX = e.touches[0].clientX; }, { passive: true });
+                wrapper.addEventListener('touchend', e => {
+                    if (!isDragging) return;
+                    let diff = startX - e.changedTouches[0].clientX;
+                    if (Math.abs(diff) > 50) diff > 0 ? nextSlide() : prevSlide();
+                    isDragging = false;
+                });
+                
+                cards.forEach((card, index) => {
+                    card.addEventListener('click', () => {
+                        if (index !== currentIndex) { currentIndex = index; updateSlider(); }
+                    });
+                });
+
+                updateSlider();
+                
+                // Recalculate offsets on resize
+                window.addEventListener('resize', () => {
+                    clearTimeout(window.gsapResizeTimer);
+                    window.gsapResizeTimer = setTimeout(updateSlider, 200);
+                });
+            }
+
+            // Initialize both carousels (pass 'true' to flag the AI section for wider spreading)
+            initGSAPCarousel('gsapTestimonialWrapper', 'tsNextBtn', 'tsPrevBtn', 'review-card', false);
+            initGSAPCarousel('gsapAiWrapper', 'aiNextBtn', 'aiPrevBtn', 'ai-buddy-card', true);
+
+            // SMOOTH SCROLLING
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            });
+
+            checkAuthenticationAndRedirect();
+        });
+    </script>
+</body>
+</html>
