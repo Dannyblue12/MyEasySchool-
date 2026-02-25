@@ -381,7 +381,7 @@
         const isLocalDev = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || /^\d+\.\d+\.\d+\.\d+$/.test(window.location.hostname));
         // Add CORS proxy to handle CORS issues
 const CORS_PROXY = 'https://corsproxy.io/?';
-const API_BASE = isLocalDev ? '/api' : `${CORS_PROXY}https://my-easy-school-api.onrender.com/api`;
+const API_BASE = isLocalDev ? '/api' : `${CORS_PROXY}https://my-easy-school-api-production.up.railway.app/api`;
         
         // Show alert function
         function showAlert(message, type = 'error') {
